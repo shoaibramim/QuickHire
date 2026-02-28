@@ -4,7 +4,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type ButtonVariant = "primary" | "outline" | "ghost";
+type ButtonVariant = "primary" | "outline" | "outline-white" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
@@ -12,6 +12,8 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     "bg-brand-indigo text-white hover:bg-indigo-700 active:bg-indigo-800 focus-visible:ring-brand-indigo",
   outline:
     "border border-brand-indigo text-brand-indigo bg-transparent hover:bg-indigo-50 active:bg-indigo-100 focus-visible:ring-brand-indigo",
+  "outline-white":
+    "border border-white text-white bg-transparent hover:bg-white hover:text-brand-indigo active:bg-indigo-50 focus-visible:ring-white",
   ghost:
     "text-brand-indigo bg-transparent hover:bg-indigo-50 active:bg-indigo-100 focus-visible:ring-brand-indigo",
 };

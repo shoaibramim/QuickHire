@@ -20,6 +20,9 @@
   /* Decorative */
   --color-deco: #c5c6e8;
 
+  /* Footer */
+  --color-footer-bg: #202430;
+
   /* Shadows */
   --shadow-search: 0 8px 32px 0 rgba(79, 70, 229, 0.10);
 }

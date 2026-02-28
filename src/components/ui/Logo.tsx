@@ -8,6 +8,10 @@ interface LogoProps {
   iconSize?: number;
   /** Hide the brand text (icon-only mode) */
   iconOnly?: boolean;
+  /** Invert colours for dark backgrounds */
+  inverted?: boolean;
+  /** Render brand text in white without affecting the icon */
+  lightText?: boolean;
   className?: string;
 }
 
@@ -16,8 +20,12 @@ interface LogoProps {
 export default function Logo({
   iconSize = 36,
   iconOnly = false,
+  inverted = false,
+  lightText = false,
   className = "",
 }: LogoProps) {
+  const useWhiteText = inverted || lightText;
+
   return (
     <Link
       href="/"
@@ -29,11 +37,17 @@ export default function Logo({
         alt="QuickHire logo mark"
         width={iconSize}
         height={iconSize}
-        className="shrink-0"
+        className={`shrink-0 ${inverted ? "brightness-0 invert" : ""}`}
         priority
       />
       {!iconOnly && (
-        <span className="text-heading-dark font-bold text-xl tracking-tight group-hover:text-brand-indigo transition-colors duration-200">
+        <span
+          className={`font-bold text-xl tracking-tight transition-colors duration-200 ${
+            useWhiteText
+              ? "text-white group-hover:text-indigo-300"
+              : "text-heading-dark group-hover:text-brand-indigo"
+          }`}
+        >
           QuickHire
         </span>
       )}
