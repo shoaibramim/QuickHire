@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* ─── Design Tokens ──────────────────────────────────────────── */
+@theme {
+  /* Typography — wires Next.js Inter variable font into Tailwind */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand */
+  --color-brand-indigo: #4f46e5;
+  --color-brand-blue: #2563eb;
+
+  /* Page bg */
+  --color-hero-bg: #eeeef8;
+
+  /* Text */
+  --color-nav-text: #374151;
+  --color-heading-dark: #1e3a5f;
+  --color-subtitle: #6b7280;
+
+  /* Decorative */
+  --color-deco: #c5c6e8;
+
+  /* Shadows */
+  --shadow-search: 0 8px 32px 0 rgba(79, 70, 229, 0.10);
+}
+
+/* ─── Base Overrides ─────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-hero-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
