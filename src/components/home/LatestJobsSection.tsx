@@ -5,50 +5,43 @@ import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 
 import LatestJobRow from "@/components/home/LatestJobRow";
+import GeometricDecoration from "@/components/home/GeometricDecoration";
 import { LATEST_JOBS } from "@/constants/mockData";
-
-// Parallel diagonal lines rendered as corner decoration (mimics Figma design)
-function DiagonalLineDecoration({ className = "" }: { className?: string }) {
-  const LINES = [0, 24, 48, 72, 96] as const;
-
-  return (
-    <svg
-      viewBox="0 0 160 200"
-      xmlns="http://www.w3.org/2000/svg"
-      className={`absolute pointer-events-none ${className}`}
-      aria-hidden="true"
-      focusable="false"
-    >
-      {LINES.map((offset) => (
-        <line
-          key={offset}
-          x1={offset}
-          y1={0}
-          x2={offset + 140}
-          y2={200}
-          stroke="#C5C6E8"
-          strokeWidth={1.5}
-          opacity={0.6}
-        />
-      ))}
-    </svg>
-  );
-}
 
 export default function LatestJobsSection() {
   return (
-    <section className="bg-hero-bg py-16 relative overflow-hidden" aria-label="Latest jobs open">
+    <section className="bg-hero-bg pt-14 sm:pt-24 pb-10 sm:pb-16 lg:pt-20 relative overflow-hidden" aria-label="Latest jobs open">
 
-      <DiagonalLineDecoration className="w-40 -top-4 right-12 h-48" />
-      <DiagonalLineDecoration className="w-40 bottom-8 right-32 h-48 opacity-50" />
+      {/* Top-left cut-corner triangle — small on mobile */}
+      <div
+        className="block sm:hidden absolute top-0 left-0 z-20 w-0 h-0"
+        style={{ borderTop: "60px solid white", borderRight: "120px solid transparent" }}
+        aria-hidden="true"
+      />
+      {/* Top-left cut-corner triangle — full size on sm+ */}
+      <div
+        className="hidden sm:block absolute top-0 left-0 z-20 w-0 h-0"
+        style={{ borderTop: "100px solid white", borderRight: "190px solid transparent" }}
+        aria-hidden="true"
+      />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-16">
+      {/* Top-right geometric decoration */}
+      <div className="absolute -top-10 -right-16 w-80 h-96 opacity-40 pointer-events-none" aria-hidden="true">
+        <GeometricDecoration />
+      </div>
+
+      {/* Bottom-left geometric decoration — mirrored */}
+      <div className="absolute -bottom-10 -left-16 w-72 h-80 opacity-25 pointer-events-none rotate-180" aria-hidden="true">
+        <GeometricDecoration />
+      </div>
+
+<div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
 
         {/* Section header */}
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-3xl font-extrabold text-heading-dark">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-8 sm:mb-10">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-heading-dark">
             Latest{" "}
-            <span className="text-brand-indigo">jobs open</span>
+            <span className="text-brand-indigo">Jobs Open</span>
           </h2>
 
           <Link

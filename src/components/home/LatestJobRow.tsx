@@ -26,13 +26,13 @@ export default function LatestJobRow({
   return (
     <Link
       href={href}
-      className="flex items-center gap-5 p-5 bg-white border border-gray-100 rounded-xl hover:border-brand-indigo hover:shadow-md transition-all duration-200"
+      className="flex items-start sm:items-center gap-4 sm:gap-5 p-4 sm:p-5 bg-white border border-gray-100 rounded-xl hover:border-brand-indigo hover:shadow-md transition-all duration-200"
       aria-label={`${title} at ${company} — ${location}`}
     >
-      <CompanyLogo companyLogoKey={companyLogoKey} sizeClass="w-14 h-14" />
+      <CompanyLogo companyLogoKey={companyLogoKey} sizeClass="w-12 h-12 sm:w-14 sm:h-14 shrink-0" />
 
       <div className="min-w-0 flex-1">
-        <p className="text-base font-bold text-heading-dark mb-0.5">{title}</p>
+        <p className="text-sm sm:text-base font-bold text-heading-dark mb-0.5">{title}</p>
 
         <p className="text-sm text-subtitle flex items-center gap-1.5 mb-3">
           {company}

@@ -1,21 +1,16 @@
-// Decorative geometric background for the hero section right panel.
-// Renders overlapping rotated rectangles in a cascading pattern.
-// Pure SVG — Server Component, zero JS.
-
 interface GeometricDecorationProps {
   className?: string;
 }
 
-// Rectangle descriptor — each shape is drawn at a distinct offset / opacity
 const RECTS = [
-  { tx: 160, ty: 180, w: 280, h: 380, opacity: 0.50 },
-  { tx: 200, ty: 220, w: 250, h: 340, opacity: 0.45 },
-  { tx: 240, ty: 260, w: 220, h: 300, opacity: 0.38 },
-  { tx: 280, ty: 300, w: 190, h: 260, opacity: 0.30 },
-  { tx: 320, ty: 340, w: 160, h: 220, opacity: 0.22 },
+  { tx: 160, ty: 280, w: 200, h: 266, opacity: 0.50 },
+  { tx: 200, ty: 320, w: 200, h: 266, opacity: 0.44 },
+  { tx: 240, ty: 360, w: 200, h: 266, opacity: 0.38 },
+  { tx: 280, ty: 400, w: 200, h: 266, opacity: 0.32 },
+  { tx: 320, ty: 440, w: 200, h: 266, opacity: 0.26 },
 ] as const;
 
-const ROTATION = -16; // degrees — matches Figma visual
+const ROTATION = -16;
 const STROKE_COLOR = "#C5C6E8";
 const STROKE_WIDTH = 1.8;
 

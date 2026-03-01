@@ -93,7 +93,7 @@ export default function SearchBar({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-stretch bg-white rounded-xl shadow-lg overflow-hidden w-full max-w-2xl"
+      className="flex flex-col sm:flex-row items-stretch bg-white rounded-xl shadow-lg overflow-hidden w-full max-w-2xl"
       role="search"
       aria-label="Job search"
       noValidate
@@ -102,7 +102,7 @@ export default function SearchBar({
       <label className="sr-only" htmlFor="job-keyword">
         Job title or keyword
       </label>
-      <div className="flex items-center flex-1 min-w-0 px-5 gap-3 border-r border-gray-100">
+      <div className="flex items-center flex-1 min-w-0 px-5 gap-3 border-b sm:border-b-0 sm:border-r border-gray-100">
         <SearchIcon className="w-5 h-5 text-gray-400 shrink-0" />
         <input
           id="job-keyword"
@@ -112,7 +112,7 @@ export default function SearchBar({
             setFormState((prev) => ({ ...prev, keyword: e.target.value }))
           }
           placeholder="Job title or keyword"
-          className="w-full py-5 text-sm text-gray-700 placeholder-gray-400 bg-transparent focus:outline-none"
+          className="w-full py-4 sm:py-5 text-sm text-gray-700 placeholder-gray-400 bg-transparent focus:outline-none"
           autoComplete="off"
         />
       </div>
@@ -121,7 +121,7 @@ export default function SearchBar({
       <label className="sr-only" htmlFor="job-location">
         Location
       </label>
-      <div className="flex items-center px-5 gap-2 border-r border-gray-100">
+      <div className="flex items-center px-5 gap-2 border-b sm:border-b-0 sm:border-r border-gray-100">
         <LocationPinIcon className="w-5 h-5 text-gray-400 shrink-0" />
         <div className="relative flex items-center">
           <select
@@ -130,7 +130,7 @@ export default function SearchBar({
             onChange={(e) =>
               setFormState((prev) => ({ ...prev, location: e.target.value }))
             }
-            className="appearance-none pr-5 py-5 text-sm text-gray-700 bg-transparent focus:outline-none cursor-pointer"
+            className="appearance-none pr-5 py-4 sm:py-5 text-sm text-gray-700 bg-transparent focus:outline-none cursor-pointer"
             aria-label="Select job location"
           >
             {LOCATION_OPTIONS.map((opt: LocationOption) => (
@@ -147,7 +147,7 @@ export default function SearchBar({
       <Button
         type="submit"
         variant="primary"
-        className="rounded-none px-7 py-5 text-sm font-bold tracking-wide whitespace-nowrap"
+        className="rounded-none px-7 py-4 sm:py-5 text-sm font-bold tracking-wide whitespace-nowrap w-full sm:w-auto"
         aria-label="Search for jobs"
       >
         Search my job

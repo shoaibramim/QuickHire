@@ -40,7 +40,7 @@ export default function CategoryCard({
 }: CategoryCardProps) {
   const Icon = ICON_MAP[iconKey];
 
-  const cardBase = "group flex flex-col justify-between p-8 rounded-sm border transition-all duration-200";
+  const cardBase = "group flex flex-col justify-between p-5 sm:p-6 lg:p-8 rounded-sm border transition-all duration-200";
   const cardVariant = isSelected
     ? "bg-brand-indigo border-brand-indigo text-white"
     : "bg-white border-gray-200 hover:border-brand-indigo hover:shadow-md";
@@ -57,10 +57,10 @@ export default function CategoryCard({
       aria-label={`${label} — ${jobCount} jobs available`}
       aria-current={isSelected ? "true" : undefined}
     >
-      <Icon className={`text-3xl mb-6 ${iconColor}`} aria-hidden="true" />
+      <Icon className={`text-2xl sm:text-3xl mb-4 sm:mb-6 ${iconColor}`} aria-hidden="true" />
 
       <div>
-        <p className={`text-lg font-bold mb-2 ${labelColor}`}>{label}</p>
+        <p className={`text-base sm:text-lg font-bold mb-1.5 sm:mb-2 ${labelColor}`}>{label}</p>
         <p className={`text-sm flex items-center gap-2 ${metaColor}`}>
           {jobCount} jobs available
           <FaArrowRight className="text-xs" aria-hidden="true" />

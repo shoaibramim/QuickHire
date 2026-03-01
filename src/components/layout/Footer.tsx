@@ -31,7 +31,7 @@ export default function Footer() {
     <footer className="bg-footer-bg" aria-label="Site footer">
 
       {/* Main footer content */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-16 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-12 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
 
           {/* Brand column */}
@@ -75,7 +75,7 @@ export default function Footer() {
       <div className="border-t border-gray-700" />
 
       {/* Bottom bar */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-16 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-5 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-gray-500 text-sm">{FOOTER_COPYRIGHT}</p>
 
         <ul className="flex items-center gap-3" aria-label="Social media links">

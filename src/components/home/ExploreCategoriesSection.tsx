@@ -13,14 +13,14 @@ export default function ExploreCategoriesSection() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   return (
-    <section className="bg-white py-16" aria-label="Explore jobs by category">
-      <div className="max-w-7xl mx-auto px-6 lg:px-16">
+    <section className="bg-white py-10 sm:py-16" aria-label="Explore jobs by category">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
 
         {/* Section header */}
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-3xl font-extrabold text-heading-dark">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-8 sm:mb-10">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-heading-dark">
             Explore by{" "}
-            <span className="text-brand-indigo">category</span>
+            <span className="text-brand-indigo">Category</span>
           </h2>
 
           <Link

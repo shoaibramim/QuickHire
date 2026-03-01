@@ -2,8 +2,11 @@
 
 /* ─── Design Tokens ──────────────────────────────────────────── */
 @theme {
-  /* Typography — wires Next.js Inter variable font into Tailwind */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Typography — wires Plus Jakarta Sans into Tailwind (closest free match to Roc Grotesk) */
+  --font-sans: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Custom breakpoints */
+  --breakpoint-xs: 475px;
 
   /* Brand */
   --color-brand-indigo: #4f46e5;

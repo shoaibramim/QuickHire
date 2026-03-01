@@ -8,10 +8,10 @@ import { TRUSTED_COMPANIES } from "@/constants/mockData";
 export default function TrustedCompaniesSection() {
   return (
     <section
-      className="bg-white py-12"
+      className="bg-white py-8 sm:py-12"
       aria-label="Companies we helped grow"
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
 
         {/* Section label */}
         <p className="text-sm text-subtitle font-normal mb-8">
@@ -20,7 +20,7 @@ export default function TrustedCompaniesSection() {
 
         {/* Logo row */}
         <ul
-          className="flex flex-wrap items-center justify-between gap-x-8 gap-y-8"
+          className="flex flex-wrap items-center justify-center sm:justify-between gap-x-6 sm:gap-x-8 gap-y-6 sm:gap-y-8"
           aria-label="Partner company logos"
         >
           {TRUSTED_COMPANIES.map((company) => (
