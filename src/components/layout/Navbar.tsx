@@ -1,11 +1,11 @@
-// Server Component — no interactivity required
-// TODO: Wrap auth actions with session check (e.g. next-auth) for conditional rendering
+// Server Component — no direct interactivity needed.
+// Auth buttons are handled by <NavAuthButtons> (client component).
 
 import Link from "next/link";
 
 import Logo from "@/components/ui/Logo";
-import LinkButton from "@/components/ui/LinkButton";
 import MobileNav from "@/components/layout/MobileNav";
+import NavAuthButtons from "@/components/layout/NavAuthButtons";
 import { NAV_LINKS } from "@/constants/mockData";
 
 export default function Navbar() {
@@ -39,24 +39,8 @@ export default function Navbar() {
 
         {/* ── Auth Actions (desktop) + Mobile Hamburger ────── */}
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* TODO: Hide Login & show user avatar/menu when authenticated */}
-          <Link
-            href="/login"
-            className="hidden md:block text-brand-indigo font-semibold text-sm hover:text-indigo-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-indigo rounded"
-            aria-label="Log in to your QuickHire account"
-          >
-            Login
-          </Link>
-
-          <LinkButton
-            href="/signup"
-            variant="primary"
-            size="sm"
-            aria-label="Create a free QuickHire account"
-            className="hidden md:inline-flex"
-          >
-            Sign Up
-          </LinkButton>
+          {/* Client component handles auth state & modal trigger */}
+          <NavAuthButtons />
 
           {/* Mobile-only hamburger — client component */}
           <MobileNav />

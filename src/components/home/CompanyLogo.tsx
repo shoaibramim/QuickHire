@@ -41,6 +41,9 @@ const COMPANY_LOGO_CONFIG: Record<string, CompanyLogoConfig> = {
   udacity:   { bgClass: "bg-cyan-500",                        faIcon: FaGraduationCap, iconClass: "text-white text-xl" },
   packer:    { bgClass: "bg-orange-500",                      faIcon: FaBox,           iconClass: "text-white text-xl" },
   webflow:   { bgClass: "bg-indigo-600",                      faIcon: FaCode,          iconClass: "text-white text-xl" },
+
+  // UI Designer job
+  figma:     { bgClass: "bg-black",                           initial: "F",  initialTextClass: "text-white font-bold text-lg" },
 };
 
 const FALLBACK_LOGO_CONFIG: CompanyLogoConfig = {

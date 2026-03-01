@@ -18,6 +18,7 @@ export const POPULAR_TAGS: PopularTag[] = [
 
 // TODO: Replace with GET /api/locations
 export const LOCATION_OPTIONS: LocationOption[] = [
+  { value: "", label: "Anywhere" },
   { value: "florence-italy", label: "Florence, Italy" },
   { value: "new-york-usa", label: "New York, USA" },
   { value: "london-uk", label: "London, UK" },
@@ -166,6 +167,17 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     companyLogoKey: "twitter",
     tags: ["technology"],
     href: "/jobs/job-8",
+  },
+  {
+    id: "job-9",
+    title: "UI Designer",
+    company: "Figma",
+    location: "San Francisco, US",
+    description: "Figma is looking for a UI Designer to craft beautiful, pixel-perfect interfaces and design systems used by millions.",
+    employmentType: "Full Time",
+    companyLogoKey: "figma",
+    tags: ["design"],
+    href: "/jobs/job-9",
   },
 ];
 

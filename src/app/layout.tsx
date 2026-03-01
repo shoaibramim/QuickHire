@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
+import { AuthProvider } from "@/context/AuthContext";
+import AuthModal from "@/components/auth/AuthModal";
+
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
@@ -23,7 +26,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={plusJakartaSans.variable}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <AuthProvider>
+          {children}
+          {/* AuthModal is global — triggered from anywhere via openAuthModal() */}
+          <AuthModal />
+        </AuthProvider>
+      </body>
     </html>
   );
 }

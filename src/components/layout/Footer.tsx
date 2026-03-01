@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import type { IconType } from "react-icons";
 
-import Logo from "@/components/ui/Logo";
+import FooterBrand from "@/components/layout/FooterBrand";
 import NewsletterForm from "@/components/layout/NewsletterForm";
 import {
   FOOTER_LINK_GROUPS,
@@ -36,7 +36,7 @@ export default function Footer() {
 
           {/* Brand column */}
           <div className="lg:col-span-1">
-            <Logo lightText className="mb-5" />
+            <FooterBrand />
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
               {FOOTER_TAGLINE}
             </p>

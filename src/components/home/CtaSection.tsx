@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import LinkButton from "@/components/ui/LinkButton";
+import CtaAuthButton from "@/components/home/CtaAuthButton";
 import { CTA_CONTENT } from "@/constants/mockData";
 
 // Two mirrored trapezoids that together form a left-pointing chevron ( < ) on the card edge.
@@ -56,13 +56,7 @@ export default function CtaSection() {
               <p className="text-indigo-200 text-sm sm:text-base mb-6 sm:mb-8">
                 {CTA_CONTENT.subtext}
               </p>
-              <LinkButton
-                href={CTA_CONTENT.buttonHref}
-                variant="outline-white"
-                size="md"
-              >
-                {CTA_CONTENT.buttonLabel}
-              </LinkButton>
+              <CtaAuthButton label={CTA_CONTENT.buttonLabel} />
             </div>
 
           </div>
