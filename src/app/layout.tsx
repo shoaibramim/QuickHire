@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/auth/AuthModal";
+import NavigationProgress from "@/components/layout/NavigationProgress";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -33,6 +34,8 @@ export default function RootLayout({
     <html lang="en" className={plusJakartaSans.variable}>
       <body className="font-sans antialiased">
         <AuthProvider>
+          {/* Top progress bar — instant navigation feedback */}
+          <NavigationProgress />
           {children}
           {/* AuthModal is global — triggered from anywhere via openAuthModal() */}
           <AuthModal />
