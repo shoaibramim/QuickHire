@@ -16,6 +16,7 @@ A full-stack job board platform where employers can post positions and manage ap
 - [API Reference](#api-reference)
 - [Database Models](#database-models)
 - [Authentication](#authentication)
+- [Deployment](#deployment)
 
 ---
 
@@ -25,17 +26,18 @@ QuickHire is a monorepo containing two independently runnable applications:
 
 | App | Directory | Description |
 |---|---|---|
-| Frontend | `/` (root) | Next.js 15 App Router, server-rendered React UI |
-| Backend | `/server` | Express.js REST API with MongoDB + JWT auth |
+| Frontend | `/` (root) | Next.js 16 App Router, server-rendered React UI |
+| Backend | `/server` | Express.js 5 REST API with MongoDB and JWT auth |
 
-**Key features:**
-- Public job board with search, filtering by category, location, and type
-- Employer dashboard with job management, applicant tracking with status labels (Pending, Reviewed, Shortlisted, Rejected), and messaging
-- Role-based access control — `jobseeker`, `employer`, `admin`
-- Stateless JWT authentication via Bearer tokens
-- Image cropping for company logos
-- Newsletter subscription
-- Rate limiting and secure HTTP headers
+Key features:
+
+- Public job board with full-text search and filtering by category, location, and employment type
+- Employer dashboard with job management, applicant tracking with status labels (Pending, Reviewed, Shortlisted, Rejected), messaging inbox, and a schedule calendar
+- Role-based access control with three roles: `jobseeker`, `employer`, `admin`
+- Stateless JWT authentication via Bearer tokens, with Next.js Edge Middleware protecting dashboard routes before page render
+- In-browser image cropping for company logos with base64 storage (up to 2 MB)
+- Newsletter subscriber management
+- Rate limiting (100 requests per 15-minute window per IP) and secure HTTP headers via Helmet
 
 ---
 
@@ -43,33 +45,36 @@ QuickHire is a monorepo containing two independently runnable applications:
 
 ### Frontend
 
-| Technology | Purpose |
-|---|---|
-| Next.js 15 (App Router) | SSR/SSG framework |
-| React 19 | UI library |
-| TypeScript 5 | Static typing |
-| Tailwind CSS 4 | Utility-first styling |
-| Recharts | Dashboard statistics charts |
-| react-easy-crop | Avatar and logo image cropping |
-| react-icons | Icon set |
-| Plus Jakarta Sans | Global font (via `next/font`) |
+| Technology | Version | Purpose |
+|---|---|---|
+| Next.js (App Router) | ^16.1.6 | SSR/SSG framework |
+| React | ^19.2.4 | UI library |
+| TypeScript | ^5.9.3 | Static typing |
+| Tailwind CSS | ^4.2.1 | Utility-first styling |
+| Recharts | ^3.7.0 | Dashboard statistics charts |
+| react-easy-crop | ^5.5.6 | In-browser image cropping for avatars and logos |
+| react-icons | ^5.5.0 | Icon set |
+| Plus Jakarta Sans | — | Global font (via `next/font`) |
 
 ### Backend
 
-| Technology | Purpose |
-|---|---|
-| Express.js 5 | HTTP server and REST API |
-| TypeScript 5 | Static typing |
-| MongoDB + Mongoose | Database and ODM |
-| Passport.js | Authentication framework |
-| passport-local | Email/password strategy |
-| passport-jwt | JWT bearer token strategy |
-| jsonwebtoken | JWT signing and verification |
-| bcryptjs | Password hashing (bcrypt, cost 12) |
-| helmet | Secure HTTP response headers |
-| express-rate-limit | 100 requests per 15-minute window per IP |
-| express-validator | Request body validation |
-| cors | Cross-origin resource sharing |
+| Technology | Version | Purpose |
+|---|---|---|
+| Express.js | ^5.2.1 | HTTP server and REST API |
+| TypeScript | ^5.9.3 | Static typing |
+| Mongoose | ^9.2.3 | MongoDB ODM |
+| Passport.js | ^0.7.0 | Authentication framework |
+| passport-local | ^1.0.0 | Email/password login strategy |
+| passport-jwt | ^4.0.1 | JWT Bearer token strategy |
+| jsonwebtoken | ^9.0.3 | JWT signing and verification |
+| bcryptjs | ^3.0.3 | Password hashing (cost factor 12) |
+| helmet | ^8.1.0 | Secure HTTP response headers |
+| express-rate-limit | ^8.2.1 | 100 requests per 15-minute window per IP |
+| express-validator | ^7.3.1 | Request body validation |
+| cors | ^2.8.6 | Cross-origin resource sharing |
+| cookie-parser | ^1.4.7 | Cookie parsing middleware |
+| dotenv | ^17.3.1 | Environment variable loading |
+| nodemon + ts-node | — | Development hot-reload |
 
 ---
 
@@ -77,25 +82,62 @@ QuickHire is a monorepo containing two independently runnable applications:
 
 ```
 QuickHire/
-├── src/                        # Next.js frontend source
+├── src/                          # Next.js frontend source
 │   ├── app/
-│   │   ├── (public)/           # Landing page, jobs, companies, pricing, etc.
-│   │   └── (dashboard)/        # Employer dashboard (protected)
-│   ├── components/             # Reusable UI components
-│   ├── context/                # React Context (AuthContext)
-│   ├── hooks/                  # Custom hooks
-│   ├── services/               # API client and service helpers
-│   ├── types/                  # Shared TypeScript types
-│   └── constants/              # Site data and nav constants
-├── server/                     # Express.js backend
+│   │   ├── (public)/             # Public pages: landing, jobs, companies, pricing, etc.
+│   │   ├── (dashboard)/          # Employer dashboard (protected by Edge Middleware)
+│   │   │   └── dashboard/
+│   │   │       ├── page.tsx      # Overview / stats
+│   │   │       ├── applicants/
+│   │   │       ├── job-listing/
+│   │   │       ├── messages/
+│   │   │       ├── schedule/
+│   │   │       ├── profile/
+│   │   │       ├── settings/
+│   │   │       └── help/
+│   │   └── api/                  # Next.js route handlers (job apply proxy)
+│   ├── components/               # Reusable UI components
+│   │   ├── auth/                 # AuthModal, SignInForm, SignUpLockedPanel
+│   │   ├── dashboard/            # Sidebar, TopBar, JobStatisticsChart
+│   │   ├── home/                 # HeroSection, FeaturedJobsSection, LatestJobsSection, etc.
+│   │   ├── jobs/                 # ApplyButton, ApplyForm, JobsFilterBar
+│   │   ├── layout/               # Navbar, Footer, MobileNav, NavigationProgress
+│   │   └── ui/                   # Button, Logo, RichTextEditor, ImageCropModal, etc.
+│   ├── context/                  # AuthContext (React Context + localStorage token)
+│   ├── hooks/                    # useApiData, useAuth
+│   ├── services/                 # apiClient (fetch wrapper), authService, jobsService
+│   ├── types/                    # Shared TypeScript interfaces
+│   ├── constants/                # siteData, dashboardNav, capitals
+│   └── middleware.ts             # Next.js Edge Middleware — dashboard route guard
+├── server/                       # Express.js backend
 │   ├── src/
-│   │   ├── config/             # Passport strategy configuration
-│   │   ├── middleware/         # Auth and error handler middleware
-│   │   ├── models/             # Mongoose models
-│   │   └── routes/             # Express route handlers
-│   └── scripts/
-│       └── seed.ts             # Database seed script
-├── public/                     # Static assets
+│   │   ├── app.ts                # Express app setup (middleware + routes)
+│   │   ├── index.ts              # Server entry point (MongoDB connect + listen)
+│   │   ├── config/
+│   │   │   └── passport.ts       # passport-local and passport-jwt strategies
+│   │   ├── middleware/
+│   │   │   ├── auth.ts           # requireAuth and requireRole middleware
+│   │   │   └── errorHandler.ts   # Global error handler
+│   │   ├── models/               # Mongoose models
+│   │   │   ├── User.ts
+│   │   │   ├── Job.ts
+│   │   │   ├── Application.ts
+│   │   │   ├── Message.ts
+│   │   │   ├── ScheduleEvent.ts
+│   │   │   └── Subscriber.ts
+│   │   └── routes/               # Express route handlers
+│   │       ├── auth.ts
+│   │       ├── jobs.ts
+│   │       ├── dashboard.ts
+│   │       ├── messages.ts
+│   │       ├── schedule.ts
+│   │       └── newsletter.ts
+│   ├── scripts/
+│   │   └── seed.ts               # Database seed script
+│   ├── api/
+│   │   └── index.ts              # Vercel serverless entry point
+│   └── vercel.json               # Vercel deployment config for the backend
+├── public/                       # Static assets
 ├── next.config.ts
 └── package.json
 ```
@@ -106,7 +148,7 @@ QuickHire/
 
 - Node.js 18 or later
 - npm 9 or later
-- A MongoDB Atlas cluster (or a local MongoDB instance)
+- A MongoDB Atlas cluster or a local MongoDB instance
 
 ---
 
@@ -128,8 +170,8 @@ PORT=5000
 |---|---|---|---|
 | `MONGODB_URI` | Yes | — | MongoDB Atlas (or local) connection string |
 | `JWT_ACCESS_SECRET` | Yes | — | Secret used to sign JWT access tokens |
-| `JWT_ACCESS_EXPIRES_IN` | No | `15m` | Token expiry duration |
-| `CLIENT_ORIGIN` | Yes | — | Frontend origin allowed by CORS |
+| `JWT_ACCESS_EXPIRES_IN` | No | `15m` | Token expiry duration (e.g. `15m`, `1h`) |
+| `CLIENT_ORIGIN` | Yes | — | Frontend origin allowed by CORS (e.g. `http://localhost:3000`) |
 | `PORT` | No | `5000` | Port the Express server listens on |
 
 ### Frontend — `.env.local`
@@ -160,7 +202,7 @@ cd QuickHire
 Install frontend and backend dependencies separately:
 
 ```bash
-# Frontend
+# Frontend (from the root directory)
 npm install
 
 # Backend
@@ -182,11 +224,11 @@ cd server
 npm run seed
 ```
 
-This clears all existing collections and inserts fresh demo data including 10 employer accounts and jobs across 8 categories.
+This drops all existing collections and inserts fresh demo data including 10 employer accounts, jobs across 8 categories, applications, messages, and schedule events.
 
 ### 5. Start the development servers
 
-Open two terminal windows and run each command in a separate one:
+Open two terminal windows and run each command in a separate terminal:
 
 ```bash
 # Terminal 1 — Backend (from the /server directory)
@@ -210,7 +252,7 @@ npm run dev
 
 | Script | Command | Description |
 |---|---|---|
-| `dev` | `next dev` | Start Next.js development server |
+| `dev` | `next dev` | Start the Next.js development server |
 | `build` | `next build` | Build for production |
 | `start` | `next start` | Run the production build |
 | `lint` | `next lint` | Run ESLint |
@@ -219,10 +261,10 @@ npm run dev
 
 | Script | Command | Description |
 |---|---|---|
-| `dev` | `nodemon --exec ts-node src/index.ts` | Start server with hot reload |
+| `dev` | `nodemon --exec ts-node src/index.ts` | Start the server with hot reload |
 | `build` | `tsc` | Compile TypeScript to `/server/dist` |
 | `start` | `node dist/index.js` | Run the compiled production server |
-| `seed` | `ts-node scripts/seed.ts` | Seed the database with demo data |
+| `seed` | `ts-node scripts/seed.ts` | Drop all collections and insert demo data |
 
 ---
 
@@ -234,7 +276,7 @@ All API routes are prefixed with `/api`.
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
-| `POST` | `/auth/register` | Public | Register a new user. Body: `{ name, email, password }` |
+| `POST` | `/auth/register` | Public | Register a new user. Body: `{ name, email, password, role? }`. Returns `{ user, token, expiresIn }` |
 | `POST` | `/auth/login` | Public | Login. Body: `{ email, password }`. Returns `{ user, token, expiresIn }` |
 | `GET` | `/auth/me` | JWT | Returns the authenticated user's profile |
 | `POST` | `/auth/logout` | JWT | Stateless logout (client discards token) |
@@ -243,36 +285,38 @@ All API routes are prefixed with `/api`.
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
-| `GET` | `/jobs` | Public | Browse all active jobs. Query: `q`, `category`, `location`, `type`, `featured` |
+| `GET` | `/jobs` | Public | Browse active jobs. Query params: `q`, `category`, `location`, `type`, `featured` |
 | `GET` | `/jobs/featured` | Public | Latest 8 featured active jobs |
 | `GET` | `/jobs/latest` | Public | Latest 10 active jobs |
-| `GET` | `/jobs/categories` | Public | Aggregated tag counts across active jobs |
+| `GET` | `/jobs/categories` | Public | Tag counts aggregated across all active jobs |
 | `GET` | `/jobs/:id` | Public | Single job detail |
-| `POST` | `/jobs/:id/apply` | Public | Submit an application for a job |
-| `POST` | `/jobs` | Employer/Admin | Create a new job posting |
+| `POST` | `/jobs/:id/apply` | Public | Submit an application. Body: `{ name, email, resume_link, cover_note? }` |
 
-### Dashboard (Employer/Admin only)
+### Dashboard (Employer and Admin only)
 
 | Method | Route | Description |
 |---|---|---|
-| `GET` | `/dashboard/overview` | Summary stats: candidates, messages, open jobs, chart data |
-| `GET` | `/dashboard/jobs` | Employer's own job listings |
-| `GET` | `/dashboard/jobs/:id` | Single job detail for editing |
+| `GET` | `/dashboard/overview` | Summary stats: pending candidates, unread messages, open jobs, schedule count, 7-day chart data, and applicant breakdown by employment type |
+| `GET` | `/dashboard/jobs` | All job listings belonging to the authenticated employer |
+| `GET` | `/dashboard/jobs/:id` | Single job detail (scoped to the employer) |
 | `POST` | `/dashboard/jobs` | Create a new job listing |
-| `PATCH` | `/dashboard/jobs/:id` | Update job fields |
-| `PATCH` | `/dashboard/jobs/:id/status` | Set job status (`Active`, `Closed`, `Draft`) |
-| `GET` | `/dashboard/applicants` | All applicants across the employer's jobs |
-| `PATCH` | `/dashboard/applicants/:id/status` | Update applicant status (`Pending`, `Reviewed`, `Shortlisted`, `Rejected`) |
-| `GET` | `/dashboard/messages` | Employer inbox |
-| `POST` | `/dashboard/messages` | Create a message |
-| `GET` | `/dashboard/profile` | Employer profile |
-| `PUT` | `/dashboard/profile` | Update employer profile and company logo |
+| `PATCH` | `/dashboard/jobs/:id` | Update job fields (title, location, employmentType, description, tags, status) |
+| `PATCH` | `/dashboard/jobs/:id/status` | Set job status to `Active`, `Closed`, or `Draft` |
+| `GET` | `/dashboard/applicants` | All applications across the employer's jobs, enriched with job title |
+| `PATCH` | `/dashboard/applicants/:id/status` | Update application status to `Pending`, `Reviewed`, `Shortlisted`, or `Rejected` |
+| `GET` | `/dashboard/messages` | Employer message inbox, sorted by most recent |
+| `PATCH` | `/dashboard/messages/:id/read` | Mark a message as read |
+| `GET` | `/dashboard/schedule` | All schedule events for the authenticated employer |
+| `POST` | `/dashboard/schedule` | Create a schedule event. Body: `{ title, time, date, type, withPerson? }` |
+| `DELETE` | `/dashboard/schedule/:id` | Delete a schedule event |
+| `GET` | `/dashboard/profile` | Employer profile (excludes passwordHash) |
+| `PUT` | `/dashboard/profile` | Update profile fields and company logo (base64, max 2 MB) |
 
-### Other
+### Newsletter
 
-| Method | Route | Description |
-|---|---|---|
-| `POST` | `/newsletter` | Subscribe an email to the newsletter |
+| Method | Route | Auth | Description |
+|---|---|---|---|
+| `POST` | `/newsletter/subscribe` | Public | Subscribe an email address. Body: `{ email }` |
 
 ---
 
@@ -286,39 +330,62 @@ All API routes are prefixed with `/api`.
 | `email` | String | Required, unique, lowercase |
 | `passwordHash` | String | `select: false` — never returned in API responses |
 | `role` | `jobseeker \| employer \| admin` | Default: `jobseeker` |
-| `avatar` | String | Base64 or URL |
-| `company`, `companyLogo` | String | Employer profile fields |
-| `industry`, `website`, `location`, `companySize`, `about`, `phone` | String | Extended employer profile |
+| `avatar` | String | Base64 data URI or URL |
+| `company` | String | Employer company name |
+| `companyLogo` | String | Base64 data URI or URL, max 2 MB |
+| `industry`, `website`, `location`, `companySize`, `about`, `phone` | String | Extended employer profile fields |
 
 ### Job
 
 | Field | Type | Notes |
 |---|---|---|
 | `title`, `company`, `location`, `employmentType` | String | Required |
-| `tags` | String[] | Used for category filtering |
+| `companyLogoKey` | String | Static logo key; overridden by `postedBy.companyLogo` at query time |
+| `tags` | String[] | Category tags used for filtering |
 | `description` | String | Rich text HTML |
-| `postedBy` | ObjectId (User) | Employer reference |
+| `postedBy` | ObjectId (User) | Reference to the employer |
 | `status` | `Active \| Closed \| Draft` | Default: `Active` |
 | `featured` | Boolean | Default: `false` |
-| `applicantCount` | Number | Incremented on each application |
+| `applicantCount` | Number | Incremented on each application submission |
 
 ### Application
 
 | Field | Type | Notes |
 |---|---|---|
 | `jobId` | ObjectId (Job) | Required |
-| `name`, `email`, `resumeLink` | String | Required |
+| `name`, `email`, `resumeLink` | String | Required; `resumeLink` must be a valid `http`/`https` URL |
 | `coverNote` | String | Optional |
 | `status` | `Pending \| Reviewed \| Shortlisted \| Rejected` | Default: `Pending` |
+
+### Message
+
+| Field | Type | Notes |
+|---|---|---|
+| `ownerId` | ObjectId (User) | Employer who owns this inbox message |
+| `from` | String | Sender display name |
+| `avatar` | String | Optional sender avatar URL |
+| `preview` | String | Short message preview |
+| `fullText` | String | Optional full message body |
+| `unread` | Boolean | Default: `true` |
+| `time` | String | Human-readable timestamp string (e.g. `"2h ago"`) |
 
 ### ScheduleEvent
 
 | Field | Type | Notes |
 |---|---|---|
 | `ownerId` | ObjectId (User) | Employer owner |
-| `title`, `time`, `date` | String | e.g. `"10:00 AM"`, `"Mar 2, 2026"` |
+| `title` | String | Required |
+| `time` | String | e.g. `"10:00 AM"` |
+| `date` | String | e.g. `"Mar 2, 2026"` |
 | `type` | `Interview \| Meeting \| Review` | Required |
-| `withPerson` | String | Optional |
+| `withPerson` | String | Optional — name of the other participant |
+
+### Subscriber
+
+| Field | Type | Notes |
+|---|---|---|
+| `email` | String | Required, unique, lowercase |
+| `subscribedAt` | Date | Set automatically on creation |
 
 ---
 
@@ -327,5 +394,29 @@ All API routes are prefixed with `/api`.
 - **Strategy:** Stateless JWT via Bearer token in the `Authorization` header
 - **Login flow:** `POST /api/auth/login` returns a signed JWT valid for 15 minutes (configurable via `JWT_ACCESS_EXPIRES_IN`)
 - **Token storage:** Browser `localStorage` under the key `qh_token`
-- **Protected routes:** Pass the token in every request as `Authorization: Bearer <token>`
-- **Role enforcement:** `requireRole(["employer", "admin"])` middleware returns `403` for unauthorized roles
+- **Protected API routes:** Include the token in every request as `Authorization: Bearer <token>`
+- **Protected page routes:** Next.js Edge Middleware (`src/middleware.ts`) checks for the token in the `qh_token` cookie or the `Authorization` header before the page renders; unauthenticated requests are redirected to `/?signin=required`
+- **Role enforcement:** The `requireRole(["employer", "admin"])` middleware returns `403` for users with insufficient permissions
+- **Password hashing:** bcryptjs with a cost factor of 12
+
+---
+
+## Deployment
+
+### Backend (Vercel)
+
+The `server/` directory includes a `vercel.json` that configures the Express app as a Vercel serverless function. All requests are routed through `server/api/index.ts`.
+
+```json
+{
+  "version": 2,
+  "builds": [{ "src": "api/index.ts", "use": "@vercel/node" }],
+  "routes": [{ "src": "/(.*)", "dest": "api/index.ts" }]
+}
+```
+
+Set the same environment variables listed in `server/.env` as Vercel project environment variables.
+
+### Frontend (Vercel)
+
+Deploy the root directory as a standard Next.js project on Vercel. Set `NEXT_PUBLIC_API_URL` to the deployed backend URL.
