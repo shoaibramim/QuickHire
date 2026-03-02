@@ -61,6 +61,26 @@ export default function CompanyLogo({
   companyLogoKey,
   sizeClass = "w-12 h-12",
 }: CompanyLogoProps) {
+  // If the key is an actual image (uploaded base64 or remote URL), render it directly
+  if (
+    companyLogoKey &&
+    (companyLogoKey.startsWith("data:") || companyLogoKey.startsWith("http"))
+  ) {
+    return (
+      <div
+        className={`${sizeClass} rounded-lg overflow-hidden flex-shrink-0 bg-white border border-gray-200`}
+        aria-hidden="true"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={companyLogoKey}
+          alt="Company logo"
+          className="w-full h-full object-contain"
+        />
+      </div>
+    );
+  }
+
   const config = COMPANY_LOGO_CONFIG[companyLogoKey] ?? FALLBACK_LOGO_CONFIG;
   const Icon = config.faIcon;
 
