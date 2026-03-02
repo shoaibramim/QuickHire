@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   description:
     "Great platform for job seekers searching for new career heights and passionate about startups.",
   keywords: ["jobs", "hiring", "career", "job board", "quickhire"],
+  icons: {
+    icon: "/QuickHire_Logo.png",
+    shortcut: "/QuickHire_Logo.png",
+    apple: "/QuickHire_Logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -30,7 +30,7 @@ QuickHire is a monorepo containing two independently runnable applications:
 
 **Key features:**
 - Public job board with search, filtering by category, location, and type
-- Employer dashboard with job management, applicant tracking, messaging, and scheduling
+- Employer dashboard with job management, applicant tracking with status labels (Pending, Reviewed, Shortlisted, Rejected), and messaging
 - Role-based access control — `jobseeker`, `employer`, `admin`
 - Stateless JWT authentication via Bearer tokens
 - Image cropping for company logos
@@ -255,13 +255,18 @@ All API routes are prefixed with `/api`.
 
 | Method | Route | Description |
 |---|---|---|
-| `GET` | `/dashboard/overview` | Summary stats: candidates, messages, schedule, open jobs, chart data |
+| `GET` | `/dashboard/overview` | Summary stats: candidates, messages, open jobs, chart data |
 | `GET` | `/dashboard/jobs` | Employer's own job listings |
 | `GET` | `/dashboard/jobs/:id` | Single job detail for editing |
+| `POST` | `/dashboard/jobs` | Create a new job listing |
+| `PATCH` | `/dashboard/jobs/:id` | Update job fields |
+| `PATCH` | `/dashboard/jobs/:id/status` | Set job status (`Active`, `Closed`, `Draft`) |
+| `GET` | `/dashboard/applicants` | All applicants across the employer's jobs |
+| `PATCH` | `/dashboard/applicants/:id/status` | Update applicant status (`Pending`, `Reviewed`, `Shortlisted`, `Rejected`) |
 | `GET` | `/dashboard/messages` | Employer inbox |
 | `POST` | `/dashboard/messages` | Create a message |
-| `GET` | `/dashboard/schedule` | Upcoming schedule events |
-| `POST` | `/dashboard/schedule` | Create a schedule event |
+| `GET` | `/dashboard/profile` | Employer profile |
+| `PUT` | `/dashboard/profile` | Update employer profile and company logo |
 
 ### Other
 

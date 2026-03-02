@@ -2,18 +2,119 @@
 
 // All Applicants page — /dashboard/applicants
 
-import { useState } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useApiData } from "@/hooks/useApiData";
+import { apiClient } from "@/services/apiClient";
 import type { Applicant } from "@/types/dashboard";
 
 type StatusFilter = "All" | "Pending" | "Reviewed" | "Shortlisted" | "Rejected";
+type ApplicantStatus = Applicant["status"];
 
-const STATUS_STYLES: Record<Applicant["status"], string> = {
+const STATUS_STYLES: Record<ApplicantStatus, string> = {
   Reviewed:    "bg-blue-50  text-blue-600",
   Shortlisted: "bg-green-50 text-green-600",
   Rejected:    "bg-red-50   text-red-500",
   Pending:     "bg-amber-50 text-amber-600",
 };
+
+const STATUS_OPTIONS: { value: ApplicantStatus; label: string; style: string }[] = [
+  { value: "Pending",     label: "Pending",     style: "text-amber-600 hover:bg-amber-50" },
+  { value: "Reviewed",    label: "Reviewed",    style: "text-blue-600  hover:bg-blue-50"  },
+  { value: "Shortlisted", label: "Shortlisted", style: "text-green-600 hover:bg-green-50" },
+  { value: "Rejected",    label: "Rejected",    style: "text-red-500   hover:bg-red-50"   },
+];
+
+// ─── Set Status Dropdown ──────────────────────────────────────
+function SetStatusDropdown({
+  applicantId,
+  currentStatus,
+  onStatusChange,
+}: {
+  applicantId: string;
+  currentStatus: ApplicantStatus;
+  onStatusChange: (id: string, status: ApplicantStatus) => void;
+}) {
+  const [open, setOpen]     = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+  const buttonRef           = useRef<HTMLButtonElement>(null);
+
+  // Position the fixed dropdown below the trigger button
+  useLayoutEffect(() => {
+    if (!open || !buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    setCoords({ top: rect.bottom + 6, left: rect.right - 144 /* w-36 = 144px */ });
+  }, [open]);
+
+  // Close on outside click or scroll
+  useEffect(() => {
+    if (!open) return;
+    function close() { setOpen(false); }
+    document.addEventListener("mousedown", close);
+    window.addEventListener("scroll", close, true);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      window.removeEventListener("scroll", close, true);
+    };
+  }, [open]);
+
+  async function handleSelect(status: ApplicantStatus) {
+    if (status === currentStatus) { setOpen(false); return; }
+    setSaving(true);
+    try {
+      await apiClient.patch(`/dashboard/applicants/${applicantId}/status`, { status });
+      onStatusChange(applicantId, status);
+    } catch {
+      // silently ignore — table status won't change on error
+    } finally {
+      setSaving(false);
+      setOpen(false);
+    }
+  }
+
+  const dropdown = open && coords ? createPortal(
+    <div
+      role="listbox"
+      onMouseDown={(e) => e.stopPropagation()}
+      style={{ position: "fixed", top: coords.top, left: coords.left }}
+      className="w-36 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] py-1"
+    >
+      {STATUS_OPTIONS.map((opt) => (
+        <button
+          key={opt.value}
+          role="option"
+          aria-selected={opt.value === currentStatus}
+          onClick={() => handleSelect(opt.value)}
+          className={[
+            "w-full text-left px-3 py-2 text-xs font-semibold transition-colors",
+            opt.style,
+            opt.value === currentStatus ? "opacity-50 cursor-default" : "",
+          ].join(" ")}
+        >
+          {opt.value === currentStatus ? `✓ ${opt.label}` : opt.label}
+        </button>
+      ))}
+    </div>,
+    document.body
+  ) : null;
+
+  return (
+    <>
+      <button
+        ref={buttonRef}
+        onClick={() => setOpen((v) => !v)}
+        disabled={saving}
+        className="text-xs font-medium text-subtitle hover:text-heading-dark transition-colors disabled:opacity-50"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        {saving ? "Saving…" : "Set Status"}
+      </button>
+      {dropdown}
+    </>
+  );
+}
 
 // ─── Applicant Detail Modal ───────────────────────────────────
 function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose: () => void }) {
@@ -114,9 +215,24 @@ export default function ApplicantsPage() {
   const [filter, setFilter] = useState<StatusFilter>("All");
   const [search, setSearch] = useState("");
   const [viewApplicant, setViewApplicant] = useState<Applicant | null>(null);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
 
   const { data, isLoading } = useApiData<Applicant[]>("/dashboard/applicants");
-  const allApplicants = data ?? [];
+
+  // Sync API data into local state so status updates reflect immediately
+  useEffect(() => {
+    if (data) setApplicants(data);
+  }, [data]);
+
+  function handleStatusChange(id: string, status: ApplicantStatus) {
+    setApplicants((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, status } : a))
+    );
+    // Also update the detail modal if it's open for this applicant
+    setViewApplicant((prev) => (prev?.id === id ? { ...prev, status } : prev));
+  }
+
+  const allApplicants = applicants;
 
   const filtered = allApplicants.filter((a) => {
     const matchesStatus = filter === "All" || a.status === filter;
@@ -216,7 +332,11 @@ export default function ApplicantsPage() {
                         >
                           View
                         </button>
-                        <button className="text-xs text-subtitle hover:text-heading-dark">Schedule</button>
+                        <SetStatusDropdown
+                          applicantId={a.id}
+                          currentStatus={a.status}
+                          onStatusChange={handleStatusChange}
+                        />
                       </div>
                     </td>
                   </tr>
