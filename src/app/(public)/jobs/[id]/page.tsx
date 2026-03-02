@@ -1,35 +1,22 @@
 // Job detail page — /jobs/[id]
-// TODO: Replace mock data with GET /api/jobs/:id when backend is ready
+// Server Component: fetches live data from the Express API.
 
 import type { Metadata } from "next";
-import type { FeaturedJob } from "@/types";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import CompanyLogo from "@/components/home/CompanyLogo";
 import JobTagPill from "@/components/home/JobTagPill";
 import ApplyForm from "@/components/jobs/ApplyForm";
-import { FEATURED_JOBS, LATEST_JOBS } from "@/constants/mockData";
+import { getJobById } from "@/services/jobsService";
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
-// Find a job from any source by id
-function findJob(id: string): FeaturedJob | null {
-  const all: FeaturedJob[] = [
-    ...FEATURED_JOBS,
-    ...LATEST_JOBS.map((j) => ({
-      ...j,
-      description: `${j.company} is looking for a passionate ${j.title} to join their growing team.`,
-    })),
-  ];
-  return all.find((j) => j.id === id) ?? null;
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const job = findJob(id);
+  const job = await getJobById(id);
   if (!job) return { title: "Job Not Found — QuickHire" };
   return {
     title: `${job.title} at ${job.company} — QuickHire`,
@@ -39,26 +26,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function JobDetailPage({ params }: Props) {
   const { id } = await params;
-  const job = findJob(id);
+  const job = await getJobById(id);
   if (!job) notFound();
 
   const description = job.description;
-
-  const responsibilities = [
-    `Lead or contribute to ${job.title.toLowerCase()} initiatives within the team.`,
-    "Collaborate cross-functionally with product, engineering, and design teams.",
-    "Define and track key metrics, reporting progress to stakeholders.",
-    "Continuously improve processes and strategies based on data and feedback.",
-    "Mentor junior team members and contribute to a positive team culture.",
-  ];
-
-  const requirements = [
-    `Proven experience in ${job.tags[0] ?? "the relevant field"} role.`,
-    "Strong communication and analytical skills.",
-    "Ability to thrive in a fast-paced startup environment.",
-    "Bachelor's degree or equivalent practical experience.",
-    "Portfolio or examples of previous work (preferred).",
-  ];
 
   return (
     <div className="bg-white min-h-screen">
@@ -105,33 +76,19 @@ export default async function JobDetailPage({ params }: Props) {
             {/* Description */}
             <div>
               <h2 className="text-lg font-bold text-heading-dark mb-3">About the Role</h2>
-              <p className="text-subtitle text-sm leading-relaxed">{description}</p>
-            </div>
-
-            {/* Responsibilities */}
-            <div>
-              <h2 className="text-lg font-bold text-heading-dark mb-3">Responsibilities</h2>
-              <ul className="space-y-2">
-                {responsibilities.map((r, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-subtitle">
-                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-indigo flex-shrink-0" aria-hidden="true" />
-                    {r}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Requirements */}
-            <div>
-              <h2 className="text-lg font-bold text-heading-dark mb-3">Requirements</h2>
-              <ul className="space-y-2">
-                {requirements.map((r, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-subtitle">
-                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" aria-hidden="true" />
-                    {r}
-                  </li>
-                ))}
-              </ul>
+              <div
+                className={[
+                  "text-subtitle text-sm leading-relaxed",
+                  "[&_h2]:text-base [&_h2]:font-bold [&_h2]:text-heading-dark [&_h2]:mt-4 [&_h2]:mb-2",
+                  "[&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-heading-dark [&_h3]:mt-3 [&_h3]:mb-1",
+                  "[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ul]:my-2",
+                  "[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_ol]:my-2",
+                  "[&_p]:my-1",
+                  "[&_strong]:font-semibold [&_strong]:text-heading-dark",
+                  "[&_em]:italic",
+                ].join(" ")}
+                dangerouslySetInnerHTML={{ __html: description }}
+              />
             </div>
           </div>
 

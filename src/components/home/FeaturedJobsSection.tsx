@@ -1,13 +1,12 @@
-// Server Component — static data; no client state required.
-// TODO: Replace FEATURED_JOBS with GET /api/jobs/featured when backend is ready.
+// Server Component — receives live data as props from the home page.
 
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 
 import JobCard from "@/components/home/JobCard";
-import { FEATURED_JOBS } from "@/constants/mockData";
+import type { FeaturedJob } from "@/types";
 
-export default function FeaturedJobsSection() {
+export default function FeaturedJobsSection({ jobs }: { jobs: FeaturedJob[] }) {
   return (
     <section className="bg-white py-10 sm:py-16" aria-label="Featured jobs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
@@ -20,10 +19,10 @@ export default function FeaturedJobsSection() {
           </h2>
 
           <Link
-            href="/jobs"
+            href="/jobs?featured=true"
             className="flex items-center gap-2 text-sm font-semibold text-brand-indigo hover:underline"
           >
-            Show all jobs
+            See all featured jobs
             <FaArrowRight className="text-xs" aria-hidden="true" />
           </Link>
         </div>
@@ -36,8 +35,8 @@ export default function FeaturedJobsSection() {
             className="flex gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-4 w-max sm:w-auto"
             aria-label="Featured job listings"
           >
-            {FEATURED_JOBS.map((job) => (
-              <li key={job.id} className="w-[72vw] xs:w-[60vw] sm:w-auto snap-start">
+            {jobs.map((job, index) => (
+              <li key={job.id} className={`w-[72vw] xs:w-[60vw] sm:w-auto snap-start flex flex-col${index >= 4 ? ' hidden lg:flex' : ''}`}>
                 <JobCard
                   title={job.title}
                   company={job.company}
@@ -47,6 +46,7 @@ export default function FeaturedJobsSection() {
                   companyLogoKey={job.companyLogoKey}
                   tags={job.tags}
                   href={job.href}
+                  featured={job.featured}
                 />
               </li>
             ))}

@@ -48,6 +48,9 @@ export interface Message {
 export interface Applicant {
   id: string;
   name: string;
+  email: string;
+  resumeLink: string;
+  coverNote: string;
   role: string;
   company: string;
   appliedDate: string;

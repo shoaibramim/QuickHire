@@ -11,6 +11,7 @@ import { useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 
 import Button from "@/components/ui/Button";
+import useAuth from "@/hooks/useAuth";
 
 interface Props {
   jobId: string;
@@ -26,7 +27,17 @@ interface FormFields {
 
 const EMPTY: FormFields = { name: "", email: "", resume_link: "", cover_note: "" };
 
+function isValidUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export default function ApplyForm({ jobId, jobTitle }: Props) {
+  const { user } = useAuth();
   const [fields, setFields] = useState<FormFields>(EMPTY);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -39,13 +50,27 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(fields.email)) {
+      setError("Please provide a valid email address.");
+      return;
+    }
+
+    if (!isValidUrl(fields.resume_link)) {
+      setError("Please provide a valid resume link (must start with http:// or https://).");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const res = await fetch(`/api/jobs/${jobId}/apply`, {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+      const res = await fetch(`${apiBase}/jobs/${jobId}/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(fields),
       });
 
@@ -62,6 +87,19 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Employers should not be able to apply for jobs
+  if (user?.role === "employer") {
+    return (
+      <div className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl bg-amber-50 border border-amber-200 text-center">
+        <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
+        </svg>
+        <p className="text-amber-800 font-semibold text-sm">Employer Account</p>
+        <p className="text-amber-700 text-xs">Only job seekers can apply for positions. Switch to a job seeker account to apply.</p>
+      </div>
+    );
   }
 
   if (submitted) {

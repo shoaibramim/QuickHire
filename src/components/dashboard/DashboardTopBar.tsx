@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import PostJobButton from "@/components/ui/PostJobButton";
 
 export default function DashboardTopBar() {
   const { user, signOut } = useAuth();
@@ -70,16 +71,16 @@ export default function DashboardTopBar() {
         )}
       </div>
 
-      {/* Post a job */}
-      <Link
-        href="/dashboard/job-listing"
-        className="flex items-center gap-1.5 px-4 py-2 bg-brand-indigo text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-        </svg>
-        Post a job
-      </Link>
+      {/* Post a job + View Posted Jobs */}
+      <div className="flex items-center gap-2">
+        <PostJobButton />
+        <Link
+          href="/dashboard/job-listing"
+          className="flex items-center gap-1.5 px-4 py-2 border border-brand-indigo text-brand-indigo text-sm font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
+        >
+          View Posted Jobs
+        </Link>
+      </div>
     </header>
   );
 }

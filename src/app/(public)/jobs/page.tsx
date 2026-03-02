@@ -1,13 +1,12 @@
 // Jobs listing page — /jobs
-// TODO: Replace mock data with GET /api/jobs?q=...&category=...&type=... when backend is ready
+// Server Component: fetches live data from the Express API with search/filter params.
 
 import type { Metadata } from "next";
-import type { FeaturedJob } from "@/types";
 
 import JobCard from "@/components/home/JobCard";
 import LatestJobRow from "@/components/home/LatestJobRow";
-import { FEATURED_JOBS, LATEST_JOBS, JOB_CATEGORIES } from "@/constants/mockData";
 import JobsFilterBar from "@/components/jobs/JobsFilterBar";
+import { getJobs, getJobCategories } from "@/services/jobsService";
 
 export const metadata: Metadata = {
   title: "Browse Jobs — QuickHire",
@@ -20,6 +19,7 @@ interface SearchParams {
   type?: string;
   view?: string;
   location?: string;
+  featured?: string;
 }
 
 export default async function JobsPage({
@@ -27,33 +27,26 @@ export default async function JobsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { q, category, type, view, location } = await searchParams;
-  // Normalize query: replace hyphens with spaces so "ui-designer" matches "UI Designer"
-  const query = (q ?? "").toLowerCase().replace(/-/g, " ");
+  const { q, category, type, view, location, featured } = await searchParams;
   const activeCategory = category ?? "";
-  const activeType = type ?? "";
-  const activeView = view ?? "grid";
+  const activeType     = type     ?? "";
+  const activeView     = view     ?? "grid";
   const activeLocation = location ?? "";
+  const activeFeatured = featured === "true";
+  const query          = q        ?? "";
 
-  // Merge all jobs for the listing page, deduplicated
-  const allJobs: FeaturedJob[] = [
-    ...FEATURED_JOBS,
-    ...LATEST_JOBS.map((j) => ({ ...j, description: `${j.company} is looking for a ${j.title} to join their team.` })),
-  ];
+  // Build API query params — filtering is done server-side
+  const apiParams: Record<string, string> = {};
+  if (query)          apiParams["q"]        = query;
+  if (activeCategory) apiParams["category"] = activeCategory;
+  if (activeType)     apiParams["type"]     = activeType;
+  if (activeLocation) apiParams["location"] = activeLocation;
+  if (activeFeatured) apiParams["featured"] = "true";
 
-  const filtered = allJobs.filter((job) => {
-    const matchesQuery =
-      !query ||
-      job.title.toLowerCase().includes(query) ||
-      job.company.toLowerCase().includes(query) ||
-      job.location.toLowerCase().includes(query);
-    const matchesCategory = !category || (job.tags as string[]).includes(category);
-    const matchesType = !type || job.employmentType.toLowerCase().replace(" ", "-") === type;
-    const matchesLocation =
-      !activeLocation ||
-      job.location.toLowerCase().includes(activeLocation.replace(/-/g, " "));
-    return matchesQuery && matchesCategory && matchesType && matchesLocation;
-  });
+  const [jobs, categories] = await Promise.all([
+    getJobs(apiParams),
+    getJobCategories(),
+  ]);
 
   return (
     <section className="bg-white min-h-screen">
@@ -61,13 +54,13 @@ export default async function JobsPage({
       <div className="bg-hero-bg border-b border-deco/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-heading-dark mb-1">
-            {query ? `Results for "${query}"` : "Browse All Jobs"}
+            {activeFeatured ? "Featured Jobs" : query ? `Results for "${query}"` : "Browse All Jobs"}
           </h1>
           <p className="text-subtitle text-sm sm:text-base">
             Showing{" "}
-            <span className="font-semibold text-heading-dark">{filtered.length}</span>{" "}
-            {filtered.length === 1 ? "job" : "jobs"}
-            {category && ` in ${JOB_CATEGORIES.find((c) => c.id === category)?.label ?? category}`}
+            <span className="font-semibold text-heading-dark">{jobs.length}</span>{" "}
+            {jobs.length === 1 ? "job" : "jobs"}
+            {activeCategory && ` in ${categories.find((c) => c.id === activeCategory)?.label ?? activeCategory}`}
           </p>
         </div>
       </div>
@@ -75,15 +68,16 @@ export default async function JobsPage({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-8">
         {/* Filter bar */}
         <JobsFilterBar
-          categories={JOB_CATEGORIES}
+          categories={categories}
           activeCategory={activeCategory}
           activeType={activeType}
           activeView={activeView}
           query={query}
           activeLocation={activeLocation}
+          activeFeatured={activeFeatured}
         />
 
-        {filtered.length === 0 ? (
+        {jobs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
             <svg className="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" />
@@ -95,7 +89,7 @@ export default async function JobsPage({
           </div>
         ) : activeView === "list" ? (
           <div className="grid grid-cols-1 gap-3 mt-6">
-            {filtered.map((job) => (
+            {jobs.map((job) => (
               <LatestJobRow
                 key={job.id}
                 title={job.title}
@@ -104,13 +98,14 @@ export default async function JobsPage({
                 employmentType={job.employmentType}
                 companyLogoKey={job.companyLogoKey}
                 tags={job.tags}
-                href={`/jobs/${job.id}`}
+                href={job.href}
+                featured={job.featured}
               />
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
-            {filtered.map((job) => (
+            {jobs.map((job) => (
               <JobCard
                 key={job.id}
                 title={job.title}
@@ -120,7 +115,8 @@ export default async function JobsPage({
                 employmentType={job.employmentType}
                 companyLogoKey={job.companyLogoKey}
                 tags={job.tags}
-                href={`/jobs/${job.id}`}
+                href={job.href}
+                featured={job.featured}
               />
             ))}
           </div>

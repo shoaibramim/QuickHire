@@ -3,17 +3,39 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 
-import { FOOTER_NEWSLETTER } from "@/constants/mockData";
+import { FOOTER_NEWSLETTER } from "@/constants/siteData";
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // TODO: POST /api/newsletter/subscribe
-    setSubscribed(true);
-    setEmail("");
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/newsletter/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = (await res.json()) as { message?: string };
+      if (!res.ok) {
+        setError(data.message ?? "Something went wrong. Please try again.");
+      } else {
+        setSubscribed(true);
+        setEmail("");
+      }
+    } catch {
+      setError("Unable to subscribe. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (subscribed) {
@@ -60,11 +82,18 @@ export default function NewsletterForm() {
         />
         <button
           type="submit"
-          className="px-5 py-3 bg-brand-indigo text-white text-sm font-semibold rounded-r-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors duration-200 whitespace-nowrap"
+          disabled={loading}
+          className="px-5 py-3 bg-brand-indigo text-white text-sm font-semibold rounded-r-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors duration-200 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {FOOTER_NEWSLETTER.buttonLabel}
+          {loading ? "Subscribing…" : FOOTER_NEWSLETTER.buttonLabel}
         </button>
       </form>
+
+      {error && (
+        <p className="mt-3 text-red-400 text-xs" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

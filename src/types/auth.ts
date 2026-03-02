@@ -9,8 +9,15 @@ export interface User {
   avatar?: string;
   /** Company name — populated for employer accounts */
   company?: string;
-  /** Company logo URL key — populated for employer accounts */
+  /** Company logo URL / base64 — populated for employer accounts */
   companyLogo?: string;
+  // Extended employer profile
+  industry?: string;
+  website?: string;
+  location?: string;
+  companySize?: string;
+  about?: string;
+  phone?: string;
   /** ISO date string */
   createdAt?: string;
 }
@@ -48,4 +55,6 @@ export interface AuthContextType {
   /** Throws AuthError on failure */
   signIn: (credentials: SignInCredentials) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Merge partial user fields into the in-memory user (e.g. after profile save) */
+  updateUser: (patch: Partial<User>) => void;
 }

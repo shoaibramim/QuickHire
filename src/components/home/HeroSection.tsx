@@ -1,18 +1,20 @@
-// Server Component — data is static / from constants.
-// TODO: Replace HERO_STATS with GET /api/stats when backend is ready.
-
 import Image from "next/image";
 import Link from "next/link";
 
 import SearchBar from "@/components/home/SearchBar";
 import BrushstrokeUnderline from "@/components/home/BrushstrokeUnderline";
 import HeroGeometricDecoration from "@/components/home/HeroGeometricDecoration";
-import { POPULAR_TAGS, HERO_STATS } from "@/constants/mockData";
+import { HERO_STATS } from "@/constants/siteData";
+import type { PopularTag } from "@/types";
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  popularTags: PopularTag[];
+}
+
+export default function HeroSection({ popularTags }: HeroSectionProps) {
   return (
     <section
-      className="relative flex-1 overflow-hidden"
+      className="relative flex-1"
       aria-label="Hero — discover jobs"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 flex items-center min-h-[calc(100vh-72px)] sm:min-h-[calc(100vh-82px)]">
@@ -49,7 +51,7 @@ export default function HeroSection() {
             <span className="text-sm text-subtitle font-normal">
               Popular :
             </span>
-            {POPULAR_TAGS.map((tag, idx) => (
+            {popularTags.map((tag, idx) => (
               <Link
                 key={tag.href}
                 href={tag.href}
@@ -57,7 +59,7 @@ export default function HeroSection() {
                 aria-label={`Browse ${tag.label} jobs`}
               >
                 {tag.label}
-                {idx < POPULAR_TAGS.length - 1 && (
+                {idx < popularTags.length - 1 && (
                   <span className="text-subtitle ml-0.5">,</span>
                 )}
               </Link>
@@ -66,7 +68,7 @@ export default function HeroSection() {
         </div>
 
         <div
-          className="hidden lg:block absolute right-0 top-0 bottom-0 w-[44%] xl:w-[46%]"
+          className="hidden lg:block absolute right-0 top-0 bottom-0 w-[44%] xl:w-[46%] overflow-hidden"
           aria-hidden="true"
         >
           {/* Decorative shape grid */}

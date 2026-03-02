@@ -62,3 +62,15 @@ button:not(:disabled) {
 :root {
   --sidebar-width: 240px;
 }
+
+/* ─── Rich Text Editor ───────────────────────────────────────── */
+/* Placeholder for contenteditable when empty */
+[data-rich-editor]:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+/* Ensure block-level ::before so it doesn't collapse */
+[data-rich-editor]:empty::before {
+  display: block;
+}

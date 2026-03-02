@@ -4,7 +4,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { TRUSTED_COMPANIES } from "@/constants/mockData";
+import { TRUSTED_COMPANIES } from "@/constants/siteData";
 import CompanyLogo from "@/components/home/CompanyLogo";
 
 export const metadata: Metadata = {

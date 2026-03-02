@@ -1,14 +1,13 @@
-// Server Component — static data; no client state required.
-// TODO: Replace LATEST_JOBS with GET /api/jobs/latest when backend is ready.
+// Server Component — receives live data as props from the home page.
 
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 
 import LatestJobRow from "@/components/home/LatestJobRow";
 import GeometricDecoration from "@/components/home/GeometricDecoration";
-import { LATEST_JOBS } from "@/constants/mockData";
+import type { LatestJob } from "@/types";
 
-export default function LatestJobsSection() {
+export default function LatestJobsSection({ jobs }: { jobs: LatestJob[] }) {
   return (
     <section className="bg-hero-bg pt-14 sm:pt-24 pb-10 sm:pb-16 lg:pt-20 relative overflow-hidden" aria-label="Latest jobs open">
 
@@ -58,7 +57,7 @@ export default function LatestJobsSection() {
           className="grid grid-cols-1 lg:grid-cols-2 gap-4"
           aria-label="Latest job listings"
         >
-          {LATEST_JOBS.map((job) => (
+          {jobs.map((job) => (
             <li key={job.id}>
               <LatestJobRow
                 title={job.title}
@@ -68,6 +67,7 @@ export default function LatestJobsSection() {
                 companyLogoKey={job.companyLogoKey}
                 tags={job.tags}
                 href={job.href}
+                featured={job.featured}
               />
             </li>
           ))}

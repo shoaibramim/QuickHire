@@ -1,13 +1,14 @@
 "use client";
 
 /**
- * JobsFilterBar — category, employment type and view-mode controls.
+ * JobsFilterBar — category, employment type, location and view-mode controls.
  * All filters update the URL search params for shareable/bookmark-friendly URLs.
  */
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
+import LocationCombobox from "@/components/ui/LocationCombobox";
 import type { JobCategory } from "@/types";
 
 const EMPLOYMENT_TYPES = [
@@ -26,6 +27,7 @@ interface Props {
   activeView: string;
   query: string;
   activeLocation?: string;
+  activeFeatured?: boolean;
 }
 
 export default function JobsFilterBar({
@@ -33,6 +35,8 @@ export default function JobsFilterBar({
   activeCategory,
   activeType,
   activeView,
+  activeLocation = "",
+  activeFeatured = false,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -51,12 +55,37 @@ export default function JobsFilterBar({
     [router, pathname, searchParams]
   );
 
+  function toggleFeatured() {
+    const params = new URLSearchParams(searchParams.toString());
+    if (activeFeatured) {
+      params.delete("featured");
+    } else {
+      params.set("featured", "true");
+    }
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
   return (
     <div className="space-y-4">
       {/* Top row: category pills + view toggles */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Category filter */}
         <div className="flex flex-wrap gap-2">
+          {/* Featured toggle pill */}
+          <button
+            onClick={toggleFeatured}
+            className={[
+              "px-4 py-2 rounded-full text-xs font-semibold transition-colors duration-200 border flex items-center gap-1.5",
+              activeFeatured
+                ? "bg-amber-400 text-white border-amber-400"
+                : "bg-white text-subtitle border-gray-200 hover:border-amber-400 hover:text-amber-500",
+            ].join(" ")}
+          >
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+            Featured
+          </button>
           <button
             onClick={() => updateParam("category", "")}
             className={[
@@ -123,6 +152,38 @@ export default function JobsFilterBar({
             {et.label}
           </button>
         ))}
+      </div>
+
+      {/* Location filter */}
+      <div className="flex items-center gap-2">
+        <svg
+          className="w-4 h-4 text-gray-400 flex-shrink-0"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx={12} cy={10} r={3} />
+        </svg>
+        <div className="w-56">
+          <LocationCombobox
+            value={activeLocation}
+            onChange={(val) => updateParam("location", val)}
+            placeholder="Filter by location…"
+            inputClassName="w-full px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-heading-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-indigo bg-white"
+          />
+        </div>
+        {activeLocation && (
+          <button
+            onClick={() => updateParam("location", "")}
+            className="text-xs text-subtitle hover:text-red-500 transition-colors"
+            aria-label="Clear location filter"
+          >
+            ✕ Clear
+          </button>
+        )}
       </div>
     </div>
   );

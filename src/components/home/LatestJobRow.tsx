@@ -22,6 +22,7 @@ export default function LatestJobRow({
   companyLogoKey,
   tags,
   href,
+  featured = false,
 }: LatestJobRowProps) {
   return (
     <Link

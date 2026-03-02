@@ -82,6 +82,7 @@ export interface BaseJob {
   companyLogoKey: string;
   tags: JobTagKey[];
   href: string;
+  featured?: boolean;
 }
 
 export interface FeaturedJob extends BaseJob {

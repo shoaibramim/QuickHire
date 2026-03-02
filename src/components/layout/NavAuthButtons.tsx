@@ -14,6 +14,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 
 import Button from "@/components/ui/Button";
+import PostJobButton from "@/components/ui/PostJobButton";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function NavAuthButtons() {
@@ -84,15 +85,7 @@ export default function NavAuthButtons() {
   return (
     <div className="hidden md:flex items-center gap-3 relative" ref={menuRef}>
       {/* Post a job CTA */}
-      <Link
-        href="/dashboard"
-        className="hidden lg:inline-flex items-center gap-1.5 px-4 py-2 bg-brand-indigo text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors duration-200"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-        </svg>
-        Post a job
-      </Link>
+      <PostJobButton className="hidden lg:inline-flex" />
 
       {/* Avatar toggle */}
       <button

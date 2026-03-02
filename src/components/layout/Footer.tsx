@@ -15,7 +15,7 @@ import {
   FOOTER_SOCIAL_LINKS,
   FOOTER_TAGLINE,
   FOOTER_COPYRIGHT,
-} from "@/constants/mockData";
+} from "@/constants/siteData";
 import type { SocialIconKey } from "@/types";
 
 const SOCIAL_ICON_MAP: Record<SocialIconKey, IconType> = {

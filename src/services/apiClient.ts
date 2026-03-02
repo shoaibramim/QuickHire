@@ -46,8 +46,7 @@ async function request<T>(
     ...options,
     headers: requestHeaders,
     body: body instanceof FormData ? body : JSON.stringify(body),
-    // TODO: Switch to credentials: "include" with httpOnly cookie strategy
-    credentials: "same-origin",
+    credentials: "include", // needed for cross-origin requests to Express (localhost:5000)
   });
 
   if (!res.ok) {

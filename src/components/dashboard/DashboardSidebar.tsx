@@ -18,7 +18,7 @@ import {
 import type { IconType } from "react-icons";
 
 import Logo from "@/components/ui/Logo";
-import { SIDEBAR_NAV_ITEMS, SIDEBAR_SETTINGS_ITEMS } from "@/constants/dashboardMockData";
+import { SIDEBAR_NAV_ITEMS, SIDEBAR_SETTINGS_ITEMS } from "@/constants/dashboardNav";
 import type { SidebarIconKey } from "@/types/dashboard";
 
 const ICON_MAP: Record<SidebarIconKey, IconType> = {

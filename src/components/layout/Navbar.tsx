@@ -6,7 +6,7 @@ import Link from "next/link";
 import Logo from "@/components/ui/Logo";
 import MobileNav from "@/components/layout/MobileNav";
 import NavAuthButtons from "@/components/layout/NavAuthButtons";
-import { NAV_LINKS } from "@/constants/mockData";
+import { NAV_LINKS } from "@/constants/siteData";
 
 export default function Navbar() {
   return (

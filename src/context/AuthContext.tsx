@@ -84,6 +84,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((patch: Partial<typeof user>) => {
+    setUser((prev) => prev ? { ...prev, ...patch } : prev);
+  }, []);
+
   const value = useMemo<AuthContextType>(
     () => ({
       user,
@@ -94,8 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       closeAuthModal,
       signIn,
       signOut,
+      updateUser,
     }),
-    [user, isLoading, isAuthModalOpen, authModalTab, openAuthModal, closeAuthModal, signIn, signOut]
+    [user, isLoading, isAuthModalOpen, authModalTab, openAuthModal, closeAuthModal, signIn, signOut, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

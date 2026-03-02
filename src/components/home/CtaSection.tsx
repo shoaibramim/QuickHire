@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 import CtaAuthButton from "@/components/home/CtaAuthButton";
-import { CTA_CONTENT } from "@/constants/mockData";
+import { CTA_CONTENT } from "@/constants/siteData";
 
 // Two mirrored trapezoids that together form a left-pointing chevron ( < ) on the card edge.
 const TOP_CHEVRON_CLIP = "polygon(0 0, 100% 0, 50% 100%, 0 100%)";

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
-import { NAV_LINKS } from "@/constants/mockData";
+import { NAV_LINKS } from "@/constants/siteData";
 import { useAuth } from "@/hooks/useAuth";
 
 function HamburgerIcon({ open }: { open: boolean }) {

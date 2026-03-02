@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 
-import { TRUSTED_COMPANIES } from "@/constants/mockData";
+import { TRUSTED_COMPANIES } from "@/constants/siteData";
 
 export default function TrustedCompaniesSection() {
   return (

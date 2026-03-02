@@ -1,9 +1,8 @@
 "use client";
 
 // My Schedule page — /dashboard/schedule
-// TODO: GET /api/dashboard/schedule
 
-import { MOCK_SCHEDULE } from "@/constants/dashboardMockData";
+import { useApiData } from "@/hooks/useApiData";
 import type { ScheduleEvent } from "@/types/dashboard";
 
 const EVENT_COLORS: Record<ScheduleEvent["type"], string> = {
@@ -29,7 +28,18 @@ function groupByDate(events: ScheduleEvent[]) {
 }
 
 export default function SchedulePage() {
-  const grouped = groupByDate(MOCK_SCHEDULE);
+  const { data, isLoading } = useApiData<Array<ScheduleEvent & { _id: string }>>("/dashboard/schedule");
+  // Map _id → id for MongoDB documents
+  const events: ScheduleEvent[] = (data ?? []).map((e) => ({ ...e, id: e._id }));
+  const grouped = groupByDate(events);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-4 border-brand-indigo border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 max-w-3xl">

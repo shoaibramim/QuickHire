@@ -1,11 +1,10 @@
 "use client";
 
 // Messages page — /dashboard/messages
-// TODO: GET /api/dashboard/messages + POST /api/dashboard/messages/:id/read
 
 import Link from "next/link";
 import { useState } from "react";
-import { MOCK_MESSAGES } from "@/constants/dashboardMockData";
+import { useApiData } from "@/hooks/useApiData";
 import type { Message } from "@/types/dashboard";
 
 type FilterTab = "All" | "Unread";
@@ -39,10 +38,23 @@ function MessageRow({ msg, isSelected, onClick }: { msg: Message; isSelected: bo
 
 export default function MessagesPage() {
   const [tab, setTab] = useState<FilterTab>("All");
-  const [selected, setSelected] = useState<string>(MOCK_MESSAGES[0].id);
+  const [selected, setSelected] = useState<string | null>(null);
 
-  const filtered = tab === "Unread" ? MOCK_MESSAGES.filter((m) => m.unread) : MOCK_MESSAGES;
-  const selectedMsg = MOCK_MESSAGES.find((m) => m.id === selected);
+  const { data, isLoading } = useApiData<Array<Message & { _id: string }>>("/dashboard/messages");
+  // Map _id → id for MongoDB documents
+  const allMessages: Message[] = (data ?? []).map((m) => ({ ...m, id: m._id }));
+
+  const filtered = tab === "Unread" ? allMessages.filter((m) => m.unread) : allMessages;
+  const selectedId = selected ?? allMessages[0]?.id ?? null;
+  const selectedMsg = allMessages.find((m) => m.id === selectedId);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-4 border-brand-indigo border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -66,7 +78,7 @@ export default function MessagesPage() {
           </div>
           <div className="flex-1 overflow-y-auto">
             {filtered.map((msg) => (
-              <MessageRow key={msg.id} msg={msg} isSelected={selected === msg.id} onClick={() => setSelected(msg.id)} />
+            <MessageRow key={msg.id} msg={msg} isSelected={selectedId === msg.id} onClick={() => setSelected(msg.id)} />
             ))}
             {filtered.length === 0 && (
               <p className="text-center text-sm text-subtitle py-10">No messages</p>

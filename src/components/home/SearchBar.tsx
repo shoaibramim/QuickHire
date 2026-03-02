@@ -5,10 +5,11 @@ import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import Button from "@/components/ui/Button";
-import { LOCATION_OPTIONS, FEATURED_JOBS, LATEST_JOBS } from "@/constants/mockData";
-import type { SearchFormState, LocationOption } from "@/types";
+import LocationCombobox from "@/components/ui/LocationCombobox";
+import { FEATURED_JOBS, LATEST_JOBS } from "@/constants/siteData";
 
-// ─── All unique job titles for live suggestions ───────────────
+import type { SearchFormState } from "@/types";
+
 const ALL_JOB_TITLES: string[] = Array.from(
   new Set([
     ...FEATURED_JOBS.map((j) => j.title),
@@ -54,24 +55,6 @@ function LocationPinIcon({ className }: { className?: string }) {
     >
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
       <circle cx={12} cy={10} r={3} />
-    </svg>
-  );
-}
-
-function ChevronDownIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <polyline points="6 9 12 15 18 9" />
     </svg>
   );
 }
@@ -192,33 +175,23 @@ export default function SearchBar({
         <label className="sr-only" htmlFor="job-location">
           Location
         </label>
-        <div className="flex items-center px-5 gap-2 border-b sm:border-b-0 sm:border-r border-gray-100 bg-white">
+        <div className="flex items-center px-5 gap-2 border-b sm:border-b-0 sm:border-r border-gray-100 bg-white min-w-[190px]">
           <LocationPinIcon className="w-5 h-5 text-gray-400 shrink-0" />
-          <div className="relative flex items-center">
-            <select
-              id="job-location"
-              value={formState.location}
-              onChange={(e) =>
-                setFormState((prev) => ({ ...prev, location: e.target.value }))
-              }
-              className="appearance-none pr-5 py-4 sm:py-5 text-sm text-gray-700 bg-transparent focus:outline-none cursor-pointer"
-              aria-label="Select job location"
-            >
-              {LOCATION_OPTIONS.map((opt: LocationOption) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon className="absolute right-0 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
+          <LocationCombobox
+            value={formState.location}
+            onChange={(val) =>
+              setFormState((prev) => ({ ...prev, location: val }))
+            }
+            placeholder="Location…"
+            inputClassName="py-4 sm:py-5 text-sm text-gray-700 placeholder-gray-400 bg-transparent focus:outline-none w-full"
+          />
         </div>
 
         {/* ── Submit ───────────────────────────────────────── */}
         <Button
           type="submit"
           variant="primary"
-          className="rounded-none rounded-b-xl sm:rounded-b-none sm:rounded-r-xl px-7 py-4 sm:py-5 text-sm font-bold tracking-wide whitespace-nowrap w-full sm:w-auto"
+          className="rounded-none rounded-b-xl sm:rounded-bl-none sm:rounded-r-xl px-7 py-4 sm:py-5 text-sm font-bold tracking-wide whitespace-nowrap w-full sm:w-auto"
           aria-label="Search for jobs"
         >
           Search my job

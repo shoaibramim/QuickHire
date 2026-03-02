@@ -1,15 +1,13 @@
 "use client";
 
-// TODO: Replace JOB_CATEGORIES with GET /api/jobs/categories when backend is ready.
-
 import { useState } from "react";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 
 import CategoryCard from "@/components/home/CategoryCard";
-import { JOB_CATEGORIES } from "@/constants/mockData";
+import type { JobCategory } from "@/types";
 
-export default function ExploreCategoriesSection() {
+export default function ExploreCategoriesSection({ categories }: { categories: JobCategory[] }) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   return (
@@ -37,7 +35,7 @@ export default function ExploreCategoriesSection() {
           className="grid grid-cols-2 md:grid-cols-4 gap-4"
           aria-label="Job categories"
         >
-          {JOB_CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <li key={category.id}>
               <CategoryCard
                 label={category.label}

@@ -74,23 +74,12 @@ export default function SignInForm() {
 
       {/* Password */}
       <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <label
-            htmlFor="signin-password"
-            className="block text-sm font-medium text-heading-dark"
-          >
-            Password
-          </label>
-          {/* TODO: wire forgot-password flow once backend is ready */}
-          <button
-            type="button"
-            className="text-xs text-brand-indigo hover:underline focus:outline-none focus-visible:ring-1 focus-visible:ring-brand-indigo rounded"
-            onClick={() => {}}
-            aria-label="Forgot your password?"
-          >
-            Forgot password?
-          </button>
-        </div>
+        <label
+          htmlFor="signin-password"
+          className="block text-sm font-medium text-heading-dark mb-1.5"
+        >
+          Password
+        </label>
         <div className="relative">
           <input
             id="signin-password"
@@ -143,10 +132,6 @@ export default function SignInForm() {
         )}
       </Button>
 
-      {/* Dev hint */}
-      <p className="text-center text-xs text-gray-400 pt-1">
-        Demo: <span className="font-mono">admin@quickhire.com</span> / <span className="font-mono">quickhire2024</span>
-      </p>
     </form>
   );
 }

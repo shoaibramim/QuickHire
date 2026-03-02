@@ -1,34 +1,22 @@
-// Mock data — separated from UI for easy API migration
-// TODO: Replace all exports with API responses when backend is ready
+// Static site data — layout constants, content config & mock job data.
+// TODO: Replace FEATURED_JOBS / LATEST_JOBS with real API calls when backend is ready.
 
-import type { NavLink, PopularTag, LocationOption, HeroStats, TrustedCompany, JobCategory, CtaContent, FeaturedJob, LatestJob, FooterLinkGroup, FooterSocialLink } from "@/types";
+import type {
+  NavLink,
+  HeroStats,
+  TrustedCompany,
+  CtaContent,
+  FeaturedJob,
+  LatestJob,
+  FooterLinkGroup,
+  FooterSocialLink,
+} from "@/types";
 
 export const NAV_LINKS: NavLink[] = [
   { label: "Find Jobs", href: "/jobs" },
   { label: "Browse Companies", href: "/companies" },
 ];
 
-// TODO: Replace with GET /api/jobs/popular-tags
-export const POPULAR_TAGS: PopularTag[] = [
-  { label: "UI Designer", href: "/jobs?q=ui-designer" },
-  { label: "UX Researcher", href: "/jobs?q=ux-researcher" },
-  { label: "Android", href: "/jobs?q=android" },
-  { label: "Admin", href: "/jobs?q=admin" },
-];
-
-// TODO: Replace with GET /api/locations
-export const LOCATION_OPTIONS: LocationOption[] = [
-  { value: "", label: "Anywhere" },
-  { value: "florence-italy", label: "Florence, Italy" },
-  { value: "new-york-usa", label: "New York, USA" },
-  { value: "london-uk", label: "London, UK" },
-  { value: "berlin-germany", label: "Berlin, Germany" },
-  { value: "paris-france", label: "Paris, France" },
-  { value: "tokyo-japan", label: "Tokyo, Japan" },
-  { value: "sydney-australia", label: "Sydney, Australia" },
-];
-
-// TODO: Replace with GET /api/companies/trusted when backend is ready
 export const TRUSTED_COMPANIES: TrustedCompany[] = [
   {
     name: "Vodafone",
@@ -181,6 +169,18 @@ export const FEATURED_JOBS: FeaturedJob[] = [
   },
 ];
 
+// TODO: Replace with GET /api/jobs/latest
+export const LATEST_JOBS: LatestJob[] = [
+  { id: "latest-1", title: "Social Media Assistant", company: "Nomad",     location: "Paris, France",       employmentType: "Full Time", companyLogoKey: "nomad",     tags: ["marketing", "design"], href: "/jobs/latest-1" },
+  { id: "latest-2", title: "Social Media Assistant", company: "Netlify",   location: "Paris, France",       employmentType: "Full Time", companyLogoKey: "netlify",   tags: ["marketing", "design"], href: "/jobs/latest-2" },
+  { id: "latest-3", title: "Brand Designer",          company: "Dropbox",   location: "San Fransisco, USA",  employmentType: "Full Time", companyLogoKey: "dropbox",   tags: ["marketing", "design"], href: "/jobs/latest-3" },
+  { id: "latest-4", title: "Brand Designer",          company: "Maze",      location: "San Fransisco, USA",  employmentType: "Full Time", companyLogoKey: "maze",      tags: ["marketing", "design"], href: "/jobs/latest-4" },
+  { id: "latest-5", title: "Interactive Developer",   company: "Terraform", location: "Hamburg, Germany",    employmentType: "Full Time", companyLogoKey: "terraform", tags: ["marketing", "design"], href: "/jobs/latest-5" },
+  { id: "latest-6", title: "Interactive Developer",   company: "Udacity",   location: "Hamburg, Germany",    employmentType: "Full Time", companyLogoKey: "udacity",   tags: ["marketing", "design"], href: "/jobs/latest-6" },
+  { id: "latest-7", title: "HR Manager",              company: "Packer",    location: "Lucern, Switzerland", employmentType: "Full Time", companyLogoKey: "packer",    tags: ["marketing", "design"], href: "/jobs/latest-7" },
+  { id: "latest-8", title: "HR Manager",              company: "Webflow",   location: "Lucern, Switzerland", employmentType: "Full Time", companyLogoKey: "webflow",   tags: ["marketing", "design"], href: "/jobs/latest-8" },
+];
+
 export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
   {
     heading: "About",
@@ -222,27 +222,3 @@ export const FOOTER_NEWSLETTER = {
   inputPlaceholder: "Email Address",
   buttonLabel: "Subscribe",
 };
-
-// TODO: Replace with GET /api/jobs/latest
-export const LATEST_JOBS: LatestJob[] = [
-  { id: "latest-1", title: "Social Media Assistant", company: "Nomad",     location: "Paris, France",       employmentType: "Full Time", companyLogoKey: "nomad",     tags: ["marketing", "design"], href: "/jobs/latest-1" },
-  { id: "latest-2", title: "Social Media Assistant", company: "Netlify",   location: "Paris, France",       employmentType: "Full Time", companyLogoKey: "netlify",   tags: ["marketing", "design"], href: "/jobs/latest-2" },
-  { id: "latest-3", title: "Brand Designer",          company: "Dropbox",   location: "San Fransisco, USA",  employmentType: "Full Time", companyLogoKey: "dropbox",   tags: ["marketing", "design"], href: "/jobs/latest-3" },
-  { id: "latest-4", title: "Brand Designer",          company: "Maze",      location: "San Fransisco, USA",  employmentType: "Full Time", companyLogoKey: "maze",      tags: ["marketing", "design"], href: "/jobs/latest-4" },
-  { id: "latest-5", title: "Interactive Developer",   company: "Terraform", location: "Hamburg, Germany",    employmentType: "Full Time", companyLogoKey: "terraform", tags: ["marketing", "design"], href: "/jobs/latest-5" },
-  { id: "latest-6", title: "Interactive Developer",   company: "Udacity",   location: "Hamburg, Germany",    employmentType: "Full Time", companyLogoKey: "udacity",   tags: ["marketing", "design"], href: "/jobs/latest-6" },
-  { id: "latest-7", title: "HR Manager",              company: "Packer",    location: "Lucern, Switzerland", employmentType: "Full Time", companyLogoKey: "packer",    tags: ["marketing", "design"], href: "/jobs/latest-7" },
-  { id: "latest-8", title: "HR Manager",              company: "Webflow",   location: "Lucern, Switzerland", employmentType: "Full Time", companyLogoKey: "webflow",   tags: ["marketing", "design"], href: "/jobs/latest-8" },
-];
-
-// TODO: Replace with GET /api/jobs/categories
-export const JOB_CATEGORIES: JobCategory[] = [
-  { id: "design", label: "Design", jobCount: 235, href: "/jobs?category=design", iconKey: "design" },
-  { id: "sales", label: "Sales", jobCount: 756, href: "/jobs?category=sales", iconKey: "sales" },
-  { id: "marketing", label: "Marketing", jobCount: 140, href: "/jobs?category=marketing", iconKey: "marketing" },
-  { id: "finance", label: "Finance", jobCount: 325, href: "/jobs?category=finance", iconKey: "finance" },
-  { id: "technology", label: "Technology", jobCount: 436, href: "/jobs?category=technology", iconKey: "technology" },
-  { id: "engineering", label: "Engineering", jobCount: 542, href: "/jobs?category=engineering", iconKey: "engineering" },
-  { id: "business", label: "Business", jobCount: 211, href: "/jobs?category=business", iconKey: "business" },
-  { id: "human-resource", label: "Human Resource", jobCount: 346, href: "/jobs?category=human-resource", iconKey: "human-resource" },
-];

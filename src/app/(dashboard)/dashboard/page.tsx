@@ -1,14 +1,14 @@
 "use client";
 
-// Main dashboard page — mirrors the screenshot design.
-// TODO: Replace mock data with GET /api/dashboard/overview when backend is ready.
+// Main dashboard page — fetches live overview data from the Express API.
 
 import Link from "next/link";
 import { useState } from "react";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useApiData } from "@/hooks/useApiData";
 import JobStatisticsChart from "@/components/dashboard/JobStatisticsChart";
-import { DASHBOARD_OVERVIEW } from "@/constants/dashboardMockData";
+import type { DashboardOverview } from "@/types/dashboard";
 
 type ChartPeriod = "Week" | "Month" | "Year";
 type ChartView = "Overview" | "Jobs View" | "Jobs Applied";
@@ -59,13 +59,29 @@ export default function DashboardPage() {
   const [period, setPeriod] = useState<ChartPeriod>("Week");
   const [chartView, setChartView] = useState<ChartView>("Overview");
 
-  const { newCandidates, scheduledToday, messages, jobsOpen, totalApplicants, weeklyStats, chartData, applicantBreakdown } = DASHBOARD_OVERVIEW;
+  const { data: overview, isLoading } = useApiData<DashboardOverview>("/dashboard/overview");
 
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 18 ? "Good afternoon" : "Good evening";
   const dateLabel = `${now.toLocaleString("default", { month: "short" })} ${now.getDate()} - ${now.toLocaleString("default", { month: "short" })} ${now.getDate() + 6}`;
 
-  const breakdownTotal = applicantBreakdown.reduce((s, a) => s + a.count, 0);
+  const newCandidates      = overview?.newCandidates      ?? 0;
+  const scheduledToday     = overview?.scheduledToday     ?? 0;
+  const messages           = overview?.messages           ?? 0;
+  const jobsOpen           = overview?.jobsOpen           ?? 0;
+  const totalApplicants    = overview?.totalApplicants    ?? 0;
+  const chartData          = overview?.chartData          ?? [];
+  const applicantBreakdown = overview?.applicantBreakdown ?? [];
+
+  const breakdownTotal = applicantBreakdown.reduce((s, a) => s + a.count, 0) || 1;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-4 border-brand-indigo border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
