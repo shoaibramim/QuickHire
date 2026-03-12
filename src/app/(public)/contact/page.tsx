@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import ContactForm from "@/components/contact/ContactForm";
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ export default function ContactPage() {
     <div className="min-h-screen">
       {/* Header */}
       <div className="bg-hero-bg border-b border-deco/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-12 sm:py-16">
+        <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-12 sm:py-16">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-heading-dark mb-3">
             Contact Us
           </h1>
@@ -22,7 +22,7 @@ export default function ContactPage() {
       </div>
 
       <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-12 sm:py-16">
+        <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-12 sm:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
             {/* Contact info */}

@@ -1,4 +1,4 @@
-// Server Component — no direct interactivity needed.
+﻿// Server Component — no direct interactivity needed.
 // Auth buttons are handled by <NavAuthButtons> (client component).
 
 import Link from "next/link";
@@ -12,7 +12,7 @@ export default function Navbar() {
   return (
     <header className="w-full bg-transparent">
       <nav
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-4 sm:py-5 flex items-center justify-between"
+        className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-4 sm:py-5 flex items-center justify-between"
         aria-label="Main navigation"
       >
         {/* ── Brand + Primary Nav ───────────────────────────── */}

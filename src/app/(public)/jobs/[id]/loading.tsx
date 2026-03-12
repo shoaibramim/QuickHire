@@ -1,4 +1,4 @@
-// Skeleton loading UI for /jobs/[id] — shown instantly while the server
+﻿// Skeleton loading UI for /jobs/[id] — shown instantly while the server
 // component fetches job data from the API.
 
 function Shimmer() {
@@ -12,7 +12,9 @@ function Shimmer() {
 
 function Bone({ className }: { className?: string }) {
   return (
-    <div className={`relative overflow-hidden rounded bg-gray-200 ${className ?? ""}`}>
+    <div
+      className={`relative overflow-hidden rounded bg-gray-200 ${className ?? ""}`}
+    >
       <Shimmer />
     </div>
   );
@@ -20,21 +22,22 @@ function Bone({ className }: { className?: string }) {
 
 export default function JobDetailLoading() {
   return (
-    <div className="bg-white min-h-screen" aria-busy="true" aria-label="Loading job details">
-
+    <div
+      className="bg-white min-h-screen"
+      aria-busy="true"
+      aria-label="Loading job details"
+    >
       {/* Breadcrumb bar */}
       <div className="bg-hero-bg border-b border-deco/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-4">
+        <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-4">
           <Bone className="h-4 w-48" />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-10">
+      <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
           {/* ── Main content ─────────────────────── */}
           <div className="lg:col-span-2 space-y-8">
-
             {/* Job header */}
             <div className="flex flex-col sm:flex-row sm:items-start gap-5">
               <Bone className="w-16 h-16 rounded-lg flex-shrink-0" />
@@ -92,7 +95,6 @@ export default function JobDetailLoading() {
               <Bone className="h-4 w-32 mx-auto mt-2" />
             </div>
           </div>
-
         </div>
       </div>
     </div>

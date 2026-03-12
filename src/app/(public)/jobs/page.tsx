@@ -1,4 +1,4 @@
-// Jobs listing page — /jobs
+﻿// Jobs listing page — /jobs
 // Server Component: fetches live data from the Express API with search/filter params.
 
 import type { Metadata } from "next";
@@ -52,7 +52,7 @@ export default async function JobsPage({
     <section className="bg-white min-h-screen">
       {/* Page header */}
       <div className="bg-hero-bg border-b border-deco/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
+        <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-heading-dark mb-1">
             {activeFeatured ? "Featured Jobs" : query ? `Results for "${query}"` : "Browse All Jobs"}
           </h1>
@@ -65,7 +65,7 @@ export default async function JobsPage({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-8">
+      <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-8">
         {/* Filter bar */}
         <JobsFilterBar
           categories={categories}

@@ -1,4 +1,4 @@
-// Skeleton loading UI for /jobs — shown instantly by Next.js App Router
+﻿// Skeleton loading UI for /jobs — shown instantly by Next.js App Router
 // while the server component fetches data from the API.
 
 function Shimmer() {
@@ -71,13 +71,13 @@ export default function JobsLoading() {
 
       {/* Page header */}
       <div className="bg-hero-bg border-b border-deco/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
+        <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
           <Bone className="h-8 w-48 mb-3" />
           <Bone className="h-4 w-32" />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-8">
+      <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-8">
         {/* Filter bar */}
         <FilterBarSkeleton />
 

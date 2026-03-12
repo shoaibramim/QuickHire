@@ -1,4 +1,4 @@
-// Companies page — /companies
+﻿// Companies page — /companies
 // TODO: Replace with GET /api/companies when backend is ready
 
 import type { Metadata } from "next";
@@ -29,7 +29,7 @@ export default function CompaniesPage() {
     <section className="min-h-screen">
       {/* Header */}
       <div className="bg-hero-bg border-b border-deco/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
+        <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-heading-dark mb-2">
             Browse Companies
           </h1>
@@ -43,7 +43,7 @@ export default function CompaniesPage() {
 
       {/* Trusted companies showcase */}
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-8">
+        <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-8">
           <p className="text-xs font-semibold uppercase tracking-widest text-subtitle mb-6">
             Featured Partners
           </p>
@@ -57,7 +57,7 @@ export default function CompaniesPage() {
 
       {/* Company grid */}
       <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-10">
+        <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {COMPANIES.map((company) => (
               <div

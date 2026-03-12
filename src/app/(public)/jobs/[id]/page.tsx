@@ -1,4 +1,4 @@
-// Job detail page — /jobs/[id]
+﻿// Job detail page — /jobs/[id]
 // Server Component: fetches live data from the Express API.
 
 import type { Metadata } from "next";
@@ -35,26 +35,42 @@ export default async function JobDetailPage({ params }: Props) {
     <div className="bg-white min-h-screen">
       {/* Breadcrumb */}
       <div className="bg-hero-bg border-b border-deco/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-4">
-          <nav className="flex items-center gap-2 text-sm text-subtitle" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-brand-indigo transition-colors">Home</Link>
+        <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-4">
+          <nav
+            className="flex items-center gap-2 text-sm text-subtitle"
+            aria-label="Breadcrumb"
+          >
+            <Link
+              href="/"
+              className="hover:text-brand-indigo transition-colors"
+            >
+              Home
+            </Link>
             <span aria-hidden="true">/</span>
-            <Link href="/jobs" className="hover:text-brand-indigo transition-colors">Jobs</Link>
+            <Link
+              href="/jobs"
+              className="hover:text-brand-indigo transition-colors"
+            >
+              Jobs
+            </Link>
             <span aria-hidden="true">/</span>
-            <span className="text-heading-dark font-medium truncate">{job.title}</span>
+            <span className="text-heading-dark font-medium truncate">
+              {job.title}
+            </span>
           </nav>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 py-10">
+      <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
           {/* ── Main content ─────────────────────────────────── */}
           <div className="lg:col-span-2 space-y-8">
-
             {/* Job header */}
             <div className="flex flex-col sm:flex-row sm:items-start gap-5">
-              <CompanyLogo companyLogoKey={job.companyLogoKey} sizeClass="w-16 h-16 flex-shrink-0" />
+              <CompanyLogo
+                companyLogoKey={job.companyLogoKey}
+                sizeClass="w-16 h-16 flex-shrink-0"
+              />
               <div className="flex-1 min-w-0">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-heading-dark mb-1">
                   {job.title}
@@ -75,7 +91,9 @@ export default async function JobDetailPage({ params }: Props) {
 
             {/* Description */}
             <div>
-              <h2 className="text-lg font-bold text-heading-dark mb-3">About the Role</h2>
+              <h2 className="text-lg font-bold text-heading-dark mb-3">
+                About the Role
+              </h2>
               <div
                 className={[
                   "text-subtitle text-sm leading-relaxed",
@@ -97,16 +115,22 @@ export default async function JobDetailPage({ params }: Props) {
             {/* Apply card */}
             <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm sticky top-6">
               <p className="text-sm text-subtitle mb-1">Posted by</p>
-              <p className="text-base font-bold text-heading-dark mb-5">{job.company}</p>
+              <p className="text-base font-bold text-heading-dark mb-5">
+                {job.company}
+              </p>
 
               <div className="space-y-3 mb-6 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-subtitle">Location</span>
-                  <span className="font-medium text-heading-dark">{job.location}</span>
+                  <span className="font-medium text-heading-dark">
+                    {job.location}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-subtitle">Job Type</span>
-                  <span className="font-medium text-heading-dark">{job.employmentType}</span>
+                  <span className="font-medium text-heading-dark">
+                    {job.employmentType}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-subtitle">Category</span>
@@ -129,7 +153,6 @@ export default async function JobDetailPage({ params }: Props) {
               </Link>
             </div>
           </div>
-
         </div>
       </div>
     </div>

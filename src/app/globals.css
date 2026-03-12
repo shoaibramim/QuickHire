@@ -3,10 +3,12 @@
 /* ─── Design Tokens ──────────────────────────────────────────── */
 @theme {
   /* Typography — wires Plus Jakarta Sans into Tailwind (closest free match to Roc Grotesk) */
-  --font-sans: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:
+    var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
 
   /* Custom breakpoints */
   --breakpoint-xs: 475px;
+  --breakpoint-3xl: 1800px;
 
   /* Brand */
   --color-brand-indigo: #4f46e5;
@@ -27,7 +29,7 @@
   --color-footer-bg: #202430;
 
   /* Shadows */
-  --shadow-search: 0 8px 32px 0 rgba(79, 70, 229, 0.10);
+  --shadow-search: 0 8px 32px 0 rgba(79, 70, 229, 0.1);
 }
 
 /* ─── Base Overrides ─────────────────────────────────────────── */

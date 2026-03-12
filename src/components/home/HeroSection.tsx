@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 
 import SearchBar from "@/components/home/SearchBar";
@@ -13,14 +13,9 @@ interface HeroSectionProps {
 
 export default function HeroSection({ popularTags }: HeroSectionProps) {
   return (
-    <section
-      className="relative flex-1"
-      aria-label="Hero — discover jobs"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 flex items-center min-h-[calc(100vh-72px)] sm:min-h-[calc(100vh-82px)]">
-
-        <div className="relative z-10 w-full md:w-[80%] lg:w-[58%] pt-8 sm:pt-10 pb-14 sm:pb-20 lg:pb-0">
-
+    <section className="relative flex-1" aria-label="Hero — discover jobs">
+      <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 flex items-center min-h-[calc(100vh-72px)] sm:min-h-[calc(100vh-82px)]">
+        <div className="relative z-10 w-full md:w-[80%] lg:w-[58%] xl:w-[52%] pt-8 sm:pt-10 pb-14 sm:pb-20 lg:pb-0">
           {/* Headline */}
           <h1 className="font-extrabold text-heading-dark leading-[1.1] tracking-tight">
             <span className="block text-[2.25rem] xs:text-[2.75rem] sm:text-[3.5rem] lg:text-[5rem] xl:text-[5.5rem]">
@@ -48,9 +43,7 @@ export default function HeroSection({ popularTags }: HeroSectionProps) {
 
           {/* Popular tags */}
           <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-x-1.5 gap-y-1.5">
-            <span className="text-sm text-subtitle font-normal">
-              Popular :
-            </span>
+            <span className="text-sm text-subtitle font-normal">Popular :</span>
             {popularTags.map((tag, idx) => (
               <Link
                 key={tag.href}
@@ -86,7 +79,6 @@ export default function HeroSection({ popularTags }: HeroSectionProps) {
             />
           </div>
         </div>
-
       </div>
     </section>
   );
