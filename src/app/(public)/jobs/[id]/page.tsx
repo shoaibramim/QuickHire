@@ -1,4 +1,4 @@
-﻿// Job detail page — /jobs/[id]
+// Job detail page — /jobs/[id]
 // Server Component: fetches live data from the Express API.
 
 import type { Metadata } from "next";
@@ -33,7 +33,6 @@ export default async function JobDetailPage({ params }: Props) {
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Breadcrumb */}
       <div className="bg-hero-bg border-b border-deco/40">
         <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-4">
           <nav
@@ -65,7 +64,6 @@ export default async function JobDetailPage({ params }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* ── Main content ─────────────────────────────────── */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Job header */}
             <div className="flex flex-col sm:flex-row sm:items-start gap-5">
               <CompanyLogo
                 companyLogoKey={job.companyLogoKey}
@@ -88,8 +86,6 @@ export default async function JobDetailPage({ params }: Props) {
                 </div>
               </div>
             </div>
-
-            {/* Description */}
             <div>
               <h2 className="text-lg font-bold text-heading-dark mb-3">
                 About the Role
@@ -112,7 +108,6 @@ export default async function JobDetailPage({ params }: Props) {
 
           {/* ── Sidebar ───────────────────────────────────────── */}
           <div className="space-y-4">
-            {/* Apply card */}
             <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm sticky top-6">
               <p className="text-sm text-subtitle mb-1">Posted by</p>
               <p className="text-base font-bold text-heading-dark mb-5">

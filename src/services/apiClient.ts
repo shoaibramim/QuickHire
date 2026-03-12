@@ -3,7 +3,6 @@
  * ──────────────────────────────────────────────────────────────
  * Thin wrapper around `fetch` for JSON API calls.
  *
- * TODO (backend integration):
  *  - Set API_BASE_URL in .env.local as NEXT_PUBLIC_API_URL
  *  - The backend (Express.js) should set httpOnly cookies for the JWT.
  *    If using httpOnly cookies, remove the Authorization header injection

@@ -1,7 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-// ─── Variant & Size maps ───────────────────────────────────────
-
 type ButtonVariant = "primary" | "outline" | "outline-white" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
 
@@ -22,16 +20,12 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
   lg: "px-8 py-4 text-lg",
 };
 
-// ─── Props ────────────────────────────────────────────────────
-
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   children: ReactNode;
   fullWidth?: boolean;
 }
-
-// ─── Component ────────────────────────────────────────────────
 
 export default function Button({
   variant = "primary",

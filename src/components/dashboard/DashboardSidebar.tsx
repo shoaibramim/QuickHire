@@ -45,12 +45,9 @@ export default function DashboardSidebar() {
       className="flex flex-col w-[var(--sidebar-width)] bg-footer-bg h-screen sticky top-0 flex-shrink-0"
       aria-label="Dashboard navigation"
     >
-      {/* Logo */}
       <div className="px-6 py-5 border-b border-gray-700/50">
         <Logo lightText />
       </div>
-
-      {/* Main nav */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto" aria-label="Main dashboard links">
         <ul className="space-y-0.5" role="list">
           {SIDEBAR_NAV_ITEMS.map((item) => {
@@ -81,8 +78,6 @@ export default function DashboardSidebar() {
           })}
         </ul>
       </nav>
-
-      {/* Settings section */}
       <div className="px-3 py-4 border-t border-gray-700/50">
         <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-widest text-gray-500">
           Settings

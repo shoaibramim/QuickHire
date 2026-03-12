@@ -1,7 +1,6 @@
 "use client";
 
 // Settings page — /dashboard/settings
-// TODO: PATCH /api/dashboard/settings for preferences; DELETE /api/auth/account for deletion
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,7 +17,6 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
 
   async function handleSave() {
-    // TODO: await apiClient.patch("/dashboard/settings", { notifications });
     await new Promise((r) => setTimeout(r, 500));
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -27,8 +25,6 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <h1 className="text-xl font-extrabold text-heading-dark">Settings</h1>
-
-      {/* Account info */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100">
           <h2 className="text-sm font-semibold text-heading-dark">Account Information</h2>
@@ -58,8 +54,6 @@ export default function SettingsPage() {
           </p>
         </div>
       </div>
-
-      {/* Password */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100">
           <h2 className="text-sm font-semibold text-heading-dark">Password</h2>
@@ -80,8 +74,6 @@ export default function SettingsPage() {
           </Button>
         </div>
       </div>
-
-      {/* Notifications */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100">
           <h2 className="text-sm font-semibold text-heading-dark">Email Notifications</h2>
@@ -114,8 +106,6 @@ export default function SettingsPage() {
           {saved && <span className="text-sm text-green-600 font-medium">Saved!</span>}
         </div>
       </div>
-
-      {/* Danger zone */}
       <div className="bg-white border border-red-200 rounded-xl shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-red-100">
           <h2 className="text-sm font-semibold text-red-600">Danger Zone</h2>

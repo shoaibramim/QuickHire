@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import {
   FaFacebook,
   FaInstagram,
@@ -29,18 +29,14 @@ const SOCIAL_ICON_MAP: Record<SocialIconKey, IconType> = {
 export default function Footer() {
   return (
     <footer className="bg-footer-bg" aria-label="Site footer">
-      {/* Main footer content */}
       <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-12 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* Brand column */}
           <div className="lg:col-span-1">
             <FooterBrand />
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
               {FOOTER_TAGLINE}
             </p>
           </div>
-
-          {/* Link group columns */}
           {FOOTER_LINK_GROUPS.map((group) => (
             <div key={group.heading}>
               <h3 className="text-white font-semibold text-base mb-5">
@@ -60,18 +56,12 @@ export default function Footer() {
               </ul>
             </div>
           ))}
-
-          {/* Newsletter column */}
           <div>
             <NewsletterForm />
           </div>
         </div>
       </div>
-
-      {/* Divider */}
       <div className="border-t border-gray-700" />
-
-      {/* Bottom bar */}
       <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-5 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-gray-500 text-sm">{FOOTER_COPYRIGHT}</p>
 

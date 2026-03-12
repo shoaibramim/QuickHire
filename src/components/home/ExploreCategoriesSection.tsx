@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -22,7 +22,6 @@ export default function ExploreCategoriesSection({
       aria-label="Explore jobs by category"
     >
       <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16">
-        {/* Section header */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-8 sm:mb-10">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-heading-dark">
             Explore by <span className="text-brand-indigo">Category</span>
@@ -36,8 +35,6 @@ export default function ExploreCategoriesSection({
             <FaArrowRight className="text-xs" aria-hidden="true" />
           </Link>
         </div>
-
-        {/* Category grid */}
         <ul
           className="grid grid-cols-2 md:grid-cols-4 gap-4 xl:gap-6"
           aria-label="Job categories"

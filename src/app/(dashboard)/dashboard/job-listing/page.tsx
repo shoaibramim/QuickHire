@@ -211,8 +211,6 @@ export default function JobListingPage() {
   return (
     <div className="space-y-5">
       <h1 className="text-xl font-extrabold text-heading-dark">Job Listing</h1>
-
-      {/* Stats row */}
       <div className="grid grid-cols-3 gap-4">
         {[
           { label: "Active",  count: jobs.filter((j) => j.status === "Active").length,  color: "text-green-600" },
@@ -225,8 +223,6 @@ export default function JobListingPage() {
           </div>
         ))}
       </div>
-
-      {/* Job listing table */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -328,8 +324,6 @@ export default function JobListingPage() {
                 {modalMode === "edit" ? "Update the details below and save your changes." : "Fill in all required fields to publish your listing."}
               </p>
             </div>
-
-            {/* Scrollable body */}
             <div className="overflow-y-auto flex-1">
             {editLoading ? (
               <div className="flex items-center justify-center h-48">
@@ -337,7 +331,6 @@ export default function JobListingPage() {
               </div>
             ) : (
             <form onSubmit={handlePostJob} className="p-6 space-y-4">
-              {/* Job Title */}
               <div>
                 <label htmlFor="post-title" className="block text-sm font-medium text-heading-dark mb-1.5">
                   Job Title <span className="text-red-500">*</span>
@@ -353,8 +346,6 @@ export default function JobListingPage() {
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-heading-dark focus:outline-none focus:ring-2 focus:ring-brand-indigo"
                 />
               </div>
-
-              {/* Company */}
               <div>
                 <label htmlFor="post-company" className="block text-sm font-medium text-heading-dark mb-1.5">
                   Company
@@ -432,7 +423,6 @@ export default function JobListingPage() {
                     onBlur={() => setTimeout(() => setCategoryOpen(false), 150)}
                     className="w-full px-4 py-2.5 pr-10 rounded-lg border border-gray-200 text-sm text-heading-dark focus:outline-none focus:ring-2 focus:ring-brand-indigo"
                   />
-                  {/* Chevron toggle */}
                   <button
                     type="button"
                     onClick={() => setCategoryOpen((v) => !v)}
@@ -444,7 +434,6 @@ export default function JobListingPage() {
                     </svg>
                   </button>
                 </div>
-                {/* Selected badges */}
                 {form.categories.length > 0 && (
                   <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                     {form.categories.map((cat) => (
@@ -462,7 +451,6 @@ export default function JobListingPage() {
                     ))}
                   </div>
                 )}
-                {/* Dropdown */}
                 {categoryOpen && filteredCategories.length > 0 && (
                   <ul className="absolute z-20 w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-lg max-h-44 overflow-y-auto">
                     {filteredCategories.map((cat) => (
@@ -496,8 +484,6 @@ export default function JobListingPage() {
                   </ul>
                 )}
               </div>
-
-              {/* Status */}
               <div>
                 <label htmlFor="post-status" className="block text-sm font-medium text-heading-dark mb-1.5">
                   Publish as
@@ -513,13 +499,9 @@ export default function JobListingPage() {
                   <option value="Draft">Draft — save for later</option>
                 </select>
               </div>
-
-              {/* Error */}
               {formError && (
                 <p className="text-sm text-red-500">{formError}</p>
               )}
-
-              {/* Actions */}
               <div className="flex gap-3 pt-2">
                 <Button type="submit" variant="primary" size="sm" fullWidth disabled={submitting}>
                   {submitting

@@ -1,5 +1,4 @@
 // Static site data — layout constants, content config & mock job data.
-// TODO: Replace FEATURED_JOBS / LATEST_JOBS with real API calls when backend is ready.
 
 import type {
   NavLink,
@@ -65,8 +64,6 @@ export const CTA_CONTENT: CtaContent = {
   dashboardImageSrc: "/Dashboard_Company_CTA.png",
   dashboardImageAlt: "QuickHire employer dashboard preview",
 };
-
-// TODO: Replace with GET /api/jobs/featured
 export const FEATURED_JOBS: FeaturedJob[] = [
   {
     id: "job-1",
@@ -168,8 +165,6 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     href: "/jobs/job-9",
   },
 ];
-
-// TODO: Replace with GET /api/jobs/latest
 export const LATEST_JOBS: LatestJob[] = [
   { id: "latest-1", title: "Social Media Assistant", company: "Nomad",     location: "Paris, France",       employmentType: "Full Time", companyLogoKey: "nomad",     tags: ["marketing", "design"], href: "/jobs/latest-1" },
   { id: "latest-2", title: "Social Media Assistant", company: "Netlify",   location: "Paris, France",       employmentType: "Full Time", companyLogoKey: "netlify",   tags: ["marketing", "design"], href: "/jobs/latest-2" },

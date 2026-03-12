@@ -52,10 +52,7 @@ export default function AuthModal() {
         if (e.target === overlayRef.current) closeAuthModal();
       }}
     >
-      {/* Card */}
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-[fadeSlideUp_0.2s_ease-out]">
-
-        {/* Close button */}
         <button
           ref={firstFocusRef}
           onClick={closeAuthModal}
@@ -66,8 +63,6 @@ export default function AuthModal() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-
-        {/* Header */}
         <div className="px-8 pt-8 pb-6 border-b border-gray-100">
           <Logo className="mb-5" />
           <h2 className="text-xl font-bold text-heading-dark">
@@ -79,8 +74,6 @@ export default function AuthModal() {
               : "Join thousands of employers and job seekers."}
           </p>
         </div>
-
-        {/* Tabs */}
         <div className="flex border-b border-gray-100">
           <button
             type="button"
@@ -107,8 +100,6 @@ export default function AuthModal() {
             Sign Up
           </button>
         </div>
-
-        {/* Body */}
         <div className="px-8 py-6">
           {authModalTab === "signin" ? <SignInForm /> : <SignUpLockedPanel />}
         </div>

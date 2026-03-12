@@ -27,7 +27,6 @@ export default function GuidePage() {
       subtitle="Whether you're looking for a job or hiring talent, this guide will get you up and running quickly."
     >
       <div className="not-prose space-y-12">
-        {/* Job Seeker Guide */}
         <div>
           <h2 className="text-xl font-bold text-heading-dark mb-6">For Job Seekers</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -42,8 +41,6 @@ export default function GuidePage() {
             ))}
           </div>
         </div>
-
-        {/* Employer Guide */}
         <div>
           <h2 className="text-xl font-bold text-heading-dark mb-6">For Employers</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

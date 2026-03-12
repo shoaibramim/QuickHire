@@ -14,7 +14,6 @@ export default function SignUpLockedPanel() {
 
   return (
     <div className="flex flex-col items-center text-center py-4 px-2 space-y-5">
-      {/* Lock icon */}
       <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center">
         <svg
           className="w-8 h-8 text-brand-indigo"
@@ -24,12 +23,22 @@ export default function SignUpLockedPanel() {
           viewBox="0 0 24 24"
           aria-hidden="true"
         >
-          <rect x={3} y={11} width={18} height={11} rx={2} strokeLinecap="round" strokeLinejoin="round" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M7 11V7a5 5 0 0110 0v4" />
+          <rect
+            x={3}
+            y={11}
+            width={18}
+            height={11}
+            rx={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M7 11V7a5 5 0 0110 0v4"
+          />
         </svg>
       </div>
-
-      {/* Heading */}
       <div className="space-y-2">
         <h3 className="text-lg font-bold text-heading-dark">
           Sign-up is currently unavailable
@@ -40,8 +49,6 @@ export default function SignUpLockedPanel() {
           if you believe you should have access.
         </p>
       </div>
-
-      {/* Divider */}
       <div className="w-full border-t border-gray-100" />
 
       {/* CTA — redirect to sign in tab */}
@@ -56,7 +63,6 @@ export default function SignUpLockedPanel() {
         </button>
       </p>
 
-      {/* Contact link — TODO: wire to real contact route */}
       <a
         href="/contact"
         className="text-xs text-gray-400 hover:text-brand-indigo transition-colors duration-200"

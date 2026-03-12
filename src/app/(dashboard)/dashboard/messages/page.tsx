@@ -61,7 +61,6 @@ export default function MessagesPage() {
       <h1 className="text-xl font-extrabold text-heading-dark">Messages</h1>
 
       <div className="flex bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm min-h-[500px]">
-        {/* Inbox */}
         <div className="w-full sm:w-80 md:w-72 lg:w-80 border-r border-gray-100 flex flex-col flex-shrink-0">
           <div className="p-4 border-b border-gray-100">
             <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
@@ -85,8 +84,6 @@ export default function MessagesPage() {
             )}
           </div>
         </div>
-
-        {/* Message detail */}
         <div className="hidden sm:flex flex-1 flex-col">
           {selectedMsg ? (
             <>

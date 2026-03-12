@@ -16,7 +16,6 @@ export default function BrushstrokeUnderline({
       aria-hidden="true"
       focusable="false"
     >
-      {/* Primary thick stroke */}
       <path
         d="M4 12 C40 4, 90 18, 150 10 C210 2, 270 18, 330 9 C380 2, 430 15, 458 10"
         stroke="#2563EB"
@@ -25,7 +24,6 @@ export default function BrushstrokeUnderline({
         strokeLinecap="round"
         opacity="0.85"
       />
-      {/* Secondary thin shadow stroke for depth */}
       <path
         d="M8 16 C50 8, 105 20, 165 14 C225 8, 285 20, 345 13 C390 7, 435 17, 455 13"
         stroke="#2563EB"

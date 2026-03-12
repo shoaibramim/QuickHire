@@ -4,15 +4,11 @@
  * Accepts an application for a job.
  * Model: Application(id, job_id, name, email, resume_link, cover_note, created_at)
  *
- * TODO (backend): Replace in-memory store with real DB insert:
  *   await db.collection("applications").insertOne({ ... })
  *   or: await prisma.application.create({ data: { ... } })
  */
 
 import { NextRequest, NextResponse } from "next/server";
-
-// ── In-memory store (dev only) ───────────────────────────────
-// TODO: Replace with MongoDB / Prisma collection once backend is ready.
 const applicationsStore: Array<{
   id: string;
   job_id: string;
@@ -38,8 +34,6 @@ export async function POST(req: NextRequest, context: RouteContext) {
   }
 
   const { name, email, resume_link, cover_note } = body;
-
-  // ── Validation ───────────────────────────────────────────
   if (!name || typeof name !== "string" || name.trim().length < 2) {
     return NextResponse.json({ error: "A valid full name is required." }, { status: 422 });
   }
@@ -49,8 +43,6 @@ export async function POST(req: NextRequest, context: RouteContext) {
   if (!resume_link || typeof resume_link !== "string" || resume_link.trim().length < 5) {
     return NextResponse.json({ error: "A resume link (URL or path) is required." }, { status: 422 });
   }
-
-  // ── Build Application record ─────────────────────────────
   const application = {
     id: crypto.randomUUID(),
     job_id,
@@ -60,8 +52,6 @@ export async function POST(req: NextRequest, context: RouteContext) {
     cover_note: (cover_note ?? "").trim(),
     created_at: new Date().toISOString(),
   };
-
-  // TODO: Replace the line below with a real DB insert
   applicationsStore.push(application);
 
   // Dev log so you can see submissions in the terminal

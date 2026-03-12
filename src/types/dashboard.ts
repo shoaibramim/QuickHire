@@ -1,5 +1,4 @@
 // Dashboard-related TypeScript types
-// TODO: Replace mock shapes with actual API response types from Express backend
 
 export interface DashboardStat {
   label: string;

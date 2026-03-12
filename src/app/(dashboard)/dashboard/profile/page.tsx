@@ -146,9 +146,7 @@ export default function ProfilePage() {
 
       <form onSubmit={handleSave}>
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          {/* Logo upload area */}
           <div className="p-6 border-b border-gray-100 flex items-center gap-5">
-            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
@@ -157,8 +155,6 @@ export default function ProfilePage() {
               onChange={handleFileChange}
               aria-label="Upload company logo"
             />
-
-            {/* Logo preview */}
             <button
               type="button"
               onClick={handleLogoClick}
@@ -176,7 +172,6 @@ export default function ProfilePage() {
                   {initials}
                 </span>
               )}
-              {/* Hover overlay */}
               <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5V19a1.5 1.5 0 001.5 1.5h15A1.5 1.5 0 0021 19v-2.5M16 8l-4-4-4 4M12 4v12" />

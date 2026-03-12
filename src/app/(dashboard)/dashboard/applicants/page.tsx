@@ -24,8 +24,6 @@ const STATUS_OPTIONS: { value: ApplicantStatus; label: string; style: string }[]
   { value: "Shortlisted", label: "Shortlisted", style: "text-green-600 hover:bg-green-50" },
   { value: "Rejected",    label: "Rejected",    style: "text-red-500   hover:bg-red-50"   },
 ];
-
-// ─── Set Status Dropdown ──────────────────────────────────────
 function SetStatusDropdown({
   applicantId,
   currentStatus,
@@ -115,8 +113,6 @@ function SetStatusDropdown({
     </>
   );
 }
-
-// ─── Applicant Detail Modal ───────────────────────────────────
 function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose: () => void }) {
   const initials = applicant.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
   return (
@@ -128,7 +124,6 @@ function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose:
       aria-label={`Application from ${applicant.name}`}
     >
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-base font-extrabold text-heading-dark">Applicant Details</h2>
           <button
@@ -141,10 +136,7 @@ function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose:
             </svg>
           </button>
         </div>
-
-        {/* Body */}
         <div className="px-6 py-5 space-y-5">
-          {/* Avatar + name */}
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-brand-indigo text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
               {initials}
@@ -158,8 +150,6 @@ function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose:
               {applicant.status}
             </span>
           </div>
-
-          {/* Contact */}
           <div className="grid grid-cols-1 gap-3">
             <div>
               <p className="text-xs font-semibold text-subtitle uppercase tracking-wider mb-1">Email</p>
@@ -182,8 +172,6 @@ function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose:
               </a>
             </div>
           </div>
-
-          {/* Cover note */}
           <div>
             <p className="text-xs font-semibold text-subtitle uppercase tracking-wider mb-1">Cover Note</p>
             {applicant.coverNote ? (
@@ -195,8 +183,6 @@ function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose:
             )}
           </div>
         </div>
-
-        {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
           <button
             onClick={onClose}
@@ -209,8 +195,6 @@ function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose:
     </div>
   );
 }
-
-// ─── Page ─────────────────────────────────────────────────────
 export default function ApplicantsPage() {
   const [filter, setFilter] = useState<StatusFilter>("All");
   const [search, setSearch] = useState("");
@@ -262,8 +246,6 @@ export default function ApplicantsPage() {
           <span className="font-semibold text-heading-dark">{filtered.length}</span> applicants shown
         </p>
       </div>
-
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="search"
@@ -289,8 +271,6 @@ export default function ApplicantsPage() {
           ))}
         </div>
       </div>
-
-      {/* Table */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

@@ -1,5 +1,4 @@
-﻿// Server Component — static data; no client state required.
-// TODO: Replace TRUSTED_COMPANIES with GET /api/companies/trusted when backend is ready.
+// Server Component static data; no client state required.
 
 import Image from "next/image";
 
@@ -12,12 +11,9 @@ export default function TrustedCompaniesSection() {
       aria-label="Companies we helped grow"
     >
       <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16">
-        {/* Section label */}
         <p className="text-sm text-subtitle font-normal mb-8">
           Companies we helped grow
         </p>
-
-        {/* Logo row */}
         <ul
           className="flex flex-wrap items-center justify-center sm:justify-between gap-x-6 sm:gap-x-8 gap-y-6 sm:gap-y-8"
           aria-label="Partner company logos"

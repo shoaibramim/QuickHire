@@ -69,7 +69,6 @@ export default function MobileNav() {
 
   return (
     <div className="md:hidden" ref={drawerRef}>
-      {/* Hamburger toggle */}
       <button
         onClick={() => setOpen((prev) => !prev)}
         aria-label={open ? "Close navigation menu" : "Open navigation menu"}
@@ -79,8 +78,6 @@ export default function MobileNav() {
       >
         <HamburgerIcon open={open} />
       </button>
-
-      {/* Backdrop */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
@@ -88,8 +85,6 @@ export default function MobileNav() {
           onClick={() => setOpen(false)}
         />
       )}
-
-      {/* Slide-down drawer */}
       <div
         id="mobile-nav-drawer"
         role="dialog"
@@ -98,7 +93,6 @@ export default function MobileNav() {
           open ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        {/* Drawer header row */}
         <div className="flex items-center justify-between mb-8">
           <span className="text-lg font-extrabold text-heading-dark">Menu</span>
           <button
@@ -109,8 +103,6 @@ export default function MobileNav() {
             <HamburgerIcon open={true} />
           </button>
         </div>
-
-        {/* Nav links */}
         <ul className="space-y-1" role="list" aria-label="Mobile site navigation">
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
@@ -124,12 +116,9 @@ export default function MobileNav() {
             </li>
           ))}
         </ul>
-
-        {/* Auth actions */}
         <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col gap-3">
           {user ? (
             <>
-              {/* Authenticated state */}
               <div className="flex items-center gap-3 px-3 py-2">
                 <div className="w-9 h-9 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
@@ -155,7 +144,6 @@ export default function MobileNav() {
             </>
           ) : (
             <>
-              {/* Unauthenticated state */}
               <button
                 onClick={() => { setOpen(false); openAuthModal("signin"); }}
                 className="block text-center px-4 py-3 rounded-lg border border-brand-indigo text-brand-indigo font-semibold text-sm hover:bg-indigo-50 transition-colors duration-200"

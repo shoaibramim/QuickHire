@@ -37,8 +37,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
   const drag = useRef<{ active: boolean; startX: number; startY: number; ox: number; oy: number }>({
     active: false, startX: 0, startY: 0, ox: 0, oy: 0,
   });
-
-  // ── Clamp offset so the image always covers the full canvas ──────────────
   const clamp = useCallback(
     (s: number, ox: number, oy: number) => {
       const img = imgRef.current;
@@ -52,8 +50,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
     },
     []
   );
-
-  // ── Draw canvas ───────────────────────────────────────────────────────────
   const draw = useCallback((s: number, ox: number, oy: number) => {
     const canvas = canvasRef.current;
     const img    = imgRef.current;
@@ -62,8 +58,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
     ctx.clearRect(0, 0, PREVIEW_PX, PREVIEW_PX);
     ctx.drawImage(img, ox, oy, img.naturalWidth * s, img.naturalHeight * s);
   }, []);
-
-  // ── Load image on mount / imageSrc change ────────────────────────────────
   useEffect(() => {
     const img = new Image();
     img.onload = () => {
@@ -86,13 +80,9 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
     };
     img.src = imageSrc;
   }, [imageSrc, draw]);
-
-  // ── Redraw whenever scale / offset change ────────────────────────────────
   useEffect(() => {
     draw(scale, offset.x, offset.y);
   }, [scale, offset, draw]);
-
-  // ── Drag handlers ─────────────────────────────────────────────────────────
   function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
     e.currentTarget.setPointerCapture(e.pointerId);
     drag.current = { active: true, startX: e.clientX, startY: e.clientY, ox: offset.x, oy: offset.y };
@@ -110,8 +100,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
   function onPointerUp() {
     drag.current.active = false;
   }
-
-  // ── Wheel zoom ────────────────────────────────────────────────────────────
   function onWheel(e: React.WheelEvent<HTMLCanvasElement>) {
     e.preventDefault();
     const factor    = e.deltaY < 0 ? 1.08 : 1 / 1.08;
@@ -125,8 +113,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
     setScale(newScale);
     setOffset(newOff);
   }
-
-  // ── Slider zoom ───────────────────────────────────────────────────────────
   function onSliderChange(e: React.ChangeEvent<HTMLInputElement>) {
     const newScale = Number(e.target.value);
     const cx = PREVIEW_PX / 2, cy = PREVIEW_PX / 2;
@@ -137,8 +123,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
     setScale(newScale);
     setOffset(newOff);
   }
-
-  // ── Confirm: export a 400×400 JPEG compressed to ≤ 500 KB ───────────────
   function handleConfirm() {
     const img = imgRef.current;
     if (!img) return;
@@ -171,8 +155,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
 
     onConfirm(dataUrl);
   }
-
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     /* Backdrop */
     <div
@@ -182,8 +164,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
       aria-label="Crop company logo"
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col gap-5 p-6">
-
-        {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-heading-dark">Crop Company Logo</h2>
           <button
@@ -197,13 +177,9 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
             </svg>
           </button>
         </div>
-
-        {/* Instruction */}
         <p className="text-xs text-subtitle -mt-2">
           Drag to reposition · scroll or use the slider to zoom · result will be a square.
         </p>
-
-        {/* Canvas crop area */}
         <div
           className="mx-auto rounded-xl overflow-hidden ring-2 ring-brand-indigo/40 shadow-inner"
           style={{ width: PREVIEW_PX, height: PREVIEW_PX }}
@@ -221,10 +197,7 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
             style={{ display: "block" }}
           />
         </div>
-
-        {/* Zoom slider */}
         <div className="flex items-center gap-3">
-          {/* Zoom-out icon */}
           <svg className="w-4 h-4 text-subtitle flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0zM8 11h6" />
           </svg>
@@ -238,13 +211,10 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
             className="flex-1 accent-brand-indigo h-1.5 rounded-full"
             aria-label="Zoom level"
           />
-          {/* Zoom-in icon */}
           <svg className="w-4 h-4 text-subtitle flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0zM11 8v6M8 11h6" />
           </svg>
         </div>
-
-        {/* Actions */}
         <div className="flex gap-3 pt-1">
           <button
             type="button"

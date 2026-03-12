@@ -1,6 +1,4 @@
 @import "tailwindcss";
-
-/* ─── Design Tokens ──────────────────────────────────────────── */
 @theme {
   /* Typography — wires Plus Jakarta Sans into Tailwind (closest free match to Roc Grotesk) */
   --font-sans:
@@ -31,8 +29,6 @@
   /* Shadows */
   --shadow-search: 0 8px 32px 0 rgba(79, 70, 229, 0.1);
 }
-
-/* ─── Base Overrides ─────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
 }
@@ -47,8 +43,6 @@ body {
 button:not(:disabled) {
   cursor: pointer;
 }
-
-/* ─── Modal / Overlay Animations ────────────────────────────── */
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
@@ -65,13 +59,9 @@ button:not(:disabled) {
     transform: translateX(100%);
   }
 }
-
-/* ─── Dashboard Sidebar ──────────────────────────────────────── */
 :root {
   --sidebar-width: 240px;
 }
-
-/* ─── Rich Text Editor ───────────────────────────────────────── */
 /* Placeholder for contenteditable when empty */
 [data-rich-editor]:empty::before {
   content: attr(data-placeholder);

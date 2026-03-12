@@ -15,8 +15,6 @@ export default function NavigationProgress() {
   const prevPathRef = useRef(pathname);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // ── Detect link/button clicks to start the bar ────────────
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       // Walk up looking for an <a> tag
@@ -42,8 +40,6 @@ export default function NavigationProgress() {
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
   }, []);
-
-  // ── Complete the bar when the pathname changes ────────────
   useEffect(() => {
     if (pathname !== prevPathRef.current) {
       prevPathRef.current = pathname;

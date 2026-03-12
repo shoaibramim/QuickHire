@@ -12,7 +12,6 @@ interface Props {
 export default function ContentPageLayout({ title, subtitle, lastUpdated, children }: Props) {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <div className="bg-hero-bg border-b border-deco/40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-heading-dark mb-3">
@@ -26,8 +25,6 @@ export default function ContentPageLayout({ title, subtitle, lastUpdated, childr
           )}
         </div>
       </div>
-
-      {/* Body */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
         <div className="prose prose-sm sm:prose-base max-w-none text-subtitle leading-relaxed space-y-6">
           {children}

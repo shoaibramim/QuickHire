@@ -9,10 +9,8 @@
 
 import { apiClient } from "@/services/apiClient";
 import type { User, AuthLoginResponse, SignInCredentials } from "@/types/auth";
-
-// ── Token helpers ─────────────────────────────────────────────
 const TOKEN_KEY = "qh_token";
-const USER_KEY  = "qh_user";
+const USER_KEY = "qh_user";
 
 export const tokenStore = {
   get: (): string | null =>
@@ -36,12 +34,14 @@ export const userStore = {
   get: (): User | null => {
     if (typeof window === "undefined") return null;
     const raw = localStorage.getItem(USER_KEY);
-    try { return raw ? (JSON.parse(raw) as User) : null; } catch { return null; }
+    try {
+      return raw ? (JSON.parse(raw) as User) : null;
+    } catch {
+      return null;
+    }
   },
   set: (user: User) => localStorage.setItem(USER_KEY, JSON.stringify(user)),
 };
-
-// ── Service methods ───────────────────────────────────────────
 
 /**
  * POST /api/auth/login
@@ -49,7 +49,10 @@ export const userStore = {
  * Stores the returned JWT + user in localStorage.
  */
 export async function login(credentials: SignInCredentials): Promise<User> {
-  const data = await apiClient.post<AuthLoginResponse>("/auth/login", credentials as unknown as Record<string, unknown>);
+  const data = await apiClient.post<AuthLoginResponse>(
+    "/auth/login",
+    credentials as unknown as Record<string, unknown>,
+  );
   tokenStore.set(data.token);
   userStore.set(data.user);
   return data.user;
@@ -71,15 +74,26 @@ export async function logout(): Promise<void> {
  * GET /api/auth/me
  * Validates stored JWT against the backend and returns the current user.
  * Returns null if no token or token is invalid/expired.
+ *
+ * NOTE: Always calls the backend — never short-circuits on cached user.
+ * A cached user in localStorage alone is not proof the token is still valid.
  */
 export async function getMe(): Promise<User | null> {
   const token = tokenStore.get();
   if (!token) return null;
 
-  // Use cached user to avoid a round-trip on every page load;
-  // /auth/me still runs to revalidate the token against the backend.
-  const cached = userStore.get();
-  if (cached) return cached;
+  // Check token expiry client-side before hitting the network.
+  // JWT payload.exp is in seconds; Date.now() is in ms.
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    if (typeof payload.exp === "number" && payload.exp * 1000 < Date.now()) {
+      tokenStore.clear();
+      return null;
+    }
+  } catch {
+    tokenStore.clear();
+    return null;
+  }
 
   try {
     const user = await apiClient.get<User>("/auth/me");

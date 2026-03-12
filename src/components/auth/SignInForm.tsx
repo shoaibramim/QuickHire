@@ -3,7 +3,6 @@
 /**
  * SignInForm — email & password sign-in with loading + error states.
  *
- * TODO (backend): `authService.login()` already calls POST /api/auth/login.
  *   Wire Passport.js session handling to the Express endpoint and the
  *   mock credentials in authService.ts can be removed.
  */
@@ -39,7 +38,6 @@ export default function SignInForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
-      {/* General error banner */}
       {error && (
         <div
           role="alert"
@@ -51,8 +49,6 @@ export default function SignInForm() {
           <span>{error.message}</span>
         </div>
       )}
-
-      {/* Email */}
       <div>
         <label
           htmlFor="signin-email"
@@ -71,8 +67,6 @@ export default function SignInForm() {
           className="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm text-heading-dark placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-brand-indigo focus:border-transparent transition-all duration-200"
         />
       </div>
-
-      {/* Password */}
       <div>
         <label
           htmlFor="signin-password"
@@ -109,8 +103,6 @@ export default function SignInForm() {
           </button>
         </div>
       </div>
-
-      {/* Submit */}
       <Button
         type="submit"
         variant="primary"

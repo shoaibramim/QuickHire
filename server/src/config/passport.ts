@@ -2,8 +2,6 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import User from "../models/User";
-
-// ── Local strategy (email + password at login) ─────────────
 passport.use(new LocalStrategy({ usernameField: "email" }, async (email, password, done) => {
   try {
     const user = await User.findOne({ email }).select("+passwordHash");
@@ -15,8 +13,6 @@ passport.use(new LocalStrategy({ usernameField: "email" }, async (email, passwor
     return done(err);
   }
 }));
-
-// ── JWT strategy (all protected routes) ────────────────────
 passport.use(new JwtStrategy(
   {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

@@ -1,8 +1,6 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import app from "./app";
-
-// ── DB + Start (local development only) ─────────────────────
 mongoose.connect(process.env.MONGODB_URI!)
   .then(() => {
     console.log("Connected to MongoDB Atlas");

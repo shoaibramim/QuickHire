@@ -46,12 +46,10 @@ export type AuthModalTab = "signin" | "signup";
 export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  // ── Modal controls ───────────────────────────────────────────
   isAuthModalOpen: boolean;
   authModalTab: AuthModalTab;
   openAuthModal: (tab?: AuthModalTab) => void;
   closeAuthModal: () => void;
-  // ── Auth actions ─────────────────────────────────────────────
   /** Throws AuthError on failure */
   signIn: (credentials: SignInCredentials) => Promise<void>;
   signOut: () => Promise<void>;

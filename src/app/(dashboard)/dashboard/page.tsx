@@ -12,8 +12,6 @@ import type { DashboardOverview } from "@/types/dashboard";
 
 type ChartPeriod = "Week" | "Month" | "Year";
 type ChartView = "Overview" | "Jobs View" | "Jobs Applied";
-
-// ── Stat Card ─────────────────────────────────────────────────
 function StatCard({
   value,
   label,
@@ -40,8 +38,6 @@ function StatCard({
     </Link>
   );
 }
-
-// ── Trend badge ───────────────────────────────────────────────
 function TrendBadge({ value }: { value: number }) {
   const up = value >= 0;
   return (
@@ -85,7 +81,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-extrabold text-heading-dark">
@@ -95,8 +90,6 @@ export default function DashboardPage() {
             Here is your job listings statistic report from {dateLabel}
           </p>
         </div>
-
-        {/* Date range */}
         <div className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm text-heading-dark font-medium self-start">
           <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={1.75} viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -114,15 +107,12 @@ export default function DashboardPage() {
 
       {/* ── Middle area: chart + right stats ───────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-        {/* Chart card */}
         <div className="xl:col-span-2 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-1">
             <div>
               <h2 className="text-base font-bold text-heading-dark">Job statistics</h2>
               <p className="text-xs text-subtitle mt-0.5">Showing Jobstatus Jul 19-25</p>
             </div>
-            {/* Period tabs */}
             <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden self-start">
               {(["Week", "Month", "Year"] as ChartPeriod[]).map((p) => (
                 <button
@@ -135,8 +125,6 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-
-          {/* Chart view tabs */}
           <div className="flex gap-4 mb-4 border-b border-gray-100 pb-3">
             {(["Overview", "Jobs View", "Jobs Applied"] as ChartView[]).map((v) => (
               <button
@@ -151,10 +139,7 @@ export default function DashboardPage() {
 
           <JobStatisticsChart data={chartData} />
         </div>
-
-        {/* Right stats */}
         <div className="flex flex-col gap-4">
-          {/* Jobs Open */}
           <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex-1">
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-sm font-semibold text-subtitle uppercase tracking-wider">Job Open</h3>
@@ -165,16 +150,12 @@ export default function DashboardPage() {
             <p className="text-5xl font-extrabold text-heading-dark leading-none mt-2 mb-1">{jobsOpen}</p>
             <p className="text-sm text-subtitle">Jobs Opened</p>
           </div>
-
-          {/* Applicants Summary */}
           <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex-1">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-heading-dark">Applicants Summary</h3>
             </div>
             <p className="text-4xl font-extrabold text-heading-dark leading-none mb-3">{totalApplicants}</p>
             <p className="text-sm text-subtitle mb-4">Applicants</p>
-
-            {/* Progress bar */}
             <div className="flex h-2 rounded-full overflow-hidden gap-0.5 mb-4">
               {applicantBreakdown.map((item) => (
                 <div
@@ -185,8 +166,6 @@ export default function DashboardPage() {
                 />
               ))}
             </div>
-
-            {/* Legend */}
             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               {applicantBreakdown.map((item) => (
                 <div key={item.label} className="flex items-center gap-2">

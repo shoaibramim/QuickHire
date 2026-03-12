@@ -1,4 +1,4 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 
 import CtaAuthButton from "@/components/home/CtaAuthButton";
 import { CTA_CONTENT } from "@/constants/siteData";
@@ -20,9 +20,7 @@ export default function CtaSection() {
           to visually overflow above the card's top edge.
         */}
         <div className="relative">
-          {/* Indigo card */}
           <div className="relative bg-brand-indigo rounded-tr-xl rounded-bl-xl overflow-hidden mt-8 sm:mt-12 lg:mt-16 min-h-[300px] sm:min-h-[360px] md:min-h-[400px] lg:min-h-[440px] xl:min-h-[490px] 2xl:min-h-[540px] 3xl:min-h-[600px] flex items-center">
-            {/* Top-left cut-corner triangle overlay */}
             <div
               className="absolute top-0 left-0 z-20 w-0 h-0"
               style={{
@@ -31,7 +29,6 @@ export default function CtaSection() {
               }}
               aria-hidden="true"
             />
-            {/* Bottom-right cut-corner triangle overlay */}
             <div
               className="absolute bottom-0 right-0 z-20 w-0 h-0"
               style={{
@@ -40,8 +37,6 @@ export default function CtaSection() {
               }}
               aria-hidden="true"
             />
-
-            {/* Left chevron decoration */}
             <div
               className="absolute left-0 inset-y-0 w-20 pointer-events-none"
               aria-hidden="true"
@@ -55,8 +50,6 @@ export default function CtaSection() {
                 style={{ clipPath: BOTTOM_CHEVRON_CLIP }}
               />
             </div>
-
-            {/* Text content */}
             <div className="relative z-10 pl-16 sm:pl-20 md:pl-24 xl:pl-28 2xl:pl-32 pr-6 sm:pr-8 lg:pr-12 xl:pr-16 2xl:pr-20 3xl:pr-24 py-10 md:py-14 xl:py-16 2xl:py-20 w-full lg:w-[45%] xl:w-[42%] 2xl:w-[40%] 3xl:w-[38%]">
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-3 sm:mb-4">
                 {CTA_CONTENT.headline}
@@ -69,7 +62,7 @@ export default function CtaSection() {
           </div>
 
           {/*
-            Dashboard screenshot — sibling of the card, not a child, so the card's
+            Dashboard screenshot - sibling of the card, not a child, so the card's
             overflow-hidden does not clip it. Anchored to top-0 of the outer wrapper,
             which is 64 px above the card, making the image overflow upward.
           */}

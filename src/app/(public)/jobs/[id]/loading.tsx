@@ -1,4 +1,4 @@
-﻿// Skeleton loading UI for /jobs/[id] — shown instantly while the server
+// Skeleton loading UI for /jobs/[id] — shown instantly while the server
 // component fetches job data from the API.
 
 function Shimmer() {
@@ -27,7 +27,6 @@ export default function JobDetailLoading() {
       aria-busy="true"
       aria-label="Loading job details"
     >
-      {/* Breadcrumb bar */}
       <div className="bg-hero-bg border-b border-deco/40">
         <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-4">
           <Bone className="h-4 w-48" />
@@ -38,7 +37,6 @@ export default function JobDetailLoading() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* ── Main content ─────────────────────── */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Job header */}
             <div className="flex flex-col sm:flex-row sm:items-start gap-5">
               <Bone className="w-16 h-16 rounded-lg flex-shrink-0" />
               <div className="flex-1 space-y-2">
@@ -51,8 +49,6 @@ export default function JobDetailLoading() {
                 </div>
               </div>
             </div>
-
-            {/* About the Role */}
             <div className="space-y-3">
               <Bone className="h-5 w-32 mb-4" />
               <Bone className="h-3 w-full" />
@@ -73,8 +69,6 @@ export default function JobDetailLoading() {
             <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
               <Bone className="h-3 w-16" />
               <Bone className="h-5 w-32 mb-2" />
-
-              {/* Meta rows */}
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center justify-between">
@@ -83,8 +77,6 @@ export default function JobDetailLoading() {
                   </div>
                 ))}
               </div>
-
-              {/* Apply form skeleton */}
               <div className="pt-2 space-y-3">
                 <Bone className="h-10 w-full rounded-lg" />
                 <Bone className="h-10 w-full rounded-lg" />

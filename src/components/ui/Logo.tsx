@@ -1,8 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-// ─── Props ────────────────────────────────────────────────────
-
 interface LogoProps {
   /** Icon diameter in px */
   iconSize?: number;
@@ -14,8 +12,6 @@ interface LogoProps {
   lightText?: boolean;
   className?: string;
 }
-
-// ─── Component ────────────────────────────────────────────────
 
 export default function Logo({
   iconSize = 36,

@@ -1,4 +1,4 @@
-﻿// Jobs listing page — /jobs
+// Jobs listing page /jobs
 // Server Component: fetches live data from the Express API with search/filter params.
 
 import type { Metadata } from "next";
@@ -9,7 +9,7 @@ import JobsFilterBar from "@/components/jobs/JobsFilterBar";
 import { getJobs, getJobCategories } from "@/services/jobsService";
 
 export const metadata: Metadata = {
-  title: "Browse Jobs — QuickHire",
+  title: "Browse Jobs - QuickHire",
   description: "Explore thousands of job opportunities across all categories.",
 };
 
@@ -29,17 +29,17 @@ export default async function JobsPage({
 }) {
   const { q, category, type, view, location, featured } = await searchParams;
   const activeCategory = category ?? "";
-  const activeType     = type     ?? "";
-  const activeView     = view     ?? "grid";
+  const activeType = type ?? "";
+  const activeView = view ?? "grid";
   const activeLocation = location ?? "";
   const activeFeatured = featured === "true";
-  const query          = q        ?? "";
+  const query = q ?? "";
 
-  // Build API query params — filtering is done server-side
+  // Build API query params; filtering is done server-side
   const apiParams: Record<string, string> = {};
-  if (query)          apiParams["q"]        = query;
+  if (query) apiParams["q"] = query;
   if (activeCategory) apiParams["category"] = activeCategory;
-  if (activeType)     apiParams["type"]     = activeType;
+  if (activeType) apiParams["type"] = activeType;
   if (activeLocation) apiParams["location"] = activeLocation;
   if (activeFeatured) apiParams["featured"] = "true";
 
@@ -50,23 +50,28 @@ export default async function JobsPage({
 
   return (
     <section className="bg-white min-h-screen">
-      {/* Page header */}
       <div className="bg-hero-bg border-b border-deco/40">
         <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-heading-dark mb-1">
-            {activeFeatured ? "Featured Jobs" : query ? `Results for "${query}"` : "Browse All Jobs"}
+            {activeFeatured
+              ? "Featured Jobs"
+              : query
+                ? `Results for "${query}"`
+                : "Browse All Jobs"}
           </h1>
           <p className="text-subtitle text-sm sm:text-base">
             Showing{" "}
-            <span className="font-semibold text-heading-dark">{jobs.length}</span>{" "}
+            <span className="font-semibold text-heading-dark">
+              {jobs.length}
+            </span>{" "}
             {jobs.length === 1 ? "job" : "jobs"}
-            {activeCategory && ` in ${categories.find((c) => c.id === activeCategory)?.label ?? activeCategory}`}
+            {activeCategory &&
+              ` in ${categories.find((c) => c.id === activeCategory)?.label ?? activeCategory}`}
           </p>
         </div>
       </div>
 
       <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-8">
-        {/* Filter bar */}
         <JobsFilterBar
           categories={categories}
           activeCategory={activeCategory}
@@ -79,12 +84,26 @@ export default async function JobsPage({
 
         {jobs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-            <svg className="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" />
+            <svg
+              className="w-16 h-16 text-gray-200"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"
+              />
             </svg>
-            <p className="text-lg font-semibold text-heading-dark">No jobs found</p>
+            <p className="text-lg font-semibold text-heading-dark">
+              No jobs found
+            </p>
             <p className="text-subtitle text-sm max-w-xs">
-              Try adjusting your search or filter to find what you&apos;re looking for.
+              Try adjusting your search or filter to find what you&apos;re
+              looking for.
             </p>
           </div>
         ) : activeView === "list" ? (

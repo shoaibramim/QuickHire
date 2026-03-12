@@ -4,7 +4,6 @@
  * ApplyButton — checks auth state before proceeding.
  * Unauthenticated users are prompted to sign in first.
  *
- * TODO (backend): POST /api/jobs/:id/apply once real backend is ready.
  */
 
 import { useState } from "react";
@@ -39,7 +38,6 @@ export default function ApplyButton({ jobId, jobTitle }: Props) {
       return;
     }
     setLoading(true);
-    // TODO: replace with real API call
     // await apiClient.post(`/jobs/${jobId}/apply`);
     await new Promise((r) => setTimeout(r, 800)); // simulate network
     console.log(`Applied to job ${jobId}: ${jobTitle}`);

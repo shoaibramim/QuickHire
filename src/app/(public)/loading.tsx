@@ -1,4 +1,4 @@
-﻿// Generic skeleton for public content pages (advice, contact, companies, etc.)
+// Generic skeleton for public content pages (advice, contact, companies, etc.)
 // Shown instantly by Next.js App Router while the server component loads.
 
 function Shimmer() {
@@ -21,15 +21,12 @@ function Bone({ className }: { className?: string }) {
 export default function PublicPageLoading() {
   return (
     <div className="bg-white min-h-screen" aria-busy="true" aria-label="Loading page">
-      {/* Page header band */}
       <div className="bg-hero-bg border-b border-deco/40">
         <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
           <Bone className="h-9 w-56 mb-3" />
           <Bone className="h-4 w-80" />
         </div>
       </div>
-
-      {/* Body content */}
       <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10 space-y-4">
         <Bone className="h-4 w-full" />
         <Bone className="h-4 w-11/12" />

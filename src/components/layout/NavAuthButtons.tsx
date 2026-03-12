@@ -84,10 +84,7 @@ export default function NavAuthButtons() {
 
   return (
     <div className="hidden md:flex items-center gap-3 relative" ref={menuRef}>
-      {/* Post a job CTA */}
       <PostJobButton className="hidden lg:inline-flex" />
-
-      {/* Avatar toggle */}
       <button
         onClick={() => setMenuOpen((v) => !v)}
         aria-label="Open account menu"
@@ -111,8 +108,6 @@ export default function NavAuthButtons() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-
-      {/* Dropdown menu */}
       {menuOpen && (
         <div className="absolute top-full right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50 animate-[fadeSlideUp_0.15s_ease-out]">
           <div className="px-4 py-2.5 border-b border-gray-100">

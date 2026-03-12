@@ -118,7 +118,6 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-3">
-      {/* Full name */}
       <div>
         <label htmlFor={`apply-name-${jobId}`} className="block text-xs font-medium text-heading-dark mb-1">
           Full Name <span className="text-red-500">*</span>
@@ -134,8 +133,6 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
           className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-indigo focus:border-transparent placeholder-gray-400"
         />
       </div>
-
-      {/* Email */}
       <div>
         <label htmlFor={`apply-email-${jobId}`} className="block text-xs font-medium text-heading-dark mb-1">
           Email Address <span className="text-red-500">*</span>
@@ -151,8 +148,6 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
           className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-indigo focus:border-transparent placeholder-gray-400"
         />
       </div>
-
-      {/* Resume link */}
       <div>
         <label htmlFor={`apply-resume-${jobId}`} className="block text-xs font-medium text-heading-dark mb-1">
           Resume Link <span className="text-red-500">*</span>
@@ -168,8 +163,6 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
           className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-indigo focus:border-transparent placeholder-gray-400"
         />
       </div>
-
-      {/* Cover note */}
       <div>
         <label htmlFor={`apply-cover-${jobId}`} className="block text-xs font-medium text-heading-dark mb-1">
           Cover Note <span className="text-subtitle text-xs font-normal">(optional)</span>
@@ -184,8 +177,6 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
           className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-indigo focus:border-transparent placeholder-gray-400 resize-none"
         />
       </div>
-
-      {/* Error */}
       {error && (
         <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
           {error}

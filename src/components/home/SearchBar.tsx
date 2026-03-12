@@ -19,8 +19,6 @@ const ALL_JOB_TITLES: string[] = Array.from(
 
 const MAX_SUGGESTIONS = 6;
 
-// ─── Inline icon helpers ──────────────────────────────────────
-
 function SearchIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -59,14 +57,10 @@ function LocationPinIcon({ className }: { className?: string }) {
   );
 }
 
-// ─── Props ────────────────────────────────────────────────────
-
 interface SearchBarProps {
   defaultLocation?: string;
   onSearch?: (state: SearchFormState) => void;
 }
-
-// ─── Component ────────────────────────────────────────────────
 
 export default function SearchBar({
   defaultLocation = "",

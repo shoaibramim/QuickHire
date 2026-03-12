@@ -15,8 +15,6 @@ import newsletterRoutes from "./routes/newsletter";
 import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
-
-// ── Security middleware ──────────────────────────────────────
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_ORIGIN, credentials: true }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // 100 req/15min
@@ -24,16 +22,12 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // 100 req/15min
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(passport.initialize());
-
-// ── Routes ───────────────────────────────────────────────────
 app.use("/api/auth",               authRoutes);
 app.use("/api/jobs",               jobRoutes);
 app.use("/api/dashboard",          dashboardRoutes);
 app.use("/api/dashboard/messages", messagesRoutes);
 app.use("/api/dashboard/schedule", scheduleRoutes);
 app.use("/api/newsletter",         newsletterRoutes);
-
-// ── Global error handler (must be last) ─────────────────────
 app.use(errorHandler);
 
 export default app;

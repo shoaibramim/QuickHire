@@ -148,7 +148,6 @@ export default function LocationCombobox({
           role="listbox"
           aria-label="Location options"
         >
-          {/* Anywhere */}
           {!isSearching && (
             <button
               type="button"
@@ -177,11 +176,7 @@ export default function LocationCombobox({
               )}
             </button>
           )}
-
-          {/* Divider */}
           {!isSearching && <div className="border-t border-gray-100 mx-3" />}
-
-          {/* Capital results */}
           {searchResults.length === 0 && isSearching ? (
             <p className="px-4 py-3 text-sm text-subtitle">No matching cities found.</p>
           ) : (
@@ -226,8 +221,6 @@ export default function LocationCombobox({
               })}
             </ul>
           )}
-
-          {/* See more / See less */}
           {!isSearching && (
             <div className="border-t border-gray-100">
               <button
