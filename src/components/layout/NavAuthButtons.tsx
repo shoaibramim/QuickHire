@@ -16,6 +16,7 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import PostJobButton from "@/components/ui/PostJobButton";
 import { useAuth } from "@/hooks/useAuth";
+import { getDashboardPathForRole } from "@/services/authService";
 
 export default function NavAuthButtons() {
   const { user, isLoading, openAuthModal, signOut } = useAuth();
@@ -81,6 +82,7 @@ export default function NavAuthButtons() {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+  const dashboardHref = getDashboardPathForRole(user.role);
 
   return (
     <div className="hidden md:flex items-center gap-3 relative" ref={menuRef}>
@@ -105,22 +107,68 @@ export default function NavAuthButtons() {
           viewBox="0 0 24 24"
           aria-hidden="true"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
       {menuOpen && (
         <div className="absolute top-full right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50 animate-[fadeSlideUp_0.15s_ease-out]">
           <div className="px-4 py-2.5 border-b border-gray-100">
-            <p className="text-sm font-semibold text-heading-dark truncate">{user.name}</p>
-            <p className="text-xs text-subtitle truncate mt-0.5">{user.email}</p>
+            <p className="text-sm font-semibold text-heading-dark truncate">
+              {user.name}
+            </p>
+            <p className="text-xs text-subtitle truncate mt-0.5">
+              {user.email}
+            </p>
           </div>
           <Link
-            href="/dashboard"
+            href={dashboardHref}
             onClick={() => setMenuOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-heading-dark hover:bg-gray-50 transition-colors"
           >
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-              <rect x={3} y={3} width={7} height={7} rx={1} strokeLinecap="round" /><rect x={14} y={3} width={7} height={7} rx={1} strokeLinecap="round" /><rect x={3} y={14} width={7} height={7} rx={1} strokeLinecap="round" /><rect x={14} y={14} width={7} height={7} rx={1} strokeLinecap="round" />
+            <svg
+              className="w-4 h-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <rect
+                x={3}
+                y={3}
+                width={7}
+                height={7}
+                rx={1}
+                strokeLinecap="round"
+              />
+              <rect
+                x={14}
+                y={3}
+                width={7}
+                height={7}
+                rx={1}
+                strokeLinecap="round"
+              />
+              <rect
+                x={3}
+                y={14}
+                width={7}
+                height={7}
+                rx={1}
+                strokeLinecap="round"
+              />
+              <rect
+                x={14}
+                y={14}
+                width={7}
+                height={7}
+                rx={1}
+                strokeLinecap="round"
+              />
             </svg>
             Dashboard
           </Link>
@@ -129,18 +177,45 @@ export default function NavAuthButtons() {
             onClick={() => setMenuOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-heading-dark hover:bg-gray-50 transition-colors"
           >
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-4 7a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <svg
+              className="w-4 h-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-4 7a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
             </svg>
-            {user.role === "employer" || user.role === "admin" ? "Company Profile" : "My Profile"}
+            {user.role === "employer" || user.role === "admin"
+              ? "Company Profile"
+              : "My Profile"}
           </Link>
           <div className="border-t border-gray-100 my-1" />
           <button
-            onClick={async () => { setMenuOpen(false); await signOut(); }}
+            onClick={async () => {
+              setMenuOpen(false);
+              await signOut();
+            }}
             className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
             </svg>
             Sign out
           </button>

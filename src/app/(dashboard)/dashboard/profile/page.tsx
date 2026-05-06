@@ -1,67 +1,86 @@
 "use client";
 
-// Company Profile page — /dashboard/profile
+import { useEffect, useRef, useState } from "react";
 
-import { useState, useRef, useEffect } from "react";
+import Button from "@/components/ui/Button";
+import ImageCropModal from "@/components/ui/ImageCropModal";
 import { useAuth } from "@/hooks/useAuth";
 import { apiClient } from "@/services/apiClient";
 import type { User } from "@/types/auth";
-import Button from "@/components/ui/Button";
-import ImageCropModal from "@/components/ui/ImageCropModal";
 
-interface ProfileData {
+type ProfileData = {
   name: string;
+  email: string;
+  phone: string;
+  location: string;
   company: string;
   industry: string;
   website: string;
-  location: string;
-  size: string;
+  companySize: string;
   about: string;
-  email: string;
-  phone: string;
   companyLogo?: string;
-}
+  resumeLink: string;
+  coverLetterTemplate: string;
+};
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuth();
+  const isEmployer = user?.role === "employer" || user?.role === "admin";
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState<ProfileData>({
-    name:        user?.name ?? "",
-    company:     user?.company ?? "",
-    industry:    "Technology",
-    website:     "https://nomad.com",
-    location:    "Remote",
-    size:        "51-200",
-    about:       "Nomad is a remote-first platform helping teams collaborate and build asynchronously from anywhere in the world.",
-    email:       user?.email ?? "",
-    phone:       "+1 (555) 000-0000",
+    name: user?.name ?? "",
+    email: user?.email ?? "",
+    phone: user?.phone ?? "",
+    location: user?.location ?? "",
+    company: user?.company ?? "",
+    industry: user?.industry ?? "",
+    website: user?.website ?? "",
+    companySize: user?.companySize ?? "",
+    about: user?.about ?? "",
     companyLogo: user?.companyLogo ?? "",
+    resumeLink: user?.resumeLink ?? "",
+    coverLetterTemplate: user?.coverLetterTemplate ?? "",
   });
-  const [logoPreview, setLogoPreview] = useState<string>(user?.companyLogo ?? "");
-  const [cropSource, setCropSource]   = useState<string | null>(null);
-  const [saved, setSaved]     = useState(false);
-  const [saving, setSaving]   = useState(false);
-  const [error, setError]     = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>(
+    user?.companyLogo ?? "",
+  );
+  const [cropSource, setCropSource] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load profile from API on mount
   useEffect(() => {
-    apiClient.get<ProfileData & { companyLogo?: string }>("/dashboard/profile")
+    apiClient
+      .get<User>("/auth/profile")
       .then((data) => {
         setForm((prev) => ({
           ...prev,
-          name:    data.name    ?? prev.name,
-          company: (data as any).company ?? prev.company,
-          email:   (data as any).email   ?? prev.email,
+          name: data.name ?? prev.name,
+          email: data.email ?? prev.email,
+          phone: data.phone ?? prev.phone,
+          location: data.location ?? prev.location,
+          company: data.company ?? prev.company,
+          industry: data.industry ?? prev.industry,
+          website: data.website ?? prev.website,
+          companySize: data.companySize ?? prev.companySize,
+          about: data.about ?? prev.about,
           companyLogo: data.companyLogo ?? prev.companyLogo,
+          resumeLink: data.resumeLink ?? prev.resumeLink,
+          coverLetterTemplate:
+            data.coverLetterTemplate ?? prev.coverLetterTemplate,
         }));
         if (data.companyLogo) setLogoPreview(data.companyLogo);
       })
-      .catch(() => {/* use defaults */});
+      .catch(() => undefined);
   }, []);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setError(null);
   }
 
   function handleLogoClick() {
@@ -91,7 +110,6 @@ export default function ProfilePage() {
     setLogoPreview(croppedDataUrl);
     setForm((prev) => ({ ...prev, companyLogo: croppedDataUrl }));
     setCropSource(null);
-    // Reset file input so the same file can be re-selected if needed
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -104,34 +122,36 @@ export default function ProfilePage() {
     e.preventDefault();
     setSaving(true);
     setError(null);
+
     try {
-      const updated = await apiClient.put<User>("/dashboard/profile", {
-        name:        form.name,
-        company:     form.company,
-        companyLogo: form.companyLogo,
-        industry:    form.industry,
-        website:     form.website,
-        location:    form.location,
-        companySize: form.size,
-        about:       form.about,
-        phone:       form.phone,
-      } as Record<string, unknown>);
-      // Keep in-memory user in sync so sidebar/navbar reflect the new logo immediately
-      updateUser({
-        name:        updated.name,
-        company:     updated.company,
-        companyLogo: updated.companyLogo,
-      });
+      const payload: Record<string, unknown> = {
+        name: form.name,
+        location: form.location,
+        phone: form.phone,
+      };
+
+      if (isEmployer) {
+        payload.company = form.company;
+        payload.companyLogo = form.companyLogo;
+        payload.industry = form.industry;
+        payload.website = form.website;
+        payload.companySize = form.companySize;
+        payload.about = form.about;
+      } else {
+        payload.resumeLink = form.resumeLink;
+        payload.coverLetterTemplate = form.coverLetterTemplate;
+      }
+
+      const updated = await apiClient.put<User>("/auth/profile", payload);
+      updateUser(updated);
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to save profile.");
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save profile.");
     } finally {
       setSaving(false);
     }
   }
-
-  const initials = (form.company || form.name || "?")[0]?.toUpperCase() ?? "?";
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -142,99 +162,166 @@ export default function ProfilePage() {
           onCancel={handleCropCancel}
         />
       )}
-      <h1 className="text-xl font-extrabold text-heading-dark">Company Profile</h1>
+
+      <h1 className="text-xl font-extrabold text-heading-dark">
+        {isEmployer ? "Company Profile" : "My Profile"}
+      </h1>
 
       <form onSubmit={handleSave}>
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex items-center gap-5">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileChange}
-              aria-label="Upload company logo"
-            />
-            <button
-              type="button"
-              onClick={handleLogoClick}
-              className="relative w-16 h-16 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 hover:border-brand-indigo transition-colors group flex-shrink-0"
-              title="Click to upload company logo"
-            >
-              {logoPreview ? (
-                <img
-                  src={logoPreview}
-                  alt="Company logo"
-                  className="w-full h-full object-contain bg-white"
-                />
-              ) : (
-                <span className="w-full h-full bg-indigo-100 flex items-center justify-center text-brand-indigo text-2xl font-extrabold">
-                  {initials}
-                </span>
-              )}
-              <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5V19a1.5 1.5 0 001.5 1.5h15A1.5 1.5 0 0021 19v-2.5M16 8l-4-4-4 4M12 4v12" />
-                </svg>
-              </span>
-            </button>
-
-            <div>
-              <p className="text-sm font-semibold text-heading-dark">{form.company || form.name}</p>
+          {isEmployer && (
+            <div className="p-6 border-b border-gray-100 flex items-center gap-5">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+                aria-label="Upload company logo"
+              />
               <button
                 type="button"
                 onClick={handleLogoClick}
-                className="text-xs text-brand-indigo hover:underline mt-1"
+                className="relative w-16 h-16 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 hover:border-brand-indigo transition-colors group flex-shrink-0"
               >
-                Update Company Logo
+                {logoPreview ? (
+                  <img
+                    src={logoPreview}
+                    alt="Company logo"
+                    className="w-full h-full object-contain bg-white"
+                  />
+                ) : (
+                  <span className="w-full h-full bg-indigo-100 flex items-center justify-center text-brand-indigo text-2xl font-extrabold">
+                    {(form.company || form.name || "?")[0]?.toUpperCase()}
+                  </span>
+                )}
               </button>
-              <p className="text-xs text-subtitle mt-0.5">PNG, JPG, SVG or WebP · max 5 MB</p>
+
+              <div>
+                <p className="text-sm font-semibold text-heading-dark">
+                  {form.company || form.name}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleLogoClick}
+                  className="text-xs text-brand-indigo hover:underline mt-1"
+                >
+                  Update Company Logo
+                </button>
+                <p className="text-xs text-subtitle mt-0.5">
+                  PNG, JPG, SVG or WebP · max 5 MB
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {[
-              { name: "companyName" as const, label: "Company Name", type: "text",  formKey: "company" },
-              { name: "industry"    as const, label: "Industry",      type: "text",  formKey: "industry" },
-              { name: "website"     as const, label: "Website",       type: "url",   formKey: "website" },
-              { name: "location"    as const, label: "Location",      type: "text",  formKey: "location" },
-              { name: "email"       as const, label: "Contact Email", type: "email", formKey: "email" },
-              { name: "phone"       as const, label: "Phone",         type: "tel",   formKey: "phone" },
-            ].map(({ name, label, type, formKey }) => (
-              <div key={name}>
-                <label htmlFor={`profile-${name}`} className="block text-sm font-medium text-heading-dark mb-1.5">
-                  {label}
-                </label>
-                <input
-                  id={`profile-${name}`}
-                  name={formKey}
-                  type={type}
-                  value={form[formKey as keyof ProfileData] ?? ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-heading-dark focus:outline-none focus:ring-2 focus:ring-brand-indigo"
-                />
-              </div>
-            ))}
+            <Field
+              label="Full Name"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+            />
+            <Field
+              label="Email"
+              name="email"
+              value={form.email}
+              type="email"
+              onChange={handleChange}
+              disabled
+            />
+            <Field
+              label="Phone"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+            />
+            <Field
+              label="Location"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+            />
 
-            <div className="sm:col-span-2">
-              <label htmlFor="profile-about" className="block text-sm font-medium text-heading-dark mb-1.5">
-                About the Company
-              </label>
-              <textarea
-                id="profile-about"
-                name="about"
-                rows={4}
-                value={form.about}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-heading-dark focus:outline-none focus:ring-2 focus:ring-brand-indigo resize-none"
-              />
-            </div>
+            {isEmployer ? (
+              <>
+                <Field
+                  label="Company Name"
+                  name="company"
+                  value={form.company}
+                  onChange={handleChange}
+                />
+                <Field
+                  label="Industry"
+                  name="industry"
+                  value={form.industry}
+                  onChange={handleChange}
+                />
+                <Field
+                  label="Website"
+                  name="website"
+                  type="url"
+                  value={form.website}
+                  onChange={handleChange}
+                />
+                <Field
+                  label="Company Size"
+                  name="companySize"
+                  value={form.companySize}
+                  onChange={handleChange}
+                />
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="profile-about"
+                    className="block text-sm font-medium text-heading-dark mb-1.5"
+                  >
+                    About the Company
+                  </label>
+                  <textarea
+                    id="profile-about"
+                    name="about"
+                    rows={4}
+                    value={form.about}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-heading-dark focus:outline-none focus:ring-2 focus:ring-brand-indigo resize-none"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="sm:col-span-2">
+                  <Field
+                    label="Resume Link"
+                    name="resumeLink"
+                    type="url"
+                    placeholder="https://drive.google.com/your-resume"
+                    value={form.resumeLink}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="profile-coverLetterTemplate"
+                    className="block text-sm font-medium text-heading-dark mb-1.5"
+                  >
+                    Default Cover Note
+                  </label>
+                  <textarea
+                    id="profile-coverLetterTemplate"
+                    name="coverLetterTemplate"
+                    rows={5}
+                    value={form.coverLetterTemplate}
+                    onChange={handleChange}
+                    placeholder="Write a default cover note that will prefill when you apply to jobs."
+                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-heading-dark focus:outline-none focus:ring-2 focus:ring-brand-indigo resize-none"
+                  />
+                </div>
+              </>
+            )}
           </div>
 
           {error && (
-            <div className="px-6 pb-2">
-              <p className="text-sm text-red-500">{error}</p>
-            </div>
+            <div className="px-6 pb-2 text-sm text-red-600">{error}</div>
           )}
 
           <div className="px-6 pb-6 flex items-center gap-3">
@@ -242,16 +329,50 @@ export default function ProfilePage() {
               {saving ? "Saving…" : "Save Changes"}
             </Button>
             {saved && (
-              <span className="text-sm text-green-600 font-medium flex items-center gap-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Saved!
-              </span>
+              <span className="text-sm text-green-600 font-medium">Saved</span>
             )}
           </div>
         </div>
       </form>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  name,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+  disabled,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+  placeholder?: string;
+  disabled?: boolean;
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={`profile-${name}`}
+        className="block text-sm font-medium text-heading-dark mb-1.5"
+      >
+        {label}
+      </label>
+      <input
+        id={`profile-${name}`}
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        disabled={disabled}
+        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-heading-dark focus:outline-none focus:ring-2 focus:ring-brand-indigo disabled:bg-gray-100 disabled:text-subtitle"
+      />
     </div>
   );
 }

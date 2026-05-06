@@ -6,18 +6,19 @@
  * Full-screen overlay containing Sign In / Sign Up tabs.
  * - Traps focus inside the modal (keyboard accessibility).
  * - Closes on backdrop click or Escape key.
- * - Sign Up tab is locked and shows an info panel.
+ * - Sign Up tab contains the full registration flow.
  */
 
 import { useEffect, useRef } from "react";
 
 import SignInForm from "@/components/auth/SignInForm";
-import SignUpLockedPanel from "@/components/auth/SignUpLockedPanel";
+import SignUpForm from "@/components/auth/SignUpForm";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function AuthModal() {
-  const { isAuthModalOpen, authModalTab, closeAuthModal, openAuthModal } = useAuth();
+  const { isAuthModalOpen, authModalTab, closeAuthModal, openAuthModal } =
+    useAuth();
   const overlayRef = useRef<HTMLDivElement>(null);
   const firstFocusRef = useRef<HTMLButtonElement>(null);
 
@@ -47,7 +48,11 @@ export default function AuthModal() {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-label={authModalTab === "signin" ? "Sign in to QuickHire" : "Sign up for QuickHire"}
+      aria-label={
+        authModalTab === "signin"
+          ? "Sign in to QuickHire"
+          : "Sign up for QuickHire"
+      }
       onClick={(e) => {
         if (e.target === overlayRef.current) closeAuthModal();
       }}
@@ -59,8 +64,19 @@ export default function AuthModal() {
           aria-label="Close modal"
           className="absolute top-4 right-4 p-1.5 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-indigo"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
         <div className="px-8 pt-8 pb-6 border-b border-gray-100">
@@ -101,9 +117,8 @@ export default function AuthModal() {
           </button>
         </div>
         <div className="px-8 py-6">
-          {authModalTab === "signin" ? <SignInForm /> : <SignUpLockedPanel />}
+          {authModalTab === "signin" ? <SignInForm /> : <SignUpForm />}
         </div>
-
       </div>
     </div>
   );

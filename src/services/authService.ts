@@ -8,9 +8,22 @@
  */
 
 import { apiClient } from "@/services/apiClient";
-import type { User, AuthLoginResponse, SignInCredentials } from "@/types/auth";
+import type {
+  User,
+  AuthLoginResponse,
+  SignInCredentials,
+  SignUpCredentials,
+  RegisterResponse,
+  VerifyEmailCredentials,
+  VerifyEmailResponse,
+  ResendVerificationResponse,
+} from "@/types/auth";
 const TOKEN_KEY = "qh_token";
 const USER_KEY = "qh_user";
+
+export function getDashboardPathForRole(role: User["role"] | null | undefined) {
+  return role === "jobseeker" ? "/dashboard/seeker" : "/dashboard";
+}
 
 export const tokenStore = {
   get: (): string | null =>
@@ -56,6 +69,36 @@ export async function login(credentials: SignInCredentials): Promise<User> {
   tokenStore.set(data.token);
   userStore.set(data.user);
   return data.user;
+}
+
+export async function register(
+  credentials: SignUpCredentials,
+): Promise<RegisterResponse> {
+  return apiClient.post<RegisterResponse>(
+    "/auth/register",
+    credentials as unknown as Record<string, unknown>,
+  );
+}
+
+export async function verifyEmail(
+  credentials: VerifyEmailCredentials,
+): Promise<User> {
+  const data = await apiClient.post<VerifyEmailResponse>(
+    "/auth/verify-email",
+    credentials as unknown as Record<string, unknown>,
+  );
+  tokenStore.set(data.token);
+  userStore.set(data.user);
+  return data.user;
+}
+
+export async function resendVerification(
+  email: string,
+): Promise<ResendVerificationResponse> {
+  return apiClient.post<ResendVerificationResponse>(
+    "/auth/resend-verification",
+    { email },
+  );
 }
 
 /**

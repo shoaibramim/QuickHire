@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { Suspense } from "react";
 
 import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/auth/AuthModal";
 import NavigationProgress from "@/components/layout/NavigationProgress";
+import VerificationPortal from "@/components/layout/VerificationPortal";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -39,6 +41,9 @@ export default function RootLayout({
           {children}
           {/* AuthModal is global — triggered from anywhere via openAuthModal() */}
           <AuthModal />
+          <Suspense fallback={null}>
+            <VerificationPortal />
+          </Suspense>
         </AuthProvider>
       </body>
     </html>
