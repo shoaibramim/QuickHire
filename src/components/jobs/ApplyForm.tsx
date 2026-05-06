@@ -7,7 +7,7 @@
  * Application model: { id, job_id, name, email, resume_link, cover_note, created_at }
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 
 import Button from "@/components/ui/Button";
@@ -25,7 +25,12 @@ interface FormFields {
   cover_note: string;
 }
 
-const EMPTY: FormFields = { name: "", email: "", resume_link: "", cover_note: "" };
+const EMPTY: FormFields = {
+  name: "",
+  email: "",
+  resume_link: "",
+  cover_note: "",
+};
 
 function isValidUrl(value: string): boolean {
   try {
@@ -43,7 +48,20 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function handleChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  useEffect(() => {
+    if (!user || user.role !== "jobseeker") return;
+    setFields((prev) => ({
+      ...prev,
+      name: user.name || prev.name,
+      email: user.email || prev.email,
+      resume_link: user.resumeLink || prev.resume_link,
+      cover_note: user.coverLetterTemplate || prev.cover_note,
+    }));
+  }, [user]);
+
+  function handleChange(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
     setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setError(null);
   }
@@ -59,14 +77,17 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
     }
 
     if (!isValidUrl(fields.resume_link)) {
-      setError("Please provide a valid resume link (must start with http:// or https://).");
+      setError(
+        "Please provide a valid resume link (must start with http:// or https://).",
+      );
       return;
     }
 
     setLoading(true);
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+      const apiBase =
+        process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
       const res = await fetch(`${apiBase}/jobs/${jobId}/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -93,11 +114,25 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
   if (user?.role === "employer") {
     return (
       <div className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl bg-amber-50 border border-amber-200 text-center">
-        <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
+        <svg
+          className="w-6 h-6 text-amber-500"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"
+          />
         </svg>
         <p className="text-amber-800 font-semibold text-sm">Employer Account</p>
-        <p className="text-amber-700 text-xs">Only job seekers can apply for positions. Switch to a job seeker account to apply.</p>
+        <p className="text-amber-700 text-xs">
+          Only job seekers can apply for positions. Switch to a job seeker
+          account to apply.
+        </p>
       </div>
     );
   }
@@ -105,12 +140,26 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
   if (submitted) {
     return (
       <div className="flex flex-col items-center gap-3 px-4 py-6 rounded-xl bg-green-50 border border-green-200 text-center">
-        <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <svg
+          className="w-8 h-8 text-green-600"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
         </svg>
-        <p className="text-green-800 font-semibold text-sm">Application Submitted!</p>
+        <p className="text-green-800 font-semibold text-sm">
+          Application Submitted!
+        </p>
         <p className="text-green-700 text-xs">
-          Your application for <span className="font-medium">{jobTitle}</span> has been received. We&apos;ll be in touch soon.
+          Your application for <span className="font-medium">{jobTitle}</span>{" "}
+          has been received. We&apos;ll be in touch soon.
         </p>
       </div>
     );
@@ -119,7 +168,10 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-3">
       <div>
-        <label htmlFor={`apply-name-${jobId}`} className="block text-xs font-medium text-heading-dark mb-1">
+        <label
+          htmlFor={`apply-name-${jobId}`}
+          className="block text-xs font-medium text-heading-dark mb-1"
+        >
           Full Name <span className="text-red-500">*</span>
         </label>
         <input
@@ -134,7 +186,10 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
         />
       </div>
       <div>
-        <label htmlFor={`apply-email-${jobId}`} className="block text-xs font-medium text-heading-dark mb-1">
+        <label
+          htmlFor={`apply-email-${jobId}`}
+          className="block text-xs font-medium text-heading-dark mb-1"
+        >
           Email Address <span className="text-red-500">*</span>
         </label>
         <input
@@ -149,7 +204,10 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
         />
       </div>
       <div>
-        <label htmlFor={`apply-resume-${jobId}`} className="block text-xs font-medium text-heading-dark mb-1">
+        <label
+          htmlFor={`apply-resume-${jobId}`}
+          className="block text-xs font-medium text-heading-dark mb-1"
+        >
           Resume Link <span className="text-red-500">*</span>
         </label>
         <input
@@ -164,8 +222,12 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
         />
       </div>
       <div>
-        <label htmlFor={`apply-cover-${jobId}`} className="block text-xs font-medium text-heading-dark mb-1">
-          Cover Note <span className="text-subtitle text-xs font-normal">(optional)</span>
+        <label
+          htmlFor={`apply-cover-${jobId}`}
+          className="block text-xs font-medium text-heading-dark mb-1"
+        >
+          Cover Note{" "}
+          <span className="text-subtitle text-xs font-normal">(optional)</span>
         </label>
         <textarea
           id={`apply-cover-${jobId}`}
@@ -192,9 +254,25 @@ export default function ApplyForm({ jobId, jobTitle }: Props) {
       >
         {loading ? (
           <span className="flex items-center gap-2">
-            <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-              <circle className="opacity-25" cx={12} cy={12} r={10} stroke="currentColor" strokeWidth={4} />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            <svg
+              className="animate-spin h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle
+                className="opacity-25"
+                cx={12}
+                cy={12}
+                r={10}
+                stroke="currentColor"
+                strokeWidth={4}
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
             </svg>
             Submitting…
           </span>

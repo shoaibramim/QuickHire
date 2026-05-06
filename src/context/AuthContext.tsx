@@ -69,11 +69,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     document.body.style.overflow = "";
   }, []);
 
+  const setAuthenticatedUser = useCallback((nextUser: User | null) => {
+    setUser(nextUser);
+  }, []);
+
   const signIn = useCallback(
     async (credentials: SignInCredentials) => {
       const u = await login(credentials); // throws ApiError on failure
       setUser(u);
       closeAuthModal();
+      return u;
     },
     [closeAuthModal],
   );
@@ -101,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authModalTab,
       openAuthModal,
       closeAuthModal,
+      setAuthenticatedUser,
       signIn,
       signOut,
       updateUser,
@@ -112,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authModalTab,
       openAuthModal,
       closeAuthModal,
+      setAuthenticatedUser,
       signIn,
       signOut,
       updateUser,

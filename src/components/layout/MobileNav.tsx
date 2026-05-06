@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { NAV_LINKS } from "@/constants/siteData";
 import { useAuth } from "@/hooks/useAuth";
+import { getDashboardPathForRole } from "@/services/authService";
 
 function HamburgerIcon({ open }: { open: boolean }) {
   return (
@@ -38,6 +39,9 @@ export default function MobileNav() {
   const [open, setOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
   const { user, openAuthModal, signOut } = useAuth();
+  const dashboardHref = user
+    ? getDashboardPathForRole(user.role)
+    : "/dashboard";
 
   // Close on outside click
   useEffect(() => {
@@ -64,7 +68,9 @@ export default function MobileNav() {
   // Prevent body scroll when drawer is open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   return (
@@ -103,7 +109,11 @@ export default function MobileNav() {
             <HamburgerIcon open={true} />
           </button>
         </div>
-        <ul className="space-y-1" role="list" aria-label="Mobile site navigation">
+        <ul
+          className="space-y-1"
+          role="list"
+          aria-label="Mobile site navigation"
+        >
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
               <Link
@@ -121,22 +131,32 @@ export default function MobileNav() {
             <>
               <div className="flex items-center gap-3 px-3 py-2">
                 <div className="w-9 h-9 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2)}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-heading-dark truncate">{user.name}</p>
+                  <p className="text-sm font-semibold text-heading-dark truncate">
+                    {user.name}
+                  </p>
                   <p className="text-xs text-subtitle truncate">{user.email}</p>
                 </div>
               </div>
               <Link
-                href="/dashboard"
+                href={dashboardHref}
                 onClick={() => setOpen(false)}
                 className="block text-center px-4 py-3 rounded-lg bg-brand-indigo text-white font-semibold text-sm hover:bg-indigo-700 transition-colors duration-200"
               >
                 Go to Dashboard
               </Link>
               <button
-                onClick={async () => { setOpen(false); await signOut(); }}
+                onClick={async () => {
+                  setOpen(false);
+                  await signOut();
+                }}
                 className="block w-full text-center px-4 py-3 rounded-lg border border-red-200 text-red-600 font-semibold text-sm hover:bg-red-50 transition-colors duration-200"
               >
                 Sign Out
@@ -145,13 +165,19 @@ export default function MobileNav() {
           ) : (
             <>
               <button
-                onClick={() => { setOpen(false); openAuthModal("signin"); }}
+                onClick={() => {
+                  setOpen(false);
+                  openAuthModal("signin");
+                }}
                 className="block text-center px-4 py-3 rounded-lg border border-brand-indigo text-brand-indigo font-semibold text-sm hover:bg-indigo-50 transition-colors duration-200"
               >
                 Login
               </button>
               <button
-                onClick={() => { setOpen(false); openAuthModal("signup"); }}
+                onClick={() => {
+                  setOpen(false);
+                  openAuthModal("signup");
+                }}
                 className="block text-center px-4 py-3 rounded-lg bg-brand-indigo text-white font-semibold text-sm hover:bg-indigo-700 transition-colors duration-200"
               >
                 Sign Up

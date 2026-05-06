@@ -6,11 +6,12 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 
 import "./config/passport";
-import authRoutes       from "./routes/auth";
-import jobRoutes        from "./routes/jobs";
-import dashboardRoutes  from "./routes/dashboard";
-import messagesRoutes   from "./routes/messages";
-import scheduleRoutes   from "./routes/schedule";
+import authRoutes from "./routes/auth";
+import jobRoutes from "./routes/jobs";
+import dashboardRoutes from "./routes/dashboard";
+import jobSeekerDashboardRoutes from "./routes/jobSeekerDashboard";
+import messagesRoutes from "./routes/messages";
+import scheduleRoutes from "./routes/schedule";
 import newsletterRoutes from "./routes/newsletter";
 import { errorHandler } from "./middleware/errorHandler";
 
@@ -22,12 +23,13 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // 100 req/15min
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(passport.initialize());
-app.use("/api/auth",               authRoutes);
-app.use("/api/jobs",               jobRoutes);
-app.use("/api/dashboard",          dashboardRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/dashboard/seeker", jobSeekerDashboardRoutes);
 app.use("/api/dashboard/messages", messagesRoutes);
 app.use("/api/dashboard/schedule", scheduleRoutes);
-app.use("/api/newsletter",         newsletterRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 app.use(errorHandler);
 
 export default app;

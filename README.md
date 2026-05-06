@@ -24,10 +24,10 @@ A full-stack job board platform where employers can post positions and manage ap
 
 QuickHire is a monorepo containing two independently runnable applications:
 
-| App | Directory | Description |
-|---|---|---|
+| App      | Directory  | Description                                     |
+| -------- | ---------- | ----------------------------------------------- |
 | Frontend | `/` (root) | Next.js 16 App Router, server-rendered React UI |
-| Backend | `/server` | Express.js 5 REST API with MongoDB and JWT auth |
+| Backend  | `/server`  | Express.js 5 REST API with MongoDB and JWT auth |
 
 Key features:
 
@@ -41,40 +41,50 @@ Key features:
 
 ---
 
+## Recent Changes (May 2026)
+
+- **Modal-only email verification:** Verification now uses a root-level portal to open a modal instead of a dedicated verification page. See [src/components/ui/EmailVerificationModal.tsx](src/components/ui/EmailVerificationModal.tsx) and [src/components/layout/VerificationPortal.tsx](src/components/layout/VerificationPortal.tsx). The old dedicated page was removed: [src/app/(public)/verify-email/page.tsx](<src/app/(public)/verify-email/page.tsx>).
+- **6-digit OTP & link verification:** The verification UI presents six individual input boxes for OTP. Both OTP and verification-link flows sign the user in, update the SPA auth state, redirect to the role-specific dashboard, and close both the verification modal and any open auth modal on success.
+- **Profile persistence & modal editing:** New profile fields are created at signup (backend changes in [server/src/routes/auth.ts](server/src/routes/auth.ts) and [server/src/models/User.ts](server/src/models/User.ts)). Profile editing was moved to a modal at [src/components/ui/ProfileUpdateModal.tsx](src/components/ui/ProfileUpdateModal.tsx) and is opened from the dashboard sidebar.
+- **Job seeker dashboard UI changes:** Job seeker dashboards are now sidebar-only (no top navbar) with actions moved into the sidebar. Duplicate footer CTA removed in [src/components/dashboard/DashboardShell.tsx](src/components/dashboard/DashboardShell.tsx).
+- **Role-based restrictions:** Job seekers are prevented from posting jobs (shared `PostJobButton` hides for `jobseeker` users).
+- **UX polish:** Saving profile changes now automatically closes the modal on success; verification links now point to the app root and are handled by the verification portal. A Suspense boundary was added in [src/app/layout.tsx](src/app/layout.tsx) to support query-param driven modal opening.
+- **Build validation:** Both frontend and backend builds were re-run and validated after these changes. Note: Next.js reports a deprecation warning about the `middleware` file convention (non-blocking).
+
 ## Tech Stack
 
 ### Frontend
 
-| Technology | Version | Purpose |
-|---|---|---|
-| Next.js (App Router) | ^16.1.6 | SSR/SSG framework |
-| React | ^19.2.4 | UI library |
-| TypeScript | ^5.9.3 | Static typing |
-| Tailwind CSS | ^4.2.1 | Utility-first styling |
-| Recharts | ^3.7.0 | Dashboard statistics charts |
-| react-easy-crop | ^5.5.6 | In-browser image cropping for avatars and logos |
-| react-icons | ^5.5.0 | Icon set |
-| Plus Jakarta Sans | — | Global font (via `next/font`) |
+| Technology           | Version | Purpose                                         |
+| -------------------- | ------- | ----------------------------------------------- |
+| Next.js (App Router) | ^16.1.6 | SSR/SSG framework                               |
+| React                | ^19.2.4 | UI library                                      |
+| TypeScript           | ^5.9.3  | Static typing                                   |
+| Tailwind CSS         | ^4.2.1  | Utility-first styling                           |
+| Recharts             | ^3.7.0  | Dashboard statistics charts                     |
+| react-easy-crop      | ^5.5.6  | In-browser image cropping for avatars and logos |
+| react-icons          | ^5.5.0  | Icon set                                        |
+| Plus Jakarta Sans    | —       | Global font (via `next/font`)                   |
 
 ### Backend
 
-| Technology | Version | Purpose |
-|---|---|---|
-| Express.js | ^5.2.1 | HTTP server and REST API |
-| TypeScript | ^5.9.3 | Static typing |
-| Mongoose | ^9.2.3 | MongoDB ODM |
-| Passport.js | ^0.7.0 | Authentication framework |
-| passport-local | ^1.0.0 | Email/password login strategy |
-| passport-jwt | ^4.0.1 | JWT Bearer token strategy |
-| jsonwebtoken | ^9.0.3 | JWT signing and verification |
-| bcryptjs | ^3.0.3 | Password hashing (cost factor 12) |
-| helmet | ^8.1.0 | Secure HTTP response headers |
-| express-rate-limit | ^8.2.1 | 100 requests per 15-minute window per IP |
-| express-validator | ^7.3.1 | Request body validation |
-| cors | ^2.8.6 | Cross-origin resource sharing |
-| cookie-parser | ^1.4.7 | Cookie parsing middleware |
-| dotenv | ^17.3.1 | Environment variable loading |
-| nodemon + ts-node | — | Development hot-reload |
+| Technology         | Version | Purpose                                  |
+| ------------------ | ------- | ---------------------------------------- |
+| Express.js         | ^5.2.1  | HTTP server and REST API                 |
+| TypeScript         | ^5.9.3  | Static typing                            |
+| Mongoose           | ^9.2.3  | MongoDB ODM                              |
+| Passport.js        | ^0.7.0  | Authentication framework                 |
+| passport-local     | ^1.0.0  | Email/password login strategy            |
+| passport-jwt       | ^4.0.1  | JWT Bearer token strategy                |
+| jsonwebtoken       | ^9.0.3  | JWT signing and verification             |
+| bcryptjs           | ^3.0.3  | Password hashing (cost factor 12)        |
+| helmet             | ^8.1.0  | Secure HTTP response headers             |
+| express-rate-limit | ^8.2.1  | 100 requests per 15-minute window per IP |
+| express-validator  | ^7.3.1  | Request body validation                  |
+| cors               | ^2.8.6  | Cross-origin resource sharing            |
+| cookie-parser      | ^1.4.7  | Cookie parsing middleware                |
+| dotenv             | ^17.3.1 | Environment variable loading             |
+| nodemon + ts-node  | —       | Development hot-reload                   |
 
 ---
 
@@ -166,13 +176,13 @@ CLIENT_ORIGIN=http://localhost:3000
 PORT=5000
 ```
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `MONGODB_URI` | Yes | — | MongoDB Atlas (or local) connection string |
-| `JWT_ACCESS_SECRET` | Yes | — | Secret used to sign JWT access tokens |
-| `JWT_ACCESS_EXPIRES_IN` | No | `15m` | Token expiry duration (e.g. `15m`, `1h`) |
-| `CLIENT_ORIGIN` | Yes | — | Frontend origin allowed by CORS (e.g. `http://localhost:3000`) |
-| `PORT` | No | `5000` | Port the Express server listens on |
+| Variable                | Required | Default | Description                                                    |
+| ----------------------- | -------- | ------- | -------------------------------------------------------------- |
+| `MONGODB_URI`           | Yes      | —       | MongoDB Atlas (or local) connection string                     |
+| `JWT_ACCESS_SECRET`     | Yes      | —       | Secret used to sign JWT access tokens                          |
+| `JWT_ACCESS_EXPIRES_IN` | No       | `15m`   | Token expiry duration (e.g. `15m`, `1h`)                       |
+| `CLIENT_ORIGIN`         | Yes      | —       | Frontend origin allowed by CORS (e.g. `http://localhost:3000`) |
+| `PORT`                  | No       | `5000`  | Port the Express server listens on                             |
 
 ### Frontend — `.env.local`
 
@@ -182,9 +192,9 @@ Create a file at `.env.local` in the root directory:
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `NEXT_PUBLIC_API_URL` | No | `http://localhost:5000/api` | Express API base URL used by the browser |
+| Variable              | Required | Default                     | Description                              |
+| --------------------- | -------- | --------------------------- | ---------------------------------------- |
+| `NEXT_PUBLIC_API_URL` | No       | `http://localhost:5000/api` | Express API base URL used by the browser |
 
 ---
 
@@ -239,9 +249,9 @@ npm run dev
 npm run dev
 ```
 
-| Service | URL |
-|---|---|
-| Frontend | http://localhost:3000 |
+| Service     | URL                       |
+| ----------- | ------------------------- |
+| Frontend    | http://localhost:3000     |
 | Backend API | http://localhost:5000/api |
 
 ---
@@ -250,21 +260,21 @@ npm run dev
 
 ### Frontend (root)
 
-| Script | Command | Description |
-|---|---|---|
-| `dev` | `next dev` | Start the Next.js development server |
-| `build` | `next build` | Build for production |
-| `start` | `next start` | Run the production build |
-| `lint` | `next lint` | Run ESLint |
+| Script  | Command      | Description                          |
+| ------- | ------------ | ------------------------------------ |
+| `dev`   | `next dev`   | Start the Next.js development server |
+| `build` | `next build` | Build for production                 |
+| `start` | `next start` | Run the production build             |
+| `lint`  | `next lint`  | Run ESLint                           |
 
 ### Backend (`/server`)
 
-| Script | Command | Description |
-|---|---|---|
-| `dev` | `nodemon --exec ts-node src/index.ts` | Start the server with hot reload |
-| `build` | `tsc` | Compile TypeScript to `/server/dist` |
-| `start` | `node dist/index.js` | Run the compiled production server |
-| `seed` | `ts-node scripts/seed.ts` | Drop all collections and insert demo data |
+| Script  | Command                               | Description                               |
+| ------- | ------------------------------------- | ----------------------------------------- |
+| `dev`   | `nodemon --exec ts-node src/index.ts` | Start the server with hot reload          |
+| `build` | `tsc`                                 | Compile TypeScript to `/server/dist`      |
+| `start` | `node dist/index.js`                  | Run the compiled production server        |
+| `seed`  | `ts-node scripts/seed.ts`             | Drop all collections and insert demo data |
 
 ---
 
@@ -274,48 +284,56 @@ All API routes are prefixed with `/api`.
 
 ### Auth
 
-| Method | Route | Auth | Description |
-|---|---|---|---|
-| `POST` | `/auth/register` | Public | Register a new user. Body: `{ name, email, password, role? }`. Returns `{ user, token, expiresIn }` |
-| `POST` | `/auth/login` | Public | Login. Body: `{ email, password }`. Returns `{ user, token, expiresIn }` |
-| `GET` | `/auth/me` | JWT | Returns the authenticated user's profile |
-| `POST` | `/auth/logout` | JWT | Stateless logout (client discards token) |
+| Method | Route                       | Auth   | Description                                                                                                                                     |
+| ------ | --------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST` | `/auth/register`            | Public | Register a new user. Body: `{ name, email, password, role? }`. Creates a pending account and sends both an OTP and a verification link by email |
+| `POST` | `/auth/verify-email`        | Public | Verify an account using `{ email, token? , otp? }`. Returns `{ user, token, expiresIn }`                                                        |
+| `POST` | `/auth/resend-verification` | Public | Resend the verification email for an unverified account                                                                                         |
+| `POST` | `/auth/login`               | Public | Login. Body: `{ email, password }`. Verified users receive `{ user, token, expiresIn }`                                                         |
+| `GET`  | `/auth/me`                  | JWT    | Returns the authenticated user's profile                                                                                                        |
+| `POST` | `/auth/logout`              | JWT    | Stateless logout (client discards token)                                                                                                        |
 
 ### Jobs
 
-| Method | Route | Auth | Description |
-|---|---|---|---|
-| `GET` | `/jobs` | Public | Browse active jobs. Query params: `q`, `category`, `location`, `type`, `featured` |
-| `GET` | `/jobs/featured` | Public | Latest 8 featured active jobs |
-| `GET` | `/jobs/latest` | Public | Latest 10 active jobs |
-| `GET` | `/jobs/categories` | Public | Tag counts aggregated across all active jobs |
-| `GET` | `/jobs/:id` | Public | Single job detail |
-| `POST` | `/jobs/:id/apply` | Public | Submit an application. Body: `{ name, email, resume_link, cover_note? }` |
+| Method | Route              | Auth   | Description                                                                       |
+| ------ | ------------------ | ------ | --------------------------------------------------------------------------------- |
+| `GET`  | `/jobs`            | Public | Browse active jobs. Query params: `q`, `category`, `location`, `type`, `featured` |
+| `GET`  | `/jobs/featured`   | Public | Latest 8 featured active jobs                                                     |
+| `GET`  | `/jobs/latest`     | Public | Latest 10 active jobs                                                             |
+| `GET`  | `/jobs/categories` | Public | Tag counts aggregated across all active jobs                                      |
+| `GET`  | `/jobs/:id`        | Public | Single job detail                                                                 |
+| `POST` | `/jobs/:id/apply`  | Public | Submit an application. Body: `{ name, email, resume_link, cover_note? }`          |
 
 ### Dashboard (Employer and Admin only)
 
-| Method | Route | Description |
-|---|---|---|
-| `GET` | `/dashboard/overview` | Summary stats: pending candidates, unread messages, open jobs, schedule count, 7-day chart data, and applicant breakdown by employment type |
-| `GET` | `/dashboard/jobs` | All job listings belonging to the authenticated employer |
-| `GET` | `/dashboard/jobs/:id` | Single job detail (scoped to the employer) |
-| `POST` | `/dashboard/jobs` | Create a new job listing |
-| `PATCH` | `/dashboard/jobs/:id` | Update job fields (title, location, employmentType, description, tags, status) |
-| `PATCH` | `/dashboard/jobs/:id/status` | Set job status to `Active`, `Closed`, or `Draft` |
-| `GET` | `/dashboard/applicants` | All applications across the employer's jobs, enriched with job title |
-| `PATCH` | `/dashboard/applicants/:id/status` | Update application status to `Pending`, `Reviewed`, `Shortlisted`, or `Rejected` |
-| `GET` | `/dashboard/messages` | Employer message inbox, sorted by most recent |
-| `PATCH` | `/dashboard/messages/:id/read` | Mark a message as read |
-| `GET` | `/dashboard/schedule` | All schedule events for the authenticated employer |
-| `POST` | `/dashboard/schedule` | Create a schedule event. Body: `{ title, time, date, type, withPerson? }` |
-| `DELETE` | `/dashboard/schedule/:id` | Delete a schedule event |
-| `GET` | `/dashboard/profile` | Employer profile (excludes passwordHash) |
-| `PUT` | `/dashboard/profile` | Update profile fields and company logo (base64, max 2 MB) |
+| Method   | Route                              | Description                                                                                                                                 |
+| -------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`    | `/dashboard/overview`              | Summary stats: pending candidates, unread messages, open jobs, schedule count, 7-day chart data, and applicant breakdown by employment type |
+| `GET`    | `/dashboard/jobs`                  | All job listings belonging to the authenticated employer                                                                                    |
+| `GET`    | `/dashboard/jobs/:id`              | Single job detail (scoped to the employer)                                                                                                  |
+| `POST`   | `/dashboard/jobs`                  | Create a new job listing                                                                                                                    |
+| `PATCH`  | `/dashboard/jobs/:id`              | Update job fields (title, location, employmentType, description, tags, status)                                                              |
+| `PATCH`  | `/dashboard/jobs/:id/status`       | Set job status to `Active`, `Closed`, or `Draft`                                                                                            |
+| `GET`    | `/dashboard/applicants`            | All applications across the employer's jobs, enriched with job title                                                                        |
+| `PATCH`  | `/dashboard/applicants/:id/status` | Update application status to `Pending`, `Reviewed`, `Shortlisted`, or `Rejected`                                                            |
+| `GET`    | `/dashboard/messages`              | Employer message inbox, sorted by most recent                                                                                               |
+| `PATCH`  | `/dashboard/messages/:id/read`     | Mark a message as read                                                                                                                      |
+| `GET`    | `/dashboard/schedule`              | All schedule events for the authenticated employer                                                                                          |
+| `POST`   | `/dashboard/schedule`              | Create a schedule event. Body: `{ title, time, date, type, withPerson? }`                                                                   |
+| `DELETE` | `/dashboard/schedule/:id`          | Delete a schedule event                                                                                                                     |
+| `GET`    | `/dashboard/profile`               | Employer profile (excludes passwordHash)                                                                                                    |
+| `PUT`    | `/dashboard/profile`               | Update profile fields and company logo (base64, max 2 MB)                                                                                   |
+
+### Dashboard (Job Seeker)
+
+| Method | Route                        | Description                                                                                                                      |
+| ------ | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/dashboard/seeker/overview` | Summary stats for job seekers: application counts, shortlist count, pending responses, recent applications, and recommended jobs |
 
 ### Newsletter
 
-| Method | Route | Auth | Description |
-|---|---|---|---|
+| Method | Route                   | Auth   | Description                                   |
+| ------ | ----------------------- | ------ | --------------------------------------------- |
 | `POST` | `/newsletter/subscribe` | Public | Subscribe an email address. Body: `{ email }` |
 
 ---
@@ -324,79 +342,85 @@ All API routes are prefixed with `/api`.
 
 ### User
 
-| Field | Type | Notes |
-|---|---|---|
-| `name` | String | Required |
-| `email` | String | Required, unique, lowercase |
-| `passwordHash` | String | `select: false` — never returned in API responses |
-| `role` | `jobseeker \| employer \| admin` | Default: `jobseeker` |
-| `avatar` | String | Base64 data URI or URL |
-| `company` | String | Employer company name |
-| `companyLogo` | String | Base64 data URI or URL, max 2 MB |
-| `industry`, `website`, `location`, `companySize`, `about`, `phone` | String | Extended employer profile fields |
+| Field                                                              | Type                             | Notes                                                              |
+| ------------------------------------------------------------------ | -------------------------------- | ------------------------------------------------------------------ |
+| `name`                                                             | String                           | Required                                                           |
+| `email`                                                            | String                           | Required, unique, lowercase                                        |
+| `passwordHash`                                                     | String                           | `select: false` — never returned in API responses                  |
+| `role`                                                             | `jobseeker \| employer \| admin` | Default: `jobseeker`                                               |
+| `emailVerifiedAt`                                                  | Date                             | Set when the email verification link or OTP is confirmed           |
+| `emailVerificationTokenHash`, `emailVerificationOtpHash`           | String                           | Hashed verification secrets stored server-side until use or expiry |
+| `emailVerificationTokenExpiresAt`, `emailVerificationOtpExpiresAt` | Date                             | Verification expiry timestamps                                     |
+| `emailVerificationSentAt`                                          | Date                             | Last verification email timestamp                                  |
+| `avatar`                                                           | String                           | Base64 data URI or URL                                             |
+| `company`                                                          | String                           | Employer company name                                              |
+| `companyLogo`                                                      | String                           | Base64 data URI or URL, max 2 MB                                   |
+| `industry`, `website`, `location`, `companySize`, `about`, `phone` | String                           | Extended employer profile fields                                   |
 
 ### Job
 
-| Field | Type | Notes |
-|---|---|---|
-| `title`, `company`, `location`, `employmentType` | String | Required |
-| `companyLogoKey` | String | Static logo key; overridden by `postedBy.companyLogo` at query time |
-| `tags` | String[] | Category tags used for filtering |
-| `description` | String | Rich text HTML |
-| `postedBy` | ObjectId (User) | Reference to the employer |
-| `status` | `Active \| Closed \| Draft` | Default: `Active` |
-| `featured` | Boolean | Default: `false` |
-| `applicantCount` | Number | Incremented on each application submission |
+| Field                                            | Type                        | Notes                                                               |
+| ------------------------------------------------ | --------------------------- | ------------------------------------------------------------------- |
+| `title`, `company`, `location`, `employmentType` | String                      | Required                                                            |
+| `companyLogoKey`                                 | String                      | Static logo key; overridden by `postedBy.companyLogo` at query time |
+| `tags`                                           | String[]                    | Category tags used for filtering                                    |
+| `description`                                    | String                      | Rich text HTML                                                      |
+| `postedBy`                                       | ObjectId (User)             | Reference to the employer                                           |
+| `status`                                         | `Active \| Closed \| Draft` | Default: `Active`                                                   |
+| `featured`                                       | Boolean                     | Default: `false`                                                    |
+| `applicantCount`                                 | Number                      | Incremented on each application submission                          |
 
 ### Application
 
-| Field | Type | Notes |
-|---|---|---|
-| `jobId` | ObjectId (Job) | Required |
-| `name`, `email`, `resumeLink` | String | Required; `resumeLink` must be a valid `http`/`https` URL |
-| `coverNote` | String | Optional |
-| `status` | `Pending \| Reviewed \| Shortlisted \| Rejected` | Default: `Pending` |
+| Field                         | Type                                             | Notes                                                     |
+| ----------------------------- | ------------------------------------------------ | --------------------------------------------------------- |
+| `jobId`                       | ObjectId (Job)                                   | Required                                                  |
+| `name`, `email`, `resumeLink` | String                                           | Required; `resumeLink` must be a valid `http`/`https` URL |
+| `coverNote`                   | String                                           | Optional                                                  |
+| `status`                      | `Pending \| Reviewed \| Shortlisted \| Rejected` | Default: `Pending`                                        |
 
 ### Message
 
-| Field | Type | Notes |
-|---|---|---|
-| `ownerId` | ObjectId (User) | Employer who owns this inbox message |
-| `from` | String | Sender display name |
-| `avatar` | String | Optional sender avatar URL |
-| `preview` | String | Short message preview |
-| `fullText` | String | Optional full message body |
-| `unread` | Boolean | Default: `true` |
-| `time` | String | Human-readable timestamp string (e.g. `"2h ago"`) |
+| Field      | Type            | Notes                                             |
+| ---------- | --------------- | ------------------------------------------------- |
+| `ownerId`  | ObjectId (User) | Employer who owns this inbox message              |
+| `from`     | String          | Sender display name                               |
+| `avatar`   | String          | Optional sender avatar URL                        |
+| `preview`  | String          | Short message preview                             |
+| `fullText` | String          | Optional full message body                        |
+| `unread`   | Boolean         | Default: `true`                                   |
+| `time`     | String          | Human-readable timestamp string (e.g. `"2h ago"`) |
 
 ### ScheduleEvent
 
-| Field | Type | Notes |
-|---|---|---|
-| `ownerId` | ObjectId (User) | Employer owner |
-| `title` | String | Required |
-| `time` | String | e.g. `"10:00 AM"` |
-| `date` | String | e.g. `"Mar 2, 2026"` |
-| `type` | `Interview \| Meeting \| Review` | Required |
-| `withPerson` | String | Optional — name of the other participant |
+| Field        | Type                             | Notes                                    |
+| ------------ | -------------------------------- | ---------------------------------------- |
+| `ownerId`    | ObjectId (User)                  | Employer owner                           |
+| `title`      | String                           | Required                                 |
+| `time`       | String                           | e.g. `"10:00 AM"`                        |
+| `date`       | String                           | e.g. `"Mar 2, 2026"`                     |
+| `type`       | `Interview \| Meeting \| Review` | Required                                 |
+| `withPerson` | String                           | Optional — name of the other participant |
 
 ### Subscriber
 
-| Field | Type | Notes |
-|---|---|---|
-| `email` | String | Required, unique, lowercase |
-| `subscribedAt` | Date | Set automatically on creation |
+| Field          | Type   | Notes                         |
+| -------------- | ------ | ----------------------------- |
+| `email`        | String | Required, unique, lowercase   |
+| `subscribedAt` | Date   | Set automatically on creation |
 
 ---
 
 ## Authentication
 
 - **Strategy:** Stateless JWT via Bearer token in the `Authorization` header
-- **Login flow:** `POST /api/auth/login` returns a signed JWT valid for 15 minutes (configurable via `JWT_ACCESS_EXPIRES_IN`)
+- **Signup flow:** `POST /api/auth/register` creates a pending account, then sends a verification link and OTP to the registered email
+- **Verification flow:** `POST /api/auth/verify-email` or the emailed link/code must be completed before login is accepted
+- **Login flow:** `POST /api/auth/login` returns a signed JWT valid for 15 minutes (configurable via `JWT_ACCESS_EXPIRES_IN`) after the email is verified
 - **Token storage:** Browser `localStorage` under the key `qh_token`
 - **Protected API routes:** Include the token in every request as `Authorization: Bearer <token>`
 - **Protected page routes:** Next.js Edge Middleware (`src/middleware.ts`) checks for the token in the `qh_token` cookie or the `Authorization` header before the page renders; unauthenticated requests are redirected to `/?signin=required`
-- **Role enforcement:** The `requireRole(["employer", "admin"])` middleware returns `403` for users with insufficient permissions
+- **Role enforcement:** The employer dashboard uses `requireRole(["employer", "admin"])`, while the job-seeker dashboard uses `requireRole(["jobseeker", "admin"])`
 - **Password hashing:** bcryptjs with a cost factor of 12
 
 ---

@@ -6,6 +6,7 @@
  */
 
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Props {
   /** Extra Tailwind classes for display/sizing overrides (e.g. "hidden lg:inline-flex"). */
@@ -14,6 +15,11 @@ interface Props {
 
 export default function PostJobButton({ className = "" }: Props) {
   const router = useRouter();
+  const { user } = useAuth();
+
+  if (user && user.role === "jobseeker") {
+    return null;
+  }
 
   return (
     <button

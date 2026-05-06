@@ -35,6 +35,35 @@ export interface DashboardOverview {
   applicantBreakdown: ApplicantBreakdownItem[];
 }
 
+export interface SeekerApplicationItem {
+  id: string;
+  jobId: string;
+  title: string;
+  company: string;
+  status: "Reviewed" | "Shortlisted" | "Rejected" | "Pending";
+  appliedDate: string;
+  href: string;
+}
+
+export interface SeekerRecommendedJob {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  employmentType: string;
+  href: string;
+  featured: boolean;
+}
+
+export interface SeekerDashboardOverview {
+  applicationsSubmitted: number;
+  recentApplications: number;
+  shortlisted: number;
+  pendingResponses: number;
+  recommendedJobs: SeekerRecommendedJob[];
+  applicationsTimeline: SeekerApplicationItem[];
+}
+
 export interface Message {
   id: string;
   from: string;
