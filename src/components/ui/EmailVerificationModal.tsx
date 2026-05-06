@@ -155,8 +155,8 @@ export default function EmailVerificationModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[70] bg-black/45 backdrop-blur-sm p-4 flex items-center justify-center">
-      <div className="w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-[70] bg-black/45 backdrop-blur-sm p-4 flex items-center justify-center overflow-y-auto">
+      <div className="w-full max-w-md max-h-[calc(100dvh-2rem)] bg-white rounded-2xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col">
         <div className="px-6 py-5 border-b border-gray-100 flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-subtitle">
@@ -179,7 +179,7 @@ export default function EmailVerificationModal({
           </button>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-6 py-5 space-y-4 overflow-y-auto min-h-0">
           {message && (
             <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm text-emerald-700">
               {message}

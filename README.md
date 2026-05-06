@@ -34,22 +34,16 @@ Key features:
 - Public job board with full-text search and filtering by category, location, and employment type
 - Employer dashboard with job management, applicant tracking with status labels (Pending, Reviewed, Shortlisted, Rejected), messaging inbox, and a schedule calendar
 - Role-based access control with three roles: `jobseeker`, `employer`, `admin`
+- Email verification via OTP and magic link before login access
+- Job seeker dashboard with saved profile details and cover letter reuse for faster applications
+- Profile editing via modal for both employers and job seekers
+- Job seekers cannot post jobs (employer/admin only)
 - Stateless JWT authentication via Bearer tokens, with Next.js Edge Middleware protecting dashboard routes before page render
 - In-browser image cropping for company logos with base64 storage (up to 2 MB)
 - Newsletter subscriber management
 - Rate limiting (100 requests per 15-minute window per IP) and secure HTTP headers via Helmet
 
 ---
-
-## Recent Changes (May 2026)
-
-- **Modal-only email verification:** Verification now uses a root-level portal to open a modal instead of a dedicated verification page. See [src/components/ui/EmailVerificationModal.tsx](src/components/ui/EmailVerificationModal.tsx) and [src/components/layout/VerificationPortal.tsx](src/components/layout/VerificationPortal.tsx). The old dedicated page was removed: [src/app/(public)/verify-email/page.tsx](<src/app/(public)/verify-email/page.tsx>).
-- **6-digit OTP & link verification:** The verification UI presents six individual input boxes for OTP. Both OTP and verification-link flows sign the user in, update the SPA auth state, redirect to the role-specific dashboard, and close both the verification modal and any open auth modal on success.
-- **Profile persistence & modal editing:** New profile fields are created at signup (backend changes in [server/src/routes/auth.ts](server/src/routes/auth.ts) and [server/src/models/User.ts](server/src/models/User.ts)). Profile editing was moved to a modal at [src/components/ui/ProfileUpdateModal.tsx](src/components/ui/ProfileUpdateModal.tsx) and is opened from the dashboard sidebar.
-- **Job seeker dashboard UI changes:** Job seeker dashboards are now sidebar-only (no top navbar) with actions moved into the sidebar. Duplicate footer CTA removed in [src/components/dashboard/DashboardShell.tsx](src/components/dashboard/DashboardShell.tsx).
-- **Role-based restrictions:** Job seekers are prevented from posting jobs (shared `PostJobButton` hides for `jobseeker` users).
-- **UX polish:** Saving profile changes now automatically closes the modal on success; verification links now point to the app root and are handled by the verification portal. A Suspense boundary was added in [src/app/layout.tsx](src/app/layout.tsx) to support query-param driven modal opening.
-- **Build validation:** Both frontend and backend builds were re-run and validated after these changes. Note: Next.js reports a deprecation warning about the `middleware` file convention (non-blocking).
 
 ## Tech Stack
 
@@ -174,6 +168,12 @@ JWT_ACCESS_SECRET=your_jwt_secret_here
 JWT_ACCESS_EXPIRES_IN=15m
 CLIENT_ORIGIN=http://localhost:3000
 PORT=5000
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_smtp_user
+SMTP_PASS=your_smtp_password
+SMTP_FROM=QuickHire <no-reply@quickhire.local>
 ```
 
 | Variable                | Required | Default | Description                                                    |
@@ -183,6 +183,12 @@ PORT=5000
 | `JWT_ACCESS_EXPIRES_IN` | No       | `15m`   | Token expiry duration (e.g. `15m`, `1h`)                       |
 | `CLIENT_ORIGIN`         | Yes      | —       | Frontend origin allowed by CORS (e.g. `http://localhost:3000`) |
 | `PORT`                  | No       | `5000`  | Port the Express server listens on                             |
+| `SMTP_HOST`             | No       | —       | SMTP server host for verification emails                       |
+| `SMTP_PORT`             | No       | `587`   | SMTP server port                                               |
+| `SMTP_SECURE`           | No       | `false` | Use TLS for SMTP transport                                     |
+| `SMTP_USER`             | No       | —       | SMTP username                                                  |
+| `SMTP_PASS`             | No       | —       | SMTP password                                                  |
+| `SMTP_FROM`             | No       | —       | From address for verification emails                           |
 
 ### Frontend — `.env.local`
 
@@ -284,14 +290,16 @@ All API routes are prefixed with `/api`.
 
 ### Auth
 
-| Method | Route                       | Auth   | Description                                                                                                                                     |
-| ------ | --------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POST` | `/auth/register`            | Public | Register a new user. Body: `{ name, email, password, role? }`. Creates a pending account and sends both an OTP and a verification link by email |
-| `POST` | `/auth/verify-email`        | Public | Verify an account using `{ email, token? , otp? }`. Returns `{ user, token, expiresIn }`                                                        |
-| `POST` | `/auth/resend-verification` | Public | Resend the verification email for an unverified account                                                                                         |
-| `POST` | `/auth/login`               | Public | Login. Body: `{ email, password }`. Verified users receive `{ user, token, expiresIn }`                                                         |
-| `GET`  | `/auth/me`                  | JWT    | Returns the authenticated user's profile                                                                                                        |
-| `POST` | `/auth/logout`              | JWT    | Stateless logout (client discards token)                                                                                                        |
+| Method | Route                       | Auth   | Description                                                                                                                                                                                           |
+| ------ | --------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST` | `/auth/register`            | Public | Register a new user. Body: `{ name, email, password, role? }`. Creates a pending account and sends both an OTP and a verification link by email                                                       |
+| `POST` | `/auth/verify-email`        | Public | Verify an account using `{ email, token? , otp? }`. Returns `{ user, token, expiresIn }`                                                                                                              |
+| `POST` | `/auth/resend-verification` | Public | Resend the verification email for an unverified account                                                                                                                                               |
+| `POST` | `/auth/login`               | Public | Login. Body: `{ email, password }`. Verified users receive `{ user, token, expiresIn }`                                                                                                               |
+| `GET`  | `/auth/me`                  | JWT    | Returns the authenticated user's profile                                                                                                                                                              |
+| `GET`  | `/auth/profile`             | JWT    | Returns the authenticated user's profile (role-aware fields)                                                                                                                                          |
+| `PUT`  | `/auth/profile`             | JWT    | Update profile fields. Job seekers: `{ name, phone, location, resumeLink, coverLetterTemplate }`. Employers: `{ name, phone, location, company, companyLogo, industry, website, companySize, about }` |
+| `POST` | `/auth/logout`              | JWT    | Stateless logout (client discards token)                                                                                                                                                              |
 
 ### Jobs
 
@@ -356,6 +364,8 @@ All API routes are prefixed with `/api`.
 | `company`                                                          | String                           | Employer company name                                              |
 | `companyLogo`                                                      | String                           | Base64 data URI or URL, max 2 MB                                   |
 | `industry`, `website`, `location`, `companySize`, `about`, `phone` | String                           | Extended employer profile fields                                   |
+| `resumeLink`                                                       | String                           | Default resume link for job seekers                                |
+| `coverLetterTemplate`                                              | String                           | Default cover letter for job seekers                               |
 
 ### Job
 

@@ -34,10 +34,14 @@ function StatCard({
 }
 
 export default function SeekerDashboardPage() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { data, isLoading } = useApiData<SeekerDashboardOverview>(
     "/dashboard/seeker/overview",
   );
+
+  const openProfileModal = () => {
+    window.dispatchEvent(new Event("qh-open-profile-modal"));
+  };
 
   if (isLoading) {
     return (
@@ -121,6 +125,13 @@ export default function SeekerDashboardPage() {
                 Your saved details will prefill future applications.
               </p>
             </div>
+            <button
+              type="button"
+              onClick={openProfileModal}
+              className="md:hidden inline-flex items-center rounded-lg border border-brand-indigo px-3 py-1.5 text-xs font-semibold text-brand-indigo hover:bg-indigo-50 transition-colors"
+            >
+              Edit
+            </button>
           </div>
 
           <div className="space-y-3 text-sm">
@@ -139,12 +150,19 @@ export default function SeekerDashboardPage() {
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
               <h2 className="text-lg font-bold text-heading-dark">
-                Ready to apply
+                Cover Letter
               </h2>
               <p className="text-sm text-subtitle mt-1">
-                Your application form will reuse these saved details.
+                Your application form will reuse the saved cover letter.
               </p>
             </div>
+            <button
+              type="button"
+              onClick={openProfileModal}
+              className="md:hidden inline-flex items-center rounded-lg border border-brand-indigo px-3 py-1.5 text-xs font-semibold text-brand-indigo hover:bg-indigo-50 transition-colors"
+            >
+              Edit
+            </button>
           </div>
 
           <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-subtitle leading-relaxed">
@@ -152,7 +170,7 @@ export default function SeekerDashboardPage() {
               <p>{user.coverLetterTemplate}</p>
             ) : (
               <p>
-                Add a default cover note in your profile to prefill job
+                Add a default cover letter in your profile to prefill job
                 applications and save time.
               </p>
             )}
@@ -250,6 +268,16 @@ export default function SeekerDashboardPage() {
             )}
           </div>
         </div>
+      </section>
+
+      <section className="md:hidden">
+        <button
+          type="button"
+          onClick={signOut}
+          className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-semibold text-red-600 shadow-sm hover:border-red-300 hover:bg-red-50 transition-colors"
+        >
+          Sign Out
+        </button>
       </section>
     </div>
   );

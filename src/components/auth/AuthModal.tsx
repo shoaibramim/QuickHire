@@ -45,7 +45,7 @@ export default function AuthModal() {
     /* Backdrop */
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-label={
@@ -57,7 +57,7 @@ export default function AuthModal() {
         if (e.target === overlayRef.current) closeAuthModal();
       }}
     >
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-[fadeSlideUp_0.2s_ease-out]">
+      <div className="relative w-full max-w-md max-h-[calc(100dvh-2rem)] bg-white rounded-2xl shadow-2xl overflow-hidden animate-[fadeSlideUp_0.2s_ease-out] flex flex-col">
         <button
           ref={firstFocusRef}
           onClick={closeAuthModal}
@@ -116,7 +116,7 @@ export default function AuthModal() {
             Sign Up
           </button>
         </div>
-        <div className="px-8 py-6">
+        <div className="px-8 py-6 overflow-y-auto min-h-0">
           {authModalTab === "signin" ? <SignInForm /> : <SignUpForm />}
         </div>
       </div>

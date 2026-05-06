@@ -26,7 +26,12 @@ interface RouteContext {
 export async function POST(req: NextRequest, context: RouteContext) {
   const { id: job_id } = await context.params;
 
-  let body: { name?: string; email?: string; resume_link?: string; cover_note?: string };
+  let body: {
+    name?: string;
+    email?: string;
+    resume_link?: string;
+    cover_note?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -35,13 +40,26 @@ export async function POST(req: NextRequest, context: RouteContext) {
 
   const { name, email, resume_link, cover_note } = body;
   if (!name || typeof name !== "string" || name.trim().length < 2) {
-    return NextResponse.json({ error: "A valid full name is required." }, { status: 422 });
+    return NextResponse.json(
+      { error: "A valid full name is required." },
+      { status: 422 },
+    );
   }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: "A valid email address is required." }, { status: 422 });
+    return NextResponse.json(
+      { error: "A valid email address is required." },
+      { status: 422 },
+    );
   }
-  if (!resume_link || typeof resume_link !== "string" || resume_link.trim().length < 5) {
-    return NextResponse.json({ error: "A resume link (URL or path) is required." }, { status: 422 });
+  if (
+    !resume_link ||
+    typeof resume_link !== "string" ||
+    resume_link.trim().length < 5
+  ) {
+    return NextResponse.json(
+      { error: "A resume link (URL or path) is required." },
+      { status: 422 },
+    );
   }
   const application = {
     id: crypto.randomUUID(),
@@ -54,12 +72,19 @@ export async function POST(req: NextRequest, context: RouteContext) {
   };
   applicationsStore.push(application);
 
-  // Dev log so you can see submissions in the terminal
-  console.log("[Apply API] New application received:", application);
+  // Log only non-PII metadata to avoid leaking applicant details
+  console.info("[Apply API] Application received", {
+    id: application.id,
+    job_id: application.job_id,
+  });
 
   return NextResponse.json(
-    { success: true, message: "Application submitted successfully!", id: application.id },
-    { status: 201 }
+    {
+      success: true,
+      message: "Application submitted successfully!",
+      id: application.id,
+    },
+    { status: 201 },
   );
 }
 
@@ -67,5 +92,9 @@ export async function POST(req: NextRequest, context: RouteContext) {
 export async function GET(_req: NextRequest, context: RouteContext) {
   const { id: job_id } = await context.params;
   const jobApplications = applicationsStore.filter((a) => a.job_id === job_id);
-  return NextResponse.json({ job_id, count: jobApplications.length, applications: jobApplications });
+  return NextResponse.json({
+    job_id,
+    count: jobApplications.length,
+    applications: jobApplications,
+  });
 }
