@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MdDashboard, MdWork, MdHelp, MdLogout } from "react-icons/md";
 
@@ -33,6 +33,14 @@ function SeekerShell({ children }: { children: ReactNode }) {
     { label: "Browse Jobs", href: "/jobs", icon: MdWork },
     { label: "Help", href: "/help", icon: MdHelp },
   ];
+
+  useEffect(() => {
+    const handleOpenProfile = () => setProfileOpen(true);
+    window.addEventListener("qh-open-profile-modal", handleOpenProfile);
+    return () => {
+      window.removeEventListener("qh-open-profile-modal", handleOpenProfile);
+    };
+  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
@@ -84,9 +92,7 @@ function SeekerShell({ children }: { children: ReactNode }) {
             })}
           </ul>
         </nav>
-        <div className="px-6 py-4 border-t border-gray-100 text-xs text-subtitle">
-          Verified email required to access the workspace.
-        </div>
+
         <div className="px-4 pb-5 pt-3 border-t border-gray-100 space-y-2">
           <button
             type="button"
@@ -98,7 +104,7 @@ function SeekerShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={signOut}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-semibold text-heading-dark hover:bg-gray-50 transition-colors"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 hover:border-red-300 hover:bg-red-50 transition-colors"
           >
             <MdLogout className="w-4 h-4" aria-hidden="true" />
             Sign Out

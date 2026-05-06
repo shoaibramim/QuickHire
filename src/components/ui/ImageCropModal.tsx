@@ -22,37 +22,48 @@ interface Props {
 
 const PREVIEW_PX = 320; // visible canvas size (CSS pixels)
 
-export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props) {
+export default function ImageCropModal({
+  imageSrc,
+  onConfirm,
+  onCancel,
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imgRef    = useRef<HTMLImageElement | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
 
   // scale: how many canvas-px per image-px
-  const [scale,    setScale]   = useState(1);
+  const [scale, setScale] = useState(1);
   const [minScale, setMinScale] = useState(1);
 
   // offset: top-left corner of the scaled image relative to canvas origin
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   // Drag state stored in a ref to avoid stale closures in mousemove
-  const drag = useRef<{ active: boolean; startX: number; startY: number; ox: number; oy: number }>({
-    active: false, startX: 0, startY: 0, ox: 0, oy: 0,
+  const drag = useRef<{
+    active: boolean;
+    startX: number;
+    startY: number;
+    ox: number;
+    oy: number;
+  }>({
+    active: false,
+    startX: 0,
+    startY: 0,
+    ox: 0,
+    oy: 0,
   });
-  const clamp = useCallback(
-    (s: number, ox: number, oy: number) => {
-      const img = imgRef.current;
-      if (!img) return { x: ox, y: oy };
-      const scaledW = img.naturalWidth  * s;
-      const scaledH = img.naturalHeight * s;
-      return {
-        x: Math.min(0, Math.max(ox, PREVIEW_PX - scaledW)),
-        y: Math.min(0, Math.max(oy, PREVIEW_PX - scaledH)),
-      };
-    },
-    []
-  );
+  const clamp = useCallback((s: number, ox: number, oy: number) => {
+    const img = imgRef.current;
+    if (!img) return { x: ox, y: oy };
+    const scaledW = img.naturalWidth * s;
+    const scaledH = img.naturalHeight * s;
+    return {
+      x: Math.min(0, Math.max(ox, PREVIEW_PX - scaledW)),
+      y: Math.min(0, Math.max(oy, PREVIEW_PX - scaledH)),
+    };
+  }, []);
   const draw = useCallback((s: number, ox: number, oy: number) => {
     const canvas = canvasRef.current;
-    const img    = imgRef.current;
+    const img = imgRef.current;
     if (!canvas || !img) return;
     const ctx = canvas.getContext("2d")!;
     ctx.clearRect(0, 0, PREVIEW_PX, PREVIEW_PX);
@@ -66,10 +77,10 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
       // Scale so the shorter edge fills the canvas (image always covers the square)
       const ms = Math.max(
         PREVIEW_PX / img.naturalWidth,
-        PREVIEW_PX / img.naturalHeight
+        PREVIEW_PX / img.naturalHeight,
       );
       const initOffset = {
-        x: (PREVIEW_PX - img.naturalWidth  * ms) / 2,
+        x: (PREVIEW_PX - img.naturalWidth * ms) / 2,
         y: (PREVIEW_PX - img.naturalHeight * ms) / 2,
       };
 
@@ -85,12 +96,19 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
   }, [scale, offset, draw]);
   function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
     e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = { active: true, startX: e.clientX, startY: e.clientY, ox: offset.x, oy: offset.y };
+    drag.current = {
+      active: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      ox: offset.x,
+      oy: offset.y,
+    };
   }
 
   function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
     if (!drag.current.active) return;
-    const newOff = clamp(scale,
+    const newOff = clamp(
+      scale,
       drag.current.ox + (e.clientX - drag.current.startX),
       drag.current.oy + (e.clientY - drag.current.startY),
     );
@@ -102,11 +120,13 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
   }
   function onWheel(e: React.WheelEvent<HTMLCanvasElement>) {
     e.preventDefault();
-    const factor    = e.deltaY < 0 ? 1.08 : 1 / 1.08;
-    const newScale  = Math.max(minScale, Math.min(scale * factor, minScale * 6));
+    const factor = e.deltaY < 0 ? 1.08 : 1 / 1.08;
+    const newScale = Math.max(minScale, Math.min(scale * factor, minScale * 6));
     // Zoom towards canvas center
-    const cx = PREVIEW_PX / 2, cy = PREVIEW_PX / 2;
-    const newOff = clamp(newScale,
+    const cx = PREVIEW_PX / 2,
+      cy = PREVIEW_PX / 2;
+    const newOff = clamp(
+      newScale,
       cx - (cx - offset.x) * (newScale / scale),
       cy - (cy - offset.y) * (newScale / scale),
     );
@@ -115,8 +135,10 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
   }
   function onSliderChange(e: React.ChangeEvent<HTMLInputElement>) {
     const newScale = Number(e.target.value);
-    const cx = PREVIEW_PX / 2, cy = PREVIEW_PX / 2;
-    const newOff = clamp(newScale,
+    const cx = PREVIEW_PX / 2,
+      cy = PREVIEW_PX / 2;
+    const newOff = clamp(
+      newScale,
       cx - (cx - offset.x) * (newScale / scale),
       cy - (cy - offset.y) * (newScale / scale),
     );
@@ -128,17 +150,17 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
     if (!img) return;
 
     const OUTPUT = 400;
-    const ratio  = OUTPUT / PREVIEW_PX;
+    const ratio = OUTPUT / PREVIEW_PX;
 
     const out = document.createElement("canvas");
-    out.width  = OUTPUT;
+    out.width = OUTPUT;
     out.height = OUTPUT;
     const ctx = out.getContext("2d")!;
     ctx.drawImage(
       img,
       offset.x * ratio,
       offset.y * ratio,
-      img.naturalWidth  * scale * ratio,
+      img.naturalWidth * scale * ratio,
       img.naturalHeight * scale * ratio,
     );
 
@@ -146,11 +168,11 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
     // Each base64 char ≈ 0.75 bytes, so 500 KB raw ≈ 666 KB of base64 chars.
     const MAX_BYTES = 500 * 1024;
     let quality = 0.92;
-    let dataUrl  = out.toDataURL("image/jpeg", quality);
+    let dataUrl = out.toDataURL("image/jpeg", quality);
 
-    while (dataUrl.length * 0.75 > MAX_BYTES && quality > 0.10) {
-      quality  = Math.round((quality - 0.08) * 100) / 100;
-      dataUrl  = out.toDataURL("image/jpeg", quality);
+    while (dataUrl.length * 0.75 > MAX_BYTES && quality > 0.1) {
+      quality = Math.round((quality - 0.08) * 100) / 100;
+      dataUrl = out.toDataURL("image/jpeg", quality);
     }
 
     onConfirm(dataUrl);
@@ -158,27 +180,40 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
   return (
     /* Backdrop */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-label="Crop company logo"
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col gap-5 p-6">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm max-h-[calc(100dvh-2rem)] flex flex-col gap-5 p-6 overflow-y-auto">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-heading-dark">Crop Company Logo</h2>
+          <h2 className="text-base font-bold text-heading-dark">
+            Crop Company Logo
+          </h2>
           <button
             type="button"
             onClick={onCancel}
             className="text-subtitle hover:text-heading-dark transition-colors"
             aria-label="Close crop modal"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
         <p className="text-xs text-subtitle -mt-2">
-          Drag to reposition · scroll or use the slider to zoom · result will be a square.
+          Drag to reposition · scroll or use the slider to zoom · result will be
+          a square.
         </p>
         <div
           className="mx-auto rounded-xl overflow-hidden ring-2 ring-brand-indigo/40 shadow-inner"
@@ -198,8 +233,18 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
           />
         </div>
         <div className="flex items-center gap-3">
-          <svg className="w-4 h-4 text-subtitle flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0zM8 11h6" />
+          <svg
+            className="w-4 h-4 text-subtitle flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0zM8 11h6"
+            />
           </svg>
           <input
             type="range"
@@ -211,8 +256,18 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
             className="flex-1 accent-brand-indigo h-1.5 rounded-full"
             aria-label="Zoom level"
           />
-          <svg className="w-4 h-4 text-subtitle flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0zM11 8v6M8 11h6" />
+          <svg
+            className="w-4 h-4 text-subtitle flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0zM11 8v6M8 11h6"
+            />
           </svg>
         </div>
         <div className="flex gap-3 pt-1">
@@ -231,7 +286,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }: Props)
             Crop &amp; Use
           </button>
         </div>
-
       </div>
     </div>
   );

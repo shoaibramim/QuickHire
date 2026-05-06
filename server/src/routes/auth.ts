@@ -13,6 +13,10 @@ import {
 
 const router = Router();
 
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function signAccessToken(userId: string) {
   const opts: SignOptions = {
     expiresIn: (process.env["JWT_ACCESS_EXPIRES_IN"] ??
@@ -180,7 +184,8 @@ router.post(
 
     const { email } = req.body as { email: string };
     const normalizedEmail = String(email).trim().toLowerCase();
-    const user = await User.findOne({ email: normalizedEmail });
+    const emailRegex = new RegExp(`^${escapeRegex(normalizedEmail)}$`, "i");
+    const user = await User.findOne({ email: emailRegex });
 
     if (!user) {
       return res.status(200).json({
@@ -195,6 +200,9 @@ router.post(
     }
 
     const verification = createVerificationBundle(normalizedEmail);
+    if (user.email !== normalizedEmail) {
+      user.email = normalizedEmail;
+    }
     user.emailVerificationTokenHash = verification.tokenHash;
     user.emailVerificationTokenExpiresAt = verification.tokenExpiresAt;
     user.emailVerificationOtpHash = verification.otpHash;

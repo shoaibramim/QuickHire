@@ -1,7 +1,6 @@
 "use client";
 
 // JobStatisticsChart — weekly job views vs applied bar chart using Recharts.
-// Matches the visual style from the dashboard screenshots.
 
 import {
   BarChart,

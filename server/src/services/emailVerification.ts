@@ -99,14 +99,8 @@ export async function sendVerificationEmail(payload: VerificationEmailPayload) {
 
   if (!transporter) {
     console.info(
-      "[emailVerification] SMTP not configured; verification email preview:",
+      "[emailVerification] SMTP not configured; verification email suppressed.",
     );
-    console.info({
-      to: payload.to,
-      subject,
-      verificationUrl: payload.verificationUrl,
-      otp: payload.otp,
-    });
     return { mode: "console" as const };
   }
 
