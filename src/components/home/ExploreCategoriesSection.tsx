@@ -31,7 +31,7 @@ export default function ExploreCategoriesSection({
             href="/jobs"
             className="flex items-center gap-2 text-sm font-semibold text-brand-indigo hover:underline"
           >
-            Show all jobs
+            See all jobs
             <FaArrowRight className="text-xs" aria-hidden="true" />
           </Link>
         </div>

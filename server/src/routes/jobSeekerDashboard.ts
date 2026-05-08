@@ -1,4 +1,5 @@
 import { Router } from "express";
+import mongoose from "mongoose";
 import { requireAuth, requireRole } from "../middleware/auth";
 import Application from "../models/Application";
 import Job from "../models/Job";
@@ -17,10 +18,27 @@ function formatDate(value: Date) {
 
 router.get("/overview", async (req, res) => {
   const user = req.user as IUser;
-  const userEmail = user.email.toLowerCase();
+  const userId = (user as { id?: string }).id;
+  const rawApplicantId =
+    typeof userId === "string" && userId ? userId : String(user._id ?? "");
+  const applicantId =
+    rawApplicantId && mongoose.Types.ObjectId.isValid(rawApplicantId)
+      ? rawApplicantId
+      : null;
+
+  if (!applicantId) {
+    return res.json({
+      applicationsSubmitted: 0,
+      recentApplications: 0,
+      shortlisted: 0,
+      pendingResponses: 0,
+      recommendedJobs: [],
+      applicationsTimeline: [],
+    });
+  }
 
   const [applications, activeJobs] = await Promise.all([
-    Application.find({ email: userEmail }).sort({ createdAt: -1 }),
+    Application.find({ applicantId }).sort({ createdAt: -1 }),
     Job.find({ status: "Active" }).sort({ createdAt: -1 }).limit(8),
   ]);
 

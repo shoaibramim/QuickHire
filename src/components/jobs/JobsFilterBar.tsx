@@ -43,12 +43,15 @@ export default function JobsFilterBar({
   const searchParams = useSearchParams();
 
   const updateParam = useCallback(
-    (key: string, value: string) => {
+    (key: string, value: string, options: { resetPage?: boolean } = {}) => {
       const params = new URLSearchParams(searchParams.toString());
       if (value) {
         params.set(key, value);
       } else {
         params.delete(key);
+      }
+      if (options.resetPage !== false) {
+        params.delete("page");
       }
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     },
@@ -62,6 +65,7 @@ export default function JobsFilterBar({
     } else {
       params.set("featured", "true");
     }
+    params.delete("page");
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
@@ -116,7 +120,7 @@ export default function JobsFilterBar({
         </div>
         <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
           <button
-            onClick={() => updateParam("view", "grid")}
+            onClick={() => updateParam("view", "grid", { resetPage: false })}
             aria-label="Grid view"
             className={`p-2.5 transition-colors duration-200 ${activeView !== "list" ? "bg-brand-indigo text-white" : "text-gray-400 hover:text-gray-600"}`}
           >
@@ -133,7 +137,7 @@ export default function JobsFilterBar({
             </svg>
           </button>
           <button
-            onClick={() => updateParam("view", "list")}
+            onClick={() => updateParam("view", "list", { resetPage: false })}
             aria-label="List view"
             className={`p-2.5 transition-colors duration-200 ${activeView === "list" ? "bg-brand-indigo text-white" : "text-gray-400 hover:text-gray-600"}`}
           >

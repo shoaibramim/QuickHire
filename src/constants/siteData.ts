@@ -50,7 +50,6 @@ export const TRUSTED_COMPANIES: TrustedCompany[] = [
 ];
 
 export const HERO_STATS: HeroStats = {
-  jobCount: "5000+",
   tagline: "Discover more than",
   subtitle:
     "Great platform for the job seeker that searching for new career heights and passionate about startups.",
@@ -58,7 +57,7 @@ export const HERO_STATS: HeroStats = {
 
 export const CTA_CONTENT: CtaContent = {
   headline: "Start posting jobs today",
-  subtext: "Start posting jobs for only $10.",
+  subtext: "Start posting jobs for free.",
   buttonLabel: "Sign Up For Free",
   buttonHref: "/register",
   dashboardImageSrc: "/Dashboard_Company_CTA.png",
@@ -70,7 +69,8 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     title: "Email Marketing",
     company: "Revolut",
     location: "Madrid, Spain",
-    description: "Revolut is looking for Email Marketing to help team manage growth campaigns and customer retention.",
+    description:
+      "Revolut is looking for Email Marketing to help team manage growth campaigns and customer retention.",
     employmentType: "Full Time",
     companyLogoKey: "revolut",
     tags: ["marketing", "design"],
@@ -81,7 +81,8 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     title: "Brand Designer",
     company: "Dropbox",
     location: "San Fransisco, US",
-    description: "Dropbox is looking for Brand Designer to help the team to craft compelling visual narratives.",
+    description:
+      "Dropbox is looking for Brand Designer to help the team to craft compelling visual narratives.",
     employmentType: "Full Time",
     companyLogoKey: "dropbox",
     tags: ["design", "business"],
@@ -92,7 +93,8 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     title: "Email Marketing",
     company: "Pitch",
     location: "Berlin, Germany",
-    description: "Pitch is looking for Customer Manager to join marketing team and drive user engagement.",
+    description:
+      "Pitch is looking for Customer Manager to join marketing team and drive user engagement.",
     employmentType: "Full Time",
     companyLogoKey: "pitch",
     tags: ["marketing"],
@@ -103,7 +105,8 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     title: "Visual Designer",
     company: "Blinklist",
     location: "Granada, Spain",
-    description: "Blinklist is looking for Visual Designer to help team design intuitive user experiences.",
+    description:
+      "Blinklist is looking for Visual Designer to help team design intuitive user experiences.",
     employmentType: "Full Time",
     companyLogoKey: "blinklist",
     tags: ["design"],
@@ -114,7 +117,8 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     title: "Product Designer",
     company: "ClassPass",
     location: "Manchester, UK",
-    description: "ClassPass is looking for Product Designer to help us build beautiful product interfaces.",
+    description:
+      "ClassPass is looking for Product Designer to help us build beautiful product interfaces.",
     employmentType: "Full Time",
     companyLogoKey: "classpass",
     tags: ["marketing", "design"],
@@ -125,7 +129,8 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     title: "Lead Designer",
     company: "Canva",
     location: "Ontario, Canada",
-    description: "Canva is looking for Lead Designer to help develop new design systems and component libraries.",
+    description:
+      "Canva is looking for Lead Designer to help develop new design systems and component libraries.",
     employmentType: "Full Time",
     companyLogoKey: "canva",
     tags: ["design", "business"],
@@ -136,7 +141,8 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     title: "Brand Strategist",
     company: "GoDaddy",
     location: "Marseille, France",
-    description: "GoDaddy is looking for Brand Strategist to join the team and shape brand identity globally.",
+    description:
+      "GoDaddy is looking for Brand Strategist to join the team and shape brand identity globally.",
     employmentType: "Full Time",
     companyLogoKey: "godaddy",
     tags: ["marketing"],
@@ -147,7 +153,8 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     title: "Data Analyst",
     company: "Twitter",
     location: "San Diego, US",
-    description: "Twitter is looking for Data Analyst to help team design data pipelines and derive insights.",
+    description:
+      "Twitter is looking for Data Analyst to help team design data pipelines and derive insights.",
     employmentType: "Full Time",
     companyLogoKey: "twitter",
     tags: ["technology"],
@@ -158,7 +165,8 @@ export const FEATURED_JOBS: FeaturedJob[] = [
     title: "UI Designer",
     company: "Figma",
     location: "San Francisco, US",
-    description: "Figma is looking for a UI Designer to craft beautiful, pixel-perfect interfaces and design systems used by millions.",
+    description:
+      "Figma is looking for a UI Designer to craft beautiful, pixel-perfect interfaces and design systems used by millions.",
     employmentType: "Full Time",
     companyLogoKey: "figma",
     tags: ["design"],
@@ -166,44 +174,116 @@ export const FEATURED_JOBS: FeaturedJob[] = [
   },
 ];
 export const LATEST_JOBS: LatestJob[] = [
-  { id: "latest-1", title: "Social Media Assistant", company: "Nomad",     location: "Paris, France",       employmentType: "Full Time", companyLogoKey: "nomad",     tags: ["marketing", "design"], href: "/jobs/latest-1" },
-  { id: "latest-2", title: "Social Media Assistant", company: "Netlify",   location: "Paris, France",       employmentType: "Full Time", companyLogoKey: "netlify",   tags: ["marketing", "design"], href: "/jobs/latest-2" },
-  { id: "latest-3", title: "Brand Designer",          company: "Dropbox",   location: "San Fransisco, USA",  employmentType: "Full Time", companyLogoKey: "dropbox",   tags: ["marketing", "design"], href: "/jobs/latest-3" },
-  { id: "latest-4", title: "Brand Designer",          company: "Maze",      location: "San Fransisco, USA",  employmentType: "Full Time", companyLogoKey: "maze",      tags: ["marketing", "design"], href: "/jobs/latest-4" },
-  { id: "latest-5", title: "Interactive Developer",   company: "Terraform", location: "Hamburg, Germany",    employmentType: "Full Time", companyLogoKey: "terraform", tags: ["marketing", "design"], href: "/jobs/latest-5" },
-  { id: "latest-6", title: "Interactive Developer",   company: "Udacity",   location: "Hamburg, Germany",    employmentType: "Full Time", companyLogoKey: "udacity",   tags: ["marketing", "design"], href: "/jobs/latest-6" },
-  { id: "latest-7", title: "HR Manager",              company: "Packer",    location: "Lucern, Switzerland", employmentType: "Full Time", companyLogoKey: "packer",    tags: ["marketing", "design"], href: "/jobs/latest-7" },
-  { id: "latest-8", title: "HR Manager",              company: "Webflow",   location: "Lucern, Switzerland", employmentType: "Full Time", companyLogoKey: "webflow",   tags: ["marketing", "design"], href: "/jobs/latest-8" },
+  {
+    id: "latest-1",
+    title: "Social Media Assistant",
+    company: "Nomad",
+    location: "Paris, France",
+    employmentType: "Full Time",
+    companyLogoKey: "nomad",
+    tags: ["marketing", "design"],
+    href: "/jobs/latest-1",
+  },
+  {
+    id: "latest-2",
+    title: "Social Media Assistant",
+    company: "Netlify",
+    location: "Paris, France",
+    employmentType: "Full Time",
+    companyLogoKey: "netlify",
+    tags: ["marketing", "design"],
+    href: "/jobs/latest-2",
+  },
+  {
+    id: "latest-3",
+    title: "Brand Designer",
+    company: "Dropbox",
+    location: "San Fransisco, USA",
+    employmentType: "Full Time",
+    companyLogoKey: "dropbox",
+    tags: ["marketing", "design"],
+    href: "/jobs/latest-3",
+  },
+  {
+    id: "latest-4",
+    title: "Brand Designer",
+    company: "Maze",
+    location: "San Fransisco, USA",
+    employmentType: "Full Time",
+    companyLogoKey: "maze",
+    tags: ["marketing", "design"],
+    href: "/jobs/latest-4",
+  },
+  {
+    id: "latest-5",
+    title: "Interactive Developer",
+    company: "Terraform",
+    location: "Hamburg, Germany",
+    employmentType: "Full Time",
+    companyLogoKey: "terraform",
+    tags: ["marketing", "design"],
+    href: "/jobs/latest-5",
+  },
+  {
+    id: "latest-6",
+    title: "Interactive Developer",
+    company: "Udacity",
+    location: "Hamburg, Germany",
+    employmentType: "Full Time",
+    companyLogoKey: "udacity",
+    tags: ["marketing", "design"],
+    href: "/jobs/latest-6",
+  },
+  {
+    id: "latest-7",
+    title: "HR Manager",
+    company: "Packer",
+    location: "Lucern, Switzerland",
+    employmentType: "Full Time",
+    companyLogoKey: "packer",
+    tags: ["marketing", "design"],
+    href: "/jobs/latest-7",
+  },
+  {
+    id: "latest-8",
+    title: "HR Manager",
+    company: "Webflow",
+    location: "Lucern, Switzerland",
+    employmentType: "Full Time",
+    companyLogoKey: "webflow",
+    tags: ["marketing", "design"],
+    href: "/jobs/latest-8",
+  },
 ];
 
 export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
   {
     heading: "About",
     links: [
-      { label: "Companies",      href: "/companies" },
-      { label: "Pricing",        href: "/pricing" },
-      { label: "Terms",          href: "/terms" },
-      { label: "Advice",         href: "/advice" },
+      { label: "Companies", href: "/companies" },
+      { label: "Pricing", href: "/pricing" },
+      { label: "Terms", href: "/terms" },
+      { label: "Advice", href: "/advice" },
       { label: "Privacy Policy", href: "/privacy" },
     ],
   },
   {
     heading: "Resources",
     links: [
-      { label: "Help Docs",  href: "/help" },
-      { label: "Guide",      href: "/guide" },
-      { label: "Updates",    href: "/updates" },
+      { label: "Help Docs", href: "/help" },
+      { label: "Guide", href: "/guide" },
+      { label: "Updates", href: "/updates" },
       { label: "Contact Us", href: "/contact" },
     ],
   },
 ];
 
 export const FOOTER_SOCIAL_LINKS: FooterSocialLink[] = [
-  { label: "Facebook",  href: "https://facebook.com",  iconKey: "facebook" },
+  { label: "Facebook", href: "https://facebook.com", iconKey: "facebook" },
   { label: "Instagram", href: "https://instagram.com", iconKey: "instagram" },
-  { label: "Dribbble",  href: "https://dribbble.com",  iconKey: "dribbble" },
-  { label: "LinkedIn",  href: "https://linkedin.com",  iconKey: "linkedin" },
-  { label: "Twitter",   href: "https://twitter.com",   iconKey: "twitter" },
+  { label: "Dribbble", href: "https://dribbble.com", iconKey: "dribbble" },
+  { label: "LinkedIn", href: "https://linkedin.com", iconKey: "linkedin" },
+  { label: "Twitter", href: "https://twitter.com", iconKey: "twitter" },
 ];
 
 export const FOOTER_TAGLINE =
