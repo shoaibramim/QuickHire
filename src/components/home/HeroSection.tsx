@@ -4,14 +4,19 @@ import Link from "next/link";
 import SearchBar from "@/components/home/SearchBar";
 import BrushstrokeUnderline from "@/components/home/BrushstrokeUnderline";
 import HeroGeometricDecoration from "@/components/home/HeroGeometricDecoration";
+import AnimatedCount from "@/components/ui/AnimatedCount";
 import { HERO_STATS } from "@/constants/siteData";
 import type { PopularTag } from "@/types";
 
 interface HeroSectionProps {
   popularTags: PopularTag[];
+  jobCount: number;
 }
 
-export default function HeroSection({ popularTags }: HeroSectionProps) {
+export default function HeroSection({
+  popularTags,
+  jobCount,
+}: HeroSectionProps) {
   return (
     <section className="relative flex-1" aria-label="Hero - discover jobs">
       <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 flex items-center min-h-[calc(100vh-72px)] sm:min-h-[calc(100vh-82px)]">
@@ -24,7 +29,7 @@ export default function HeroSection({ popularTags }: HeroSectionProps) {
               more than
             </span>
             <span className="block text-[2.25rem] xs:text-[2.75rem] sm:text-[3.5rem] lg:text-[5rem] xl:text-[5.5rem] text-brand-blue">
-              {HERO_STATS.jobCount} Jobs
+              <AnimatedCount value={jobCount} /> Jobs
             </span>
           </h1>
           <BrushstrokeUnderline className="mt-1 mb-6" />

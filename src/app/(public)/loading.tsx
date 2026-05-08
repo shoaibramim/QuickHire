@@ -12,7 +12,9 @@ function Shimmer() {
 
 function Bone({ className }: { className?: string }) {
   return (
-    <div className={`relative overflow-hidden rounded bg-gray-200 ${className ?? ""}`}>
+    <div
+      className={`relative overflow-hidden rounded bg-gray-200 ${className ?? ""}`}
+    >
       <Shimmer />
     </div>
   );
@@ -20,13 +22,11 @@ function Bone({ className }: { className?: string }) {
 
 export default function PublicPageLoading() {
   return (
-    <div className="bg-white min-h-screen" aria-busy="true" aria-label="Loading page">
-      <div className="bg-hero-bg border-b border-deco/40">
-        <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
-          <Bone className="h-9 w-56 mb-3" />
-          <Bone className="h-4 w-80" />
-        </div>
-      </div>
+    <div
+      className="bg-white min-h-screen"
+      aria-busy="true"
+      aria-label="Loading page"
+    >
       <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10 space-y-4">
         <Bone className="h-4 w-full" />
         <Bone className="h-4 w-11/12" />

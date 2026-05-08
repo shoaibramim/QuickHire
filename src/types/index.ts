@@ -21,7 +21,6 @@ export interface SearchFormState {
 }
 
 export interface HeroStats {
-  jobCount: string;
   tagline: string;
   subtitle: string;
 }
@@ -71,7 +70,12 @@ export type JobTagKey =
   | "sales"
   | "human-resource";
 
-export type EmploymentType = "Full Time" | "Part Time" | "Contract" | "Internship" | "Remote";
+export type EmploymentType =
+  | "Full Time"
+  | "Part Time"
+  | "Contract"
+  | "Internship"
+  | "Remote";
 
 export interface BaseJob {
   id: string;
@@ -91,6 +95,17 @@ export interface FeaturedJob extends BaseJob {
 
 export type LatestJob = BaseJob;
 
+export interface Company {
+  id: string;
+  name: string;
+  industry: string;
+  location: string;
+  companySize: string;
+  about: string;
+  companyLogo: string;
+  openRoles: number;
+}
+
 export interface FooterLink {
   label: string;
   href: string;
@@ -101,7 +116,12 @@ export interface FooterLinkGroup {
   links: FooterLink[];
 }
 
-export type SocialIconKey = "facebook" | "instagram" | "dribbble" | "linkedin" | "twitter";
+export type SocialIconKey =
+  | "facebook"
+  | "instagram"
+  | "dribbble"
+  | "linkedin"
+  | "twitter";
 
 export interface FooterSocialLink {
   label: string;

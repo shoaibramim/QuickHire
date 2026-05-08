@@ -9,7 +9,7 @@ import { register } from "@/services/authService";
 const ROLE_OPTIONS = [
   {
     value: "employer" as const,
-    label: "Employee",
+    label: "Employer",
     description: "Manage hiring, jobs, and applicants.",
   },
   {

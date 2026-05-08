@@ -1,101 +1,64 @@
 // Companies page /companies
 
 import type { Metadata } from "next";
+import type { ReactElement } from "react";
 import Link from "next/link";
 
 import { TRUSTED_COMPANIES } from "@/constants/siteData";
 import CompanyLogo from "@/components/home/CompanyLogo";
+import { getCompanies } from "@/services/companiesService";
 
 export const metadata: Metadata = {
   title: "Browse Companies - QuickHire",
   description: "Discover great companies hiring on QuickHire.",
 };
+const PAGE_SIZE = 12;
 
-// Extended mock company profiles
-const COMPANIES = [
-  {
-    id: "nomad",
-    name: "Nomad",
-    industry: "Technology",
-    location: "Remote",
-    employees: "51-200",
-    openRoles: 5,
-    description:
-      "Nomad is a remote-first platform helping teams collaborate and build asynchronously from anywhere in the world.",
-  },
-  {
-    id: "dropbox",
-    name: "Dropbox",
-    industry: "Technology",
-    location: "San Francisco, US",
-    employees: "1000+",
-    openRoles: 8,
-    description:
-      "Dropbox is a leading cloud storage and collaboration platform used by millions of teams globally.",
-  },
-  {
-    id: "revolut",
-    name: "Revolut",
-    industry: "Finance",
-    location: "London, UK",
-    employees: "5000+",
-    openRoles: 12,
-    description:
-      "Revolut is the financial super-app building products to help people get more from their money.",
-  },
-  {
-    id: "netlify",
-    name: "Netlify",
-    industry: "Technology",
-    location: "Remote",
-    employees: "201-500",
-    openRoles: 6,
-    description:
-      "Netlify is the platform for high-performance web apps, trusted by developers worldwide.",
-  },
-  {
-    id: "maze",
-    name: "Maze",
-    industry: "Design",
-    location: "Remote",
-    employees: "51-200",
-    openRoles: 4,
-    description:
-      "Maze is a rapid testing platform empowering teams to build better products through user insights.",
-  },
-  {
-    id: "terraform",
-    name: "Terraform",
-    industry: "Engineering",
-    location: "Remote",
-    employees: "201-500",
-    openRoles: 7,
-    description:
-      "HashiCorp Terraform enables teams to safely and predictably provision cloud infrastructure.",
-  },
-  {
-    id: "webflow",
-    name: "Webflow",
-    industry: "Technology",
-    location: "San Francisco, US",
-    employees: "201-500",
-    openRoles: 9,
-    description:
-      "Webflow empowers designers and developers to build professional websites without writing code.",
-  },
-  {
-    id: "canva",
-    name: "Canva",
-    industry: "Design",
-    location: "Sydney, Australia",
-    employees: "1000+",
-    openRoles: 15,
-    description:
-      "Canva is the world's leading graphic design platform, making design simple for everyone.",
-  },
-];
+interface SearchParams {
+  page?: string;
+}
 
-export default function CompaniesPage() {
+function toLogoKey(name: string, companyLogo: string) {
+  if (companyLogo) return companyLogo;
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+export default async function CompaniesPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const { page } = await searchParams;
+  const requestedPage = Math.max(1, Number.parseInt(page ?? "1", 10) || 1);
+
+  const initial = await getCompanies({ page: requestedPage, limit: PAGE_SIZE });
+  const totalCompanies = initial.total;
+  const totalPages = Math.max(1, Math.ceil(totalCompanies / PAGE_SIZE));
+  const currentPage = Math.min(requestedPage, totalPages);
+  const { companies } =
+    currentPage === initial.page
+      ? initial
+      : await getCompanies({ page: currentPage, limit: PAGE_SIZE });
+
+  const startIndex =
+    totalCompanies === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+  const endIndex =
+    totalCompanies === 0
+      ? 0
+      : Math.min(currentPage * PAGE_SIZE, totalCompanies);
+  const showPagination = totalPages > 1;
+  const pageNumbers = Array.from(
+    new Set([1, totalPages, currentPage - 1, currentPage, currentPage + 1]),
+  )
+    .filter((pageNumber) => pageNumber >= 1 && pageNumber <= totalPages)
+    .sort((a, b) => a - b);
+  const buildPageHref = (targetPage: number) => {
+    const params = new URLSearchParams();
+    if (targetPage > 1) params.set("page", String(targetPage));
+    const qs = params.toString();
+    return qs ? `/companies?${qs}` : "/companies";
+  };
+
   return (
     <section className="min-h-screen">
       <div className="bg-hero-bg border-b border-deco/40">
@@ -104,11 +67,25 @@ export default function CompaniesPage() {
             Browse Companies
           </h1>
           <p className="text-subtitle text-sm sm:text-base">
-            Discover{" "}
-            <span className="font-semibold text-heading-dark">
-              {COMPANIES.length}
-            </span>{" "}
-            companies hiring right now
+            {totalCompanies === 0 ? (
+              <>
+                Discover{" "}
+                <span className="font-semibold text-heading-dark">0</span>
+                {" companies hiring right now"}
+              </>
+            ) : (
+              <>
+                Showing{" "}
+                <span className="font-semibold text-heading-dark">
+                  {startIndex}-{endIndex}
+                </span>{" "}
+                of{" "}
+                <span className="font-semibold text-heading-dark">
+                  {totalCompanies}
+                </span>{" "}
+                companies hiring right now
+              </>
+            )}
           </p>
         </div>
       </div>
@@ -128,46 +105,155 @@ export default function CompaniesPage() {
       </div>
       <div className="bg-white">
         <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {COMPANIES.map((company) => (
-              <div
-                key={company.id}
-                className="flex flex-col p-6 bg-white border border-gray-200 rounded-xl hover:border-brand-indigo hover:shadow-md transition-all duration-200"
+          {companies.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
+              <svg
+                className="w-16 h-16 text-gray-200"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
               >
-                <div className="flex items-center gap-4 mb-4">
-                  <CompanyLogo
-                    companyLogoKey={company.id}
-                    sizeClass="w-12 h-12 flex-shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <h2 className="text-base font-bold text-heading-dark truncate">
-                      {company.name}
-                    </h2>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"
+                />
+              </svg>
+              <p className="text-lg font-semibold text-heading-dark">
+                No companies found
+              </p>
+              <p className="text-subtitle text-sm max-w-xs">
+                We couldn&apos;t find any companies yet.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {companies.map((company) => (
+                <div
+                  key={company.id}
+                  className="flex flex-col p-6 bg-white border border-gray-200 rounded-xl hover:border-brand-indigo hover:shadow-md transition-all duration-200"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <CompanyLogo
+                      companyLogoKey={toLogoKey(
+                        company.name,
+                        company.companyLogo,
+                      )}
+                      sizeClass="w-12 h-12 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <h2 className="text-base font-bold text-heading-dark truncate">
+                        {company.name}
+                      </h2>
+                      <p className="text-xs text-subtitle">
+                        {company.industry || "General"} &bull;{" "}
+                        {company.location || "Remote"}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-subtitle leading-relaxed mb-5 flex-1 line-clamp-3">
+                    {company.about || "No company description yet."}
+                  </p>
+                  <div className="flex items-center justify-between border-t border-gray-100 pt-4">
                     <p className="text-xs text-subtitle">
-                      {company.industry} &bull; {company.location}
+                      <span className="font-semibold text-heading-dark">
+                        {company.companySize || "Not set"}
+                      </span>{" "}
+                      employees
                     </p>
+                    <Link
+                      href={`/jobs?company=${encodeURIComponent(company.name)}`}
+                      className="text-sm font-semibold text-brand-indigo hover:underline"
+                    >
+                      {company.openRoles}{" "}
+                      {company.openRoles === 1 ? "open role" : "open roles"}
+                    </Link>
                   </div>
                 </div>
-                <p className="text-sm text-subtitle leading-relaxed mb-5 flex-1 line-clamp-3">
-                  {company.description}
-                </p>
-                <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                  <p className="text-xs text-subtitle">
-                    <span className="font-semibold text-heading-dark">
-                      {company.employees}
-                    </span>{" "}
-                    employees
-                  </p>
+              ))}
+            </div>
+          )}
+
+          {showPagination && (
+            <nav
+              className="flex flex-wrap items-center justify-between gap-3 mt-10"
+              aria-label="Pagination"
+            >
+              <p className="text-sm text-subtitle">
+                Page{" "}
+                <span className="font-semibold text-heading-dark">
+                  {currentPage}
+                </span>{" "}
+                of{" "}
+                <span className="font-semibold text-heading-dark">
+                  {totalPages}
+                </span>
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                {currentPage > 1 ? (
                   <Link
-                    href={`/jobs?q=${company.name.toLowerCase()}`}
-                    className="text-sm font-semibold text-brand-indigo hover:underline"
+                    href={buildPageHref(currentPage - 1)}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-full border border-gray-200 text-subtitle hover:border-brand-indigo hover:text-brand-indigo"
                   >
-                    {company.openRoles} open roles
+                    Prev
                   </Link>
-                </div>
+                ) : (
+                  <span className="px-3 py-1.5 text-xs font-semibold rounded-full border border-gray-200 text-gray-300">
+                    Prev
+                  </span>
+                )}
+                {pageNumbers.flatMap((pageNumber, index) => {
+                  const items: ReactElement[] = [];
+                  const prev = pageNumbers[index - 1];
+                  if (index > 0 && prev + 1 < pageNumber) {
+                    items.push(
+                      <span
+                        key={`gap-${pageNumber}`}
+                        className="px-1 text-subtitle"
+                      >
+                        …
+                      </span>,
+                    );
+                  }
+                  if (pageNumber === currentPage) {
+                    items.push(
+                      <span
+                        key={`page-${pageNumber}`}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-full border border-brand-indigo bg-brand-indigo text-white"
+                      >
+                        {pageNumber}
+                      </span>,
+                    );
+                  } else {
+                    items.push(
+                      <Link
+                        key={`page-${pageNumber}`}
+                        href={buildPageHref(pageNumber)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-full border border-gray-200 text-subtitle hover:border-brand-indigo hover:text-brand-indigo"
+                      >
+                        {pageNumber}
+                      </Link>,
+                    );
+                  }
+                  return items;
+                })}
+                {currentPage < totalPages ? (
+                  <Link
+                    href={buildPageHref(currentPage + 1)}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-full border border-gray-200 text-subtitle hover:border-brand-indigo hover:text-brand-indigo"
+                  >
+                    Next
+                  </Link>
+                ) : (
+                  <span className="px-3 py-1.5 text-xs font-semibold rounded-full border border-gray-200 text-gray-300">
+                    Next
+                  </span>
+                )}
               </div>
-            ))}
-          </div>
+            </nav>
+          )}
         </div>
       </div>
     </section>
