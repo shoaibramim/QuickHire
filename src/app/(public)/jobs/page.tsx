@@ -2,6 +2,7 @@
 // Server Component: fetches live data from the Express API with search/filter params.
 
 import type { Metadata } from "next";
+import { type ReactNode } from "react";
 import Link from "next/link";
 
 import JobCard from "@/components/home/JobCard";
@@ -231,7 +232,7 @@ export default async function JobsPage({
                 </span>
               )}
               {pageNumbers.flatMap((pageNumber, index) => {
-                const items: JSX.Element[] = [];
+                const items: ReactNode[] = [];
                 const prev = pageNumbers[index - 1];
                 if (index > 0 && prev + 1 < pageNumber) {
                   items.push(
