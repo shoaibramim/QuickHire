@@ -64,13 +64,22 @@ export interface SeekerDashboardOverview {
   applicationsTimeline: SeekerApplicationItem[];
 }
 
-export interface Message {
+export interface ConversationSummary {
   id: string;
-  from: string;
-  avatar?: string;
-  preview: string;
-  time: string;
-  unread: boolean;
+  displayName: string;
+  jobTitle: string;
+  lastMessagePreview: string;
+  lastMessageAt: string;
+  unreadCount: number;
+  avatarUrl?: string | null;
+}
+
+export interface ConversationMessage {
+  id: string;
+  senderId: string;
+  body: string;
+  createdAt: string;
+  editedAt?: string | null;
 }
 
 export interface Applicant {

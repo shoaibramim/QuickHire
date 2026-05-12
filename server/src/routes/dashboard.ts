@@ -22,9 +22,9 @@ router.get(
       year: "numeric",
     }); // "Mar 2, 2026"
 
-    const [jobs, messages, scheduleToday] = await Promise.all([
+    const [jobs, unreadMessages, scheduleToday] = await Promise.all([
       Job.find({ postedBy: userId }),
-      Message.find({ ownerId: userId }),
+      Message.countDocuments({ recipientId: userId, unread: true }),
       ScheduleEvent.find({ ownerId: userId, date: today }),
     ]);
 
@@ -72,7 +72,7 @@ router.get(
     res.json({
       newCandidates: applications.filter((a) => a.status === "Pending").length,
       scheduledToday: scheduleToday.length,
-      messages: messages.filter((m) => m.unread).length,
+      messages: unreadMessages,
       jobsOpen: jobs.filter((j) => j.status === "Active").length,
       totalApplicants: applications.length,
       weeklyStats: {
@@ -153,15 +153,26 @@ router.get(
     const applications = await Application.find({
       jobId: { $in: jobs.map((j) => j._id) },
     }).sort({ createdAt: -1 });
+    const applicantIds = applications.map(
+      (application) => application.applicantId,
+    );
+    const applicants = await User.find({ _id: { $in: applicantIds } }).select(
+      "avatar",
+    );
+    const applicantMap = new Map(
+      applicants.map((applicant) => [String(applicant._id), applicant]),
+    );
     // Enrich with job title for display
     const enriched = applications.map((a) => {
       const job = jobs.find((j) => String(j._id) === String(a.jobId));
+      const applicant = applicantMap.get(String(a.applicantId));
       return {
         id: String(a._id),
         name: a.name,
         email: a.email,
         resumeLink: a.resumeLink,
         coverNote: a.coverNote,
+        avatar: applicant?.avatar ?? "",
         role: job?.title ?? "Unknown Role",
         company: job?.company ?? "",
         appliedDate: new Date(

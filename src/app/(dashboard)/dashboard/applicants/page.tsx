@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { useApiData } from "@/hooks/useApiData";
 import { apiClient } from "@/services/apiClient";
 import type { Applicant } from "@/types/dashboard";
@@ -12,17 +13,37 @@ type StatusFilter = "All" | "Pending" | "Reviewed" | "Shortlisted" | "Rejected";
 type ApplicantStatus = Applicant["status"];
 
 const STATUS_STYLES: Record<ApplicantStatus, string> = {
-  Reviewed:    "bg-blue-50  text-blue-600",
+  Reviewed: "bg-blue-50  text-blue-600",
   Shortlisted: "bg-green-50 text-green-600",
-  Rejected:    "bg-red-50   text-red-500",
-  Pending:     "bg-amber-50 text-amber-600",
+  Rejected: "bg-red-50   text-red-500",
+  Pending: "bg-amber-50 text-amber-600",
 };
 
-const STATUS_OPTIONS: { value: ApplicantStatus; label: string; style: string }[] = [
-  { value: "Pending",     label: "Pending",     style: "text-amber-600 hover:bg-amber-50" },
-  { value: "Reviewed",    label: "Reviewed",    style: "text-blue-600  hover:bg-blue-50"  },
-  { value: "Shortlisted", label: "Shortlisted", style: "text-green-600 hover:bg-green-50" },
-  { value: "Rejected",    label: "Rejected",    style: "text-red-500   hover:bg-red-50"   },
+const STATUS_OPTIONS: {
+  value: ApplicantStatus;
+  label: string;
+  style: string;
+}[] = [
+  {
+    value: "Pending",
+    label: "Pending",
+    style: "text-amber-600 hover:bg-amber-50",
+  },
+  {
+    value: "Reviewed",
+    label: "Reviewed",
+    style: "text-blue-600  hover:bg-blue-50",
+  },
+  {
+    value: "Shortlisted",
+    label: "Shortlisted",
+    style: "text-green-600 hover:bg-green-50",
+  },
+  {
+    value: "Rejected",
+    label: "Rejected",
+    style: "text-red-500   hover:bg-red-50",
+  },
 ];
 function SetStatusDropdown({
   applicantId,
@@ -33,22 +54,29 @@ function SetStatusDropdown({
   currentStatus: ApplicantStatus;
   onStatusChange: (id: string, status: ApplicantStatus) => void;
 }) {
-  const [open, setOpen]     = useState(false);
+  const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
-  const buttonRef           = useRef<HTMLButtonElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(
+    null,
+  );
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Position the fixed dropdown below the trigger button
   useLayoutEffect(() => {
     if (!open || !buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
-    setCoords({ top: rect.bottom + 6, left: rect.right - 144 /* w-36 = 144px */ });
+    setCoords({
+      top: rect.bottom + 6,
+      left: rect.right - 144 /* w-36 = 144px */,
+    });
   }, [open]);
 
   // Close on outside click or scroll
   useEffect(() => {
     if (!open) return;
-    function close() { setOpen(false); }
+    function close() {
+      setOpen(false);
+    }
     document.addEventListener("mousedown", close);
     window.addEventListener("scroll", close, true);
     return () => {
@@ -58,10 +86,15 @@ function SetStatusDropdown({
   }, [open]);
 
   async function handleSelect(status: ApplicantStatus) {
-    if (status === currentStatus) { setOpen(false); return; }
+    if (status === currentStatus) {
+      setOpen(false);
+      return;
+    }
     setSaving(true);
     try {
-      await apiClient.patch(`/dashboard/applicants/${applicantId}/status`, { status });
+      await apiClient.patch(`/dashboard/applicants/${applicantId}/status`, {
+        status,
+      });
       onStatusChange(applicantId, status);
     } catch {
       // silently ignore — table status won't change on error
@@ -71,31 +104,36 @@ function SetStatusDropdown({
     }
   }
 
-  const dropdown = open && coords ? createPortal(
-    <div
-      role="listbox"
-      onMouseDown={(e) => e.stopPropagation()}
-      style={{ position: "fixed", top: coords.top, left: coords.left }}
-      className="w-36 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] py-1"
-    >
-      {STATUS_OPTIONS.map((opt) => (
-        <button
-          key={opt.value}
-          role="option"
-          aria-selected={opt.value === currentStatus}
-          onClick={() => handleSelect(opt.value)}
-          className={[
-            "w-full text-left px-3 py-2 text-xs font-semibold transition-colors",
-            opt.style,
-            opt.value === currentStatus ? "opacity-50 cursor-default" : "",
-          ].join(" ")}
-        >
-          {opt.value === currentStatus ? `✓ ${opt.label}` : opt.label}
-        </button>
-      ))}
-    </div>,
-    document.body
-  ) : null;
+  const dropdown =
+    open && coords
+      ? createPortal(
+          <div
+            role="listbox"
+            onMouseDown={(e) => e.stopPropagation()}
+            style={{ position: "fixed", top: coords.top, left: coords.left }}
+            className="w-36 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] py-1"
+          >
+            {STATUS_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                role="option"
+                aria-selected={opt.value === currentStatus}
+                onClick={() => handleSelect(opt.value)}
+                className={[
+                  "w-full text-left px-3 py-2 text-xs font-semibold transition-colors",
+                  opt.style,
+                  opt.value === currentStatus
+                    ? "opacity-50 cursor-default"
+                    : "",
+                ].join(" ")}
+              >
+                {opt.value === currentStatus ? `✓ ${opt.label}` : opt.label}
+              </button>
+            ))}
+          </div>,
+          document.body,
+        )
+      : null;
 
   return (
     <>
@@ -113,46 +151,90 @@ function SetStatusDropdown({
     </>
   );
 }
-function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose: () => void }) {
-  const initials = applicant.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+function ApplicantModal({
+  applicant,
+  onClose,
+}: {
+  applicant: Applicant;
+  onClose: () => void;
+}) {
+  const initials = applicant.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const avatarUrl = applicant.avatar?.trim();
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
       role="dialog"
       aria-modal="true"
       aria-label={`Application from ${applicant.name}`}
     >
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-extrabold text-heading-dark">Applicant Details</h2>
+          <h2 className="text-base font-extrabold text-heading-dark">
+            Applicant Details
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
             aria-label="Close"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
         <div className="px-6 py-5 space-y-5">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-brand-indigo text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
-              {initials}
+            <div className="w-14 h-14 rounded-full bg-brand-indigo text-white flex items-center justify-center text-lg font-bold flex-shrink-0 overflow-hidden">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={applicant.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                initials
+              )}
             </div>
             <div>
-              <p className="text-base font-bold text-heading-dark">{applicant.name}</p>
-              <p className="text-sm text-subtitle">{applicant.role} · {applicant.company}</p>
-              <p className="text-xs text-subtitle mt-0.5">Applied {applicant.appliedDate}</p>
+              <p className="text-base font-bold text-heading-dark">
+                {applicant.name}
+              </p>
+              <p className="text-sm text-subtitle">
+                {applicant.role} · {applicant.company}
+              </p>
+              <p className="text-xs text-subtitle mt-0.5">
+                Applied {applicant.appliedDate}
+              </p>
             </div>
-            <span className={`ml-auto text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[applicant.status]}`}>
+            <span
+              className={`ml-auto text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[applicant.status]}`}
+            >
               {applicant.status}
             </span>
           </div>
           <div className="grid grid-cols-1 gap-3">
             <div>
-              <p className="text-xs font-semibold text-subtitle uppercase tracking-wider mb-1">Email</p>
+              <p className="text-xs font-semibold text-subtitle uppercase tracking-wider mb-1">
+                Email
+              </p>
               <a
                 href={`mailto:${applicant.email}`}
                 className="text-sm text-brand-indigo hover:underline break-all"
@@ -161,7 +243,9 @@ function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose:
               </a>
             </div>
             <div>
-              <p className="text-xs font-semibold text-subtitle uppercase tracking-wider mb-1">Resume / Portfolio</p>
+              <p className="text-xs font-semibold text-subtitle uppercase tracking-wider mb-1">
+                Resume / Portfolio
+              </p>
               <a
                 href={applicant.resumeLink}
                 target="_blank"
@@ -173,13 +257,17 @@ function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose:
             </div>
           </div>
           <div>
-            <p className="text-xs font-semibold text-subtitle uppercase tracking-wider mb-1">Cover Note</p>
+            <p className="text-xs font-semibold text-subtitle uppercase tracking-wider mb-1">
+              Cover Note
+            </p>
             {applicant.coverNote ? (
               <p className="text-sm text-heading-dark whitespace-pre-wrap bg-gray-50 rounded-lg px-4 py-3 border border-gray-100">
                 {applicant.coverNote}
               </p>
             ) : (
-              <p className="text-sm text-subtitle italic">No cover note provided.</p>
+              <p className="text-sm text-subtitle italic">
+                No cover note provided.
+              </p>
             )}
           </div>
         </div>
@@ -196,9 +284,16 @@ function ApplicantModal({ applicant, onClose }: { applicant: Applicant; onClose:
   );
 }
 export default function ApplicantsPage() {
+  const router = useRouter();
   const [filter, setFilter] = useState<StatusFilter>("All");
   const [search, setSearch] = useState("");
   const [viewApplicant, setViewApplicant] = useState<Applicant | null>(null);
+  const [messageApplicant, setMessageApplicant] = useState<Applicant | null>(
+    null,
+  );
+  const [messageBody, setMessageBody] = useState("");
+  const [messageError, setMessageError] = useState<string | null>(null);
+  const [sendingMessage, setSendingMessage] = useState(false);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
 
   const { data, isLoading } = useApiData<Applicant[]>("/dashboard/applicants");
@@ -210,7 +305,7 @@ export default function ApplicantsPage() {
 
   function handleStatusChange(id: string, status: ApplicantStatus) {
     setApplicants((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status } : a))
+      prev.map((a) => (a.id === id ? { ...a, status } : a)),
     );
     // Also update the detail modal if it's open for this applicant
     setViewApplicant((prev) => (prev?.id === id ? { ...prev, status } : prev));
@@ -230,7 +325,10 @@ export default function ApplicantsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-brand-indigo border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+        <div
+          className="w-8 h-8 border-4 border-brand-indigo border-t-transparent rounded-full animate-spin"
+          aria-label="Loading"
+        />
       </div>
     );
   }
@@ -238,12 +336,120 @@ export default function ApplicantsPage() {
   return (
     <div className="space-y-5">
       {viewApplicant && (
-        <ApplicantModal applicant={viewApplicant} onClose={() => setViewApplicant(null)} />
+        <ApplicantModal
+          applicant={viewApplicant}
+          onClose={() => setViewApplicant(null)}
+        />
+      )}
+      {messageApplicant && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setMessageApplicant(null);
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Message ${messageApplicant.name}`}
+        >
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h2 className="text-base font-extrabold text-heading-dark">
+                Message {messageApplicant.name}
+              </h2>
+              <button
+                onClick={() => setMessageApplicant(null)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Close"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const body = messageBody.trim();
+                if (!body) {
+                  setMessageError("Message cannot be empty.");
+                  return;
+                }
+                setSendingMessage(true);
+                setMessageError(null);
+                try {
+                  const response = await apiClient.post<{
+                    conversationId: string;
+                  }>("/dashboard/messages/start", {
+                    applicationId: messageApplicant.id,
+                    message: body,
+                  });
+                  setMessageBody("");
+                  setMessageApplicant(null);
+                  window.dispatchEvent(new Event("qh-messages-updated"));
+                  router.push(
+                    `/dashboard/messages?conversation=${response.conversationId}`,
+                  );
+                } catch {
+                  setMessageError("Failed to send message.");
+                } finally {
+                  setSendingMessage(false);
+                }
+              }}
+              className="px-6 py-5 space-y-3"
+            >
+              <p className="text-sm text-subtitle">
+                Start a conversation with {messageApplicant.name}. The applicant
+                will be able to reply from their inbox.
+              </p>
+              <textarea
+                rows={4}
+                value={messageBody}
+                onChange={(e) => setMessageBody(e.target.value)}
+                placeholder="Write your message..."
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-indigo resize-none"
+              />
+              {messageError && (
+                <p className="text-xs text-red-500">{messageError}</p>
+              )}
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMessageApplicant(null)}
+                  className="px-4 py-2 text-sm font-semibold rounded-lg bg-gray-100 text-heading-dark hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={sendingMessage}
+                  className="px-4 py-2 bg-brand-indigo text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
+                >
+                  {sendingMessage ? "Sending..." : "Send message"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-        <h1 className="text-xl font-extrabold text-heading-dark">All Applicants</h1>
+        <h1 className="text-xl font-extrabold text-heading-dark">
+          All Applicants
+        </h1>
         <p className="text-sm text-subtitle">
-          <span className="font-semibold text-heading-dark">{filtered.length}</span> applicants shown
+          <span className="font-semibold text-heading-dark">
+            {filtered.length}
+          </span>{" "}
+          applicants shown
         </p>
       </div>
       <div className="flex flex-col sm:flex-row gap-3">
@@ -255,7 +461,15 @@ export default function ApplicantsPage() {
           className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-heading-dark focus:outline-none focus:ring-2 focus:ring-brand-indigo bg-white"
         />
         <div className="flex gap-1.5 flex-wrap">
-          {(["All", "Pending", "Reviewed", "Shortlisted", "Rejected"] as StatusFilter[]).map((s) => (
+          {(
+            [
+              "All",
+              "Pending",
+              "Reviewed",
+              "Shortlisted",
+              "Rejected",
+            ] as StatusFilter[]
+          ).map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
@@ -276,8 +490,18 @@ export default function ApplicantsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50">
-                {["Name", "Role", "Company", "Applied", "Status", "Actions"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-subtitle">
+                {[
+                  "Name",
+                  "Role",
+                  "Company",
+                  "Applied",
+                  "Status",
+                  "Actions",
+                ].map((h) => (
+                  <th
+                    key={h}
+                    className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-subtitle"
+                  >
                     {h}
                   </th>
                 ))}
@@ -285,22 +509,43 @@ export default function ApplicantsPage() {
             </thead>
             <tbody>
               {filtered.map((a) => {
-                const initials = a.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+                const initials = a.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase();
+                const avatarUrl = a.avatar?.trim();
                 return (
-                  <tr key={a.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={a.id}
+                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"
+                  >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
-                          {initials}
+                        <div className="w-8 h-8 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
+                          {avatarUrl ? (
+                            <img
+                              src={avatarUrl}
+                              alt={a.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            initials
+                          )}
                         </div>
-                        <span className="font-medium text-heading-dark">{a.name}</span>
+                        <span className="font-medium text-heading-dark">
+                          {a.name}
+                        </span>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-subtitle">{a.role}</td>
                     <td className="px-4 py-3 text-subtitle">{a.company}</td>
                     <td className="px-4 py-3 text-subtitle">{a.appliedDate}</td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[a.status]}`}>
+                      <span
+                        className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[a.status]}`}
+                      >
                         {a.status}
                       </span>
                     </td>
@@ -311,6 +556,16 @@ export default function ApplicantsPage() {
                           className="text-xs text-brand-indigo hover:underline font-medium"
                         >
                           View
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMessageApplicant(a);
+                            setMessageBody("");
+                            setMessageError(null);
+                          }}
+                          className="text-xs text-brand-indigo hover:underline font-medium"
+                        >
+                          Message
                         </button>
                         <SetStatusDropdown
                           applicantId={a.id}
@@ -325,7 +580,9 @@ export default function ApplicantsPage() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <p className="text-center text-sm text-subtitle py-12">No applicants match your filter.</p>
+            <p className="text-center text-sm text-subtitle py-12">
+              No applicants match your filter.
+            </p>
           )}
         </div>
       </div>

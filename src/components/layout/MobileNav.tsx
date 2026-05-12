@@ -42,6 +42,11 @@ export default function MobileNav() {
   const dashboardHref = user
     ? getDashboardPathForRole(user.role)
     : "/dashboard";
+  const profileImage = user
+    ? user.role === "employer" || user.role === "admin"
+      ? user.companyLogo || user.avatar
+      : user.avatar
+    : "";
 
   // Close on outside click
   useEffect(() => {
@@ -130,13 +135,21 @@ export default function MobileNav() {
           {user ? (
             <>
               <div className="flex items-center gap-3 px-3 py-2">
-                <div className="w-9 h-9 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)}
+                <div className="w-9 h-9 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)
+                  )}
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-heading-dark truncate">

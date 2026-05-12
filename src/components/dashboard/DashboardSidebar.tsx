@@ -24,7 +24,7 @@ import ProfileUpdateModal from "@/components/ui/ProfileUpdateModal";
 import { SIDEBAR_NAV_ITEMS } from "@/constants/dashboardNav";
 import { useAuth } from "@/hooks/useAuth";
 import { useApiData } from "@/hooks/useApiData";
-import type { Message } from "@/types/dashboard";
+import type { ConversationSummary } from "@/types/dashboard";
 import type { SidebarIconKey } from "@/types/dashboard";
 
 const ICON_MAP: Record<SidebarIconKey, IconType> = {
@@ -42,12 +42,15 @@ export default function DashboardSidebar() {
   const pathname = usePathname();
   const { signOut } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
-  const { data: messagesData } = useApiData<Array<Message & { _id: string }>>(
-    "/dashboard/messages",
-  );
+  const { data: messagesData, refetch: refetchMessages } = useApiData<
+    ConversationSummary[]
+  >("/dashboard/messages");
   const unreadCount = useMemo(() => {
     if (!messagesData) return 0;
-    return messagesData.filter((msg) => msg.unread).length;
+    return messagesData.reduce(
+      (total, convo) => total + (convo.unreadCount ?? 0),
+      0,
+    );
   }, [messagesData]);
 
   useEffect(() => {
@@ -57,6 +60,16 @@ export default function DashboardSidebar() {
       window.removeEventListener("qh-open-profile-modal", handleOpenProfile);
     };
   }, []);
+
+  useEffect(() => {
+    const handleMessagesUpdated = () => {
+      refetchMessages();
+    };
+    window.addEventListener("qh-messages-updated", handleMessagesUpdated);
+    return () => {
+      window.removeEventListener("qh-messages-updated", handleMessagesUpdated);
+    };
+  }, [refetchMessages]);
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";

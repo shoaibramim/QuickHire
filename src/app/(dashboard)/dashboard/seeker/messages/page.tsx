@@ -1,5 +1,5 @@
 import MessagesInbox from "@/components/dashboard/messages/MessagesInbox";
 
-export default function MessagesPage() {
+export default function SeekerMessagesPage() {
   return <MessagesInbox />;
 }

@@ -1,27 +1,35 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IMessage extends Document {
-  ownerId: mongoose.Types.ObjectId; // the employer who sees this inbox
-  from: string;
-  avatar?: string;
+  conversationId: mongoose.Types.ObjectId;
+  senderId: mongoose.Types.ObjectId;
+  recipientId: mongoose.Types.ObjectId;
+  body: string;
   preview: string;
-  fullText?: string;
   unread: boolean;
-  time: string; // human-readable "2h ago" stored for simplicity; use createdAt for sorting
+  editedAt?: Date | null;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const MessageSchema = new Schema<IMessage>(
   {
-    ownerId:  { type: Schema.Types.ObjectId, ref: "User", required: true },
-    from:     { type: String, required: true },
-    avatar:   { type: String },
-    preview:  { type: String, required: true },
-    fullText: { type: String },
-    unread:   { type: Boolean, default: true },
-    time:     { type: String, default: "" },
+    conversationId: {
+      type: Schema.Types.ObjectId,
+      ref: "Conversation",
+      required: true,
+    },
+    senderId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    recipientId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    body: { type: String, required: true },
+    preview: { type: String, required: true },
+    unread: { type: Boolean, default: true },
+    editedAt: { type: Date, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
+MessageSchema.index({ conversationId: 1, createdAt: 1 });
+MessageSchema.index({ recipientId: 1, unread: 1 });
 
 export default mongoose.model<IMessage>("Message", MessageSchema);
