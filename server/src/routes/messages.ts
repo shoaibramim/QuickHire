@@ -9,7 +9,9 @@ router.use(requireAuth, requireRole(["employer", "admin"]));
 // GET /api/dashboard/messages
 router.get("/", async (req, res) => {
   const userId = (req.user as IUser)._id;
-  const messages = await Message.find({ ownerId: userId }).sort({ createdAt: -1 });
+  const messages = await Message.find({ ownerId: userId }).sort({
+    createdAt: -1,
+  });
   res.json(messages);
 });
 
@@ -18,7 +20,18 @@ router.patch("/:id/read", async (req, res) => {
   const msg = await Message.findByIdAndUpdate(
     req.params.id,
     { unread: false },
-    { new: true }
+    { new: true },
+  );
+  if (!msg) return res.status(404).json({ message: "Message not found." });
+  res.json(msg);
+});
+
+// PATCH /api/dashboard/messages/:id/unread  — mark as unread
+router.patch("/:id/unread", async (req, res) => {
+  const msg = await Message.findByIdAndUpdate(
+    req.params.id,
+    { unread: true },
+    { new: true },
   );
   if (!msg) return res.status(404).json({ message: "Message not found." });
   res.json(msg);

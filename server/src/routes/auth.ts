@@ -278,11 +278,10 @@ router.put(
     const user = await User.findById((req.user as IUser)._id);
     if (!user) return res.status(404).json({ message: "User not found." });
 
-    const commonAllowed = ["name", "location", "phone"] as const;
+    const commonAllowed = ["name", "location", "phone", "avatar"] as const;
     const employerAllowed = [
       "company",
       "companyLogo",
-      "avatar",
       "industry",
       "website",
       "companySize",

@@ -4,114 +4,167 @@
 // notification bell, and Post a Job CTA.
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import ImageCropModal from "@/components/ui/ImageCropModal";
 import PostJobButton from "@/components/ui/PostJobButton";
+import { apiClient } from "@/services/apiClient";
+import type { User } from "@/types/auth";
 
 export default function DashboardTopBar() {
-  const { user, signOut } = useAuth();
-  const [notifOpen, setNotifOpen] = useState(false);
+  const { user, updateUser } = useAuth();
+  const [logoPreview, setLogoPreview] = useState(user?.companyLogo ?? "");
+  const [cropSource, setCropSource] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const [logoSaving, setLogoSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!user) return null;
 
+  useEffect(() => {
+    setLogoPreview(user.companyLogo ?? "");
+  }, [user.companyLogo]);
+
+  const displayName = user.company ?? user.name;
+  const displayInitial = (displayName || "?")[0]?.toUpperCase();
+
+  function handleLogoClick() {
+    if (logoPreview) {
+      setCropSource(logoPreview);
+      setLogoError(null);
+      return;
+    }
+    fileInputRef.current?.click();
+  }
+
+  function openFilePicker() {
+    fileInputRef.current?.click();
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setLogoError("Please select an image file (PNG, JPG, SVG, WebP).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setLogoError("Logo image must be under 5 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropSource(reader.result as string);
+      setLogoError(null);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function handleCropConfirm(croppedDataUrl: string) {
+    setCropSource(null);
+    setLogoSaving(true);
+    setLogoError(null);
+    try {
+      const updated = await apiClient.put<User>("/auth/profile", {
+        companyLogo: croppedDataUrl,
+      });
+      updateUser(updated);
+      setLogoPreview(updated.companyLogo ?? croppedDataUrl);
+    } catch (err: unknown) {
+      setLogoError(
+        err instanceof Error ? err.message : "Failed to update logo.",
+      );
+    } finally {
+      setLogoSaving(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  function handleCropCancel() {
+    setCropSource(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   return (
-    <header className="h-16 bg-white border-b border-gray-100 flex items-center px-6 xl:px-10 2xl:px-14 gap-4 sticky top-0 z-30">
-      <div className="flex items-center gap-2 mr-auto">
-        <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
-          <span className="text-brand-indigo text-xs font-bold">
-            {user.company?.[0] ?? user.name[0]}
-          </span>
-        </div>
-        <div>
-          <p className="text-xs text-subtitle leading-none">Company</p>
-          <button className="flex items-center gap-1 text-sm font-semibold text-heading-dark hover:text-brand-indigo transition-colors">
-            {user.company ?? user.name}
-            <svg
-              className="w-3.5 h-3.5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div className="relative">
-        <button
-          onClick={() => setNotifOpen((v) => !v)}
-          aria-label="Notifications"
-          className="relative w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-indigo"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.75}
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-            />
-          </svg>
-          <span
-            className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-indigo"
-            aria-hidden="true"
+    <>
+      {cropSource && (
+        <ImageCropModal
+          imageSrc={cropSource}
+          onConfirm={handleCropConfirm}
+          onCancel={handleCropCancel}
+          onSelectNew={openFilePicker}
+          selectLabel="Upload new"
+          title="Crop company logo"
+          subtitle="Drag to reposition · scroll or use the slider to zoom · result will be a square."
+        />
+      )}
+      <header className="h-16 bg-white border-b border-gray-100 flex items-center px-6 xl:px-10 2xl:px-14 gap-4 sticky top-0 z-30">
+        <div className="flex items-center gap-3 mr-auto">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+            aria-label="Upload company logo"
           />
-        </button>
-        {notifOpen && (
-          <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50 animate-[fadeSlideUp_0.15s_ease-out]">
-            <p className="text-sm font-semibold text-heading-dark mb-3">
-              Notifications
+          <button
+            type="button"
+            onClick={handleLogoClick}
+            disabled={logoSaving}
+            className="group relative w-9 h-9 rounded-lg overflow-hidden border border-indigo-100 bg-indigo-100 flex items-center justify-center transition"
+            title="Update company logo"
+          >
+            {logoPreview ? (
+              <img
+                src={logoPreview}
+                alt={`${displayName} logo`}
+                className="w-full h-full object-contain bg-white"
+              />
+            ) : (
+              <span className="text-brand-indigo text-xs font-bold">
+                {displayInitial}
+              </span>
+            )}
+            {!logoSaving && (
+              <span
+                className="absolute inset-x-0 bottom-0 h-4 bg-black/80 text-white text-[9px] font-semibold flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                aria-hidden="true"
+              >
+                Update
+              </span>
+            )}
+            {logoSaving && (
+              <span className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                <span
+                  className="w-4 h-4 border-2 border-brand-indigo border-t-transparent rounded-full animate-spin"
+                  aria-hidden="true"
+                />
+              </span>
+            )}
+          </button>
+          <div>
+            <p className="text-xs text-subtitle leading-none">Company</p>
+            <p className="text-sm font-semibold text-heading-dark">
+              {displayName}
             </p>
-            <div className="space-y-3">
-              {[
-                "New applicant for Brand Designer",
-                "Interview scheduled for tomorrow",
-                "Your job listing expires in 3 days",
-              ].map((n, i) => (
-                <div key={i} className="flex gap-2.5 text-sm">
-                  <span
-                    className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-indigo flex-shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span className="text-subtitle">{n}</span>
-                </div>
-              ))}
-            </div>
-            <button
-              className="w-full mt-3 text-xs text-brand-indigo hover:underline text-center"
-              onClick={() => setNotifOpen(false)}
-            >
-              Mark all as read
-            </button>
+            {logoError && (
+              <p className="text-[11px] text-red-500 leading-tight">
+                {logoError}
+              </p>
+            )}
           </div>
-        )}
-      </div>
-      <div className="flex items-center gap-2">
-        <Link
-          href="/dashboard/profile"
-          className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          Update Profile
-        </Link>
-        <PostJobButton />
-        <Link
-          href="/dashboard/job-listing"
-          className="flex items-center gap-1.5 px-4 py-2 border border-brand-indigo text-brand-indigo text-sm font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
-        >
-          View Posted Jobs
-        </Link>
-      </div>
-    </header>
+        </div>
+        <div className="flex items-center gap-2">
+          <PostJobButton />
+          <Link
+            href="/dashboard/job-listing"
+            className="flex items-center gap-1.5 px-4 py-2 border border-brand-indigo text-brand-indigo text-sm font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
+          >
+            View Posted Jobs
+          </Link>
+        </div>
+      </header>
+    </>
   );
 }

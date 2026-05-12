@@ -18,6 +18,14 @@ interface Props {
   onConfirm: (croppedDataUrl: string) => void;
   /** Called when the user cancels — file selection should be reset. */
   onCancel: () => void;
+  /** Optional: trigger a new image selection while the modal is open. */
+  onSelectNew?: () => void;
+  /** Optional: label for the select-new button. */
+  selectLabel?: string;
+  /** Optional: dialog title override. */
+  title?: string;
+  /** Optional: helper text override. */
+  subtitle?: string;
 }
 
 const PREVIEW_PX = 320; // visible canvas size (CSS pixels)
@@ -26,6 +34,10 @@ export default function ImageCropModal({
   imageSrc,
   onConfirm,
   onCancel,
+  onSelectNew,
+  selectLabel,
+  title,
+  subtitle,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -180,40 +192,51 @@ export default function ImageCropModal({
   return (
     /* Backdrop */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 overflow-y-auto"
+      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
-      aria-label="Crop company logo"
+      aria-label={title ?? "Crop image"}
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm max-h-[calc(100dvh-2rem)] flex flex-col gap-5 p-6 overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-heading-dark">
-            Crop Company Logo
+            {title ?? "Crop Image"}
           </h2>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="text-subtitle hover:text-heading-dark transition-colors"
-            aria-label="Close crop modal"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
+          <div className="flex items-center gap-2">
+            {onSelectNew && (
+              <button
+                type="button"
+                onClick={onSelectNew}
+                className="text-xs font-semibold text-brand-indigo hover:underline"
+              >
+                {selectLabel ?? "Upload new"}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onCancel}
+              className="text-subtitle hover:text-heading-dark transition-colors"
+              aria-label="Close crop modal"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
         <p className="text-xs text-subtitle -mt-2">
-          Drag to reposition · scroll or use the slider to zoom · result will be
-          a square.
+          {subtitle ??
+            "Drag to reposition · scroll or use the slider to zoom · result will be a square."}
         </p>
         <div
           className="mx-auto rounded-xl overflow-hidden ring-2 ring-brand-indigo/40 shadow-inner"

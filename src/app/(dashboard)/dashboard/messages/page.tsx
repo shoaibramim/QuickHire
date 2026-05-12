@@ -2,15 +2,28 @@
 
 // Messages page — /dashboard/messages
 
-import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApiData } from "@/hooks/useApiData";
+import { apiClient } from "@/services/apiClient";
 import type { Message } from "@/types/dashboard";
 
 type FilterTab = "All" | "Unread";
 
-function MessageRow({ msg, isSelected, onClick }: { msg: Message; isSelected: boolean; onClick: () => void }) {
-  const initials = msg.from.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+function MessageRow({
+  msg,
+  isSelected,
+  onClick,
+}: {
+  msg: Message;
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  const initials = msg.from
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
   return (
     <button
       onClick={onClick}
@@ -24,14 +37,23 @@ function MessageRow({ msg, isSelected, onClick }: { msg: Message; isSelected: bo
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2 mb-0.5">
-          <p className={`text-sm truncate ${msg.unread ? "font-bold text-heading-dark" : "font-medium text-heading-dark"}`}>
+          <p
+            className={`text-sm truncate ${msg.unread ? "font-bold text-heading-dark" : "font-medium text-heading-dark"}`}
+          >
             {msg.from}
           </p>
-          <span className="text-xs text-subtitle flex-shrink-0">{msg.time}</span>
+          <span className="text-xs text-subtitle flex-shrink-0">
+            {msg.time}
+          </span>
         </div>
         <p className="text-xs text-subtitle truncate">{msg.preview}</p>
       </div>
-      {msg.unread && <span className="w-2 h-2 rounded-full bg-brand-indigo flex-shrink-0 mt-1.5" aria-hidden="true" />}
+      {msg.unread && (
+        <span
+          className="w-2 h-2 rounded-full bg-brand-indigo flex-shrink-0 mt-1.5"
+          aria-hidden="true"
+        />
+      )}
     </button>
   );
 }
@@ -39,19 +61,78 @@ function MessageRow({ msg, isSelected, onClick }: { msg: Message; isSelected: bo
 export default function MessagesPage() {
   const [tab, setTab] = useState<FilterTab>("All");
   const [selected, setSelected] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
 
-  const { data, isLoading } = useApiData<Array<Message & { _id: string }>>("/dashboard/messages");
+  const { data, isLoading } = useApiData<Array<Message & { _id: string }>>(
+    "/dashboard/messages",
+  );
   // Map _id → id for MongoDB documents
-  const allMessages: Message[] = (data ?? []).map((m) => ({ ...m, id: m._id }));
+  useEffect(() => {
+    const mapped = (data ?? []).map((m) => ({ ...m, id: m._id }));
+    setMessages(mapped);
+  }, [data]);
 
-  const filtered = tab === "Unread" ? allMessages.filter((m) => m.unread) : allMessages;
-  const selectedId = selected ?? allMessages[0]?.id ?? null;
-  const selectedMsg = allMessages.find((m) => m.id === selectedId);
+  async function markAsRead(messageId: string) {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === messageId ? { ...msg, unread: false } : msg,
+      ),
+    );
+    try {
+      await apiClient.patch(`/dashboard/messages/${messageId}/read`);
+    } catch {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, unread: true } : msg,
+        ),
+      );
+    }
+  }
+
+  async function markAsUnread(messageId: string) {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === messageId ? { ...msg, unread: true } : msg,
+      ),
+    );
+    try {
+      await apiClient.patch(`/dashboard/messages/${messageId}/unread`);
+    } catch {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, unread: false } : msg,
+        ),
+      );
+    }
+  }
+
+  function handleSelect(message: Message) {
+    setSelected(message.id);
+    if (message.unread) {
+      void markAsRead(message.id);
+    }
+  }
+
+  function toggleUnread(message: Message) {
+    if (message.unread) {
+      void markAsRead(message.id);
+    } else {
+      void markAsUnread(message.id);
+    }
+  }
+
+  const filtered =
+    tab === "Unread" ? messages.filter((m) => m.unread) : messages;
+  const selectedId = selected ?? messages[0]?.id ?? null;
+  const selectedMsg = messages.find((m) => m.id === selectedId);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-brand-indigo border-t-transparent rounded-full animate-spin" aria-label="Loading" />
+        <div
+          className="w-8 h-8 border-4 border-brand-indigo border-t-transparent rounded-full animate-spin"
+          aria-label="Loading"
+        />
       </div>
     );
   }
@@ -77,10 +158,17 @@ export default function MessagesPage() {
           </div>
           <div className="flex-1 overflow-y-auto">
             {filtered.map((msg) => (
-            <MessageRow key={msg.id} msg={msg} isSelected={selectedId === msg.id} onClick={() => setSelected(msg.id)} />
+              <MessageRow
+                key={msg.id}
+                msg={msg}
+                isSelected={selectedId === msg.id}
+                onClick={() => handleSelect(msg)}
+              />
             ))}
             {filtered.length === 0 && (
-              <p className="text-center text-sm text-subtitle py-10">No messages</p>
+              <p className="text-center text-sm text-subtitle py-10">
+                No messages
+              </p>
             )}
           </div>
         </div>
@@ -89,27 +177,31 @@ export default function MessagesPage() {
             <>
               <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
                 <div className="w-9 h-9 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {selectedMsg.from.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                  {selectedMsg.from
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-heading-dark">{selectedMsg.from}</p>
+                  <p className="text-sm font-bold text-heading-dark">
+                    {selectedMsg.from}
+                  </p>
                   <p className="text-xs text-subtitle">{selectedMsg.time}</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => toggleUnread(selectedMsg)}
+                  className="ml-auto text-xs font-semibold text-brand-indigo hover:underline"
+                >
+                  {selectedMsg.unread ? "Mark as read" : "Mark as unread"}
+                </button>
               </div>
               <div className="flex-1 p-6">
-                <p className="text-sm text-subtitle leading-relaxed">{selectedMsg.preview} Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
-              </div>
-              <div className="px-6 py-4 border-t border-gray-100">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Type a reply…"
-                    className="flex-1 px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-indigo"
-                  />
-                  <button className="px-4 py-2.5 bg-brand-indigo text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors">
-                    Send
-                  </button>
-                </div>
+                <p className="text-sm text-subtitle leading-relaxed">
+                  {selectedMsg.preview}
+                </p>
               </div>
             </>
           ) : (
