@@ -2,15 +2,23 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { MdDashboard, MdWork, MdHelp, MdLogout } from "react-icons/md";
+import {
+  MdDashboard,
+  MdWork,
+  MdHelp,
+  MdLogout,
+  MdMessage,
+} from "react-icons/md";
 
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
 import ProfileUpdateModal from "@/components/ui/ProfileUpdateModal";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/hooks/useAuth";
+import { useApiData } from "@/hooks/useApiData";
+import type { ConversationSummary } from "@/types/dashboard";
 import type { User } from "@/types/auth";
 
 type Props = {
@@ -28,8 +36,19 @@ function SeekerShell({ children }: { children: ReactNode }) {
   const { signOut } = useAuth();
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
+  const { data: messagesData, refetch: refetchMessages } = useApiData<
+    ConversationSummary[]
+  >("/dashboard/messages");
+  const unreadCount = useMemo(() => {
+    if (!messagesData) return 0;
+    return messagesData.reduce(
+      (total, convo) => total + (convo.unreadCount ?? 0),
+      0,
+    );
+  }, [messagesData]);
   const navItems: NavItem[] = [
     { label: "Dashboard", href: "/dashboard/seeker", icon: MdDashboard },
+    { label: "Messages", href: "/dashboard/seeker/messages", icon: MdMessage },
     { label: "Browse Jobs", href: "/jobs", icon: MdWork },
     { label: "Help", href: "/help", icon: MdHelp },
   ];
@@ -41,6 +60,16 @@ function SeekerShell({ children }: { children: ReactNode }) {
       window.removeEventListener("qh-open-profile-modal", handleOpenProfile);
     };
   }, []);
+
+  useEffect(() => {
+    const handleMessagesUpdated = () => {
+      refetchMessages();
+    };
+    window.addEventListener("qh-messages-updated", handleMessagesUpdated);
+    return () => {
+      window.removeEventListener("qh-messages-updated", handleMessagesUpdated);
+    };
+  }, [refetchMessages]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
@@ -69,6 +98,8 @@ function SeekerShell({ children }: { children: ReactNode }) {
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
+              const badge =
+                item.href === "/dashboard/seeker/messages" ? unreadCount : 0;
               return (
                 <li key={item.href}>
                   <Link
@@ -86,6 +117,11 @@ function SeekerShell({ children }: { children: ReactNode }) {
                       aria-hidden="true"
                     />
                     <span>{item.label}</span>
+                    {badge > 0 && (
+                      <span className="ml-auto flex-shrink-0 w-5 h-5 rounded-full bg-brand-indigo text-white text-xs font-bold flex items-center justify-center">
+                        {badge}
+                      </span>
+                    )}
                   </Link>
                 </li>
               );

@@ -82,6 +82,10 @@ export default function NavAuthButtons() {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+  const profileImage =
+    user.role === "employer" || user.role === "admin"
+      ? user.companyLogo || user.avatar
+      : user.avatar;
   const dashboardHref = getDashboardPathForRole(user.role);
 
   return (
@@ -93,8 +97,16 @@ export default function NavAuthButtons() {
         aria-expanded={menuOpen}
         className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-indigo"
       >
-        <div className="w-8 h-8 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
-          {initials}
+        <div className="w-8 h-8 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt={user.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            initials
+          )}
         </div>
         <span className="text-sm font-medium text-heading-dark hidden lg:block max-w-[120px] truncate">
           {user.name}
