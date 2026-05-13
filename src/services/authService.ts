@@ -26,9 +26,12 @@ export function getDashboardPathForRole(role: User["role"] | null | undefined) {
 }
 
 export const tokenStore = {
-  get: (): string | null =>
-    typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null,
+  get: (): string | null => {
+    if (typeof window === "undefined") return null;
+    return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+  },
   set: (token: string) => {
+    sessionStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(TOKEN_KEY, token);
     // Sync to a non-httpOnly cookie so Next.js middleware can detect auth state.
     // The cookie is JS-readable (same XSS scope as localStorage) — its sole purpose
@@ -36,6 +39,7 @@ export const tokenStore = {
     document.cookie = `qh_token=${token}; path=/; SameSite=Strict; max-age=900`;
   },
   clear: () => {
+    sessionStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     // Expire the cookie immediately
@@ -46,14 +50,19 @@ export const tokenStore = {
 export const userStore = {
   get: (): User | null => {
     if (typeof window === "undefined") return null;
-    const raw = localStorage.getItem(USER_KEY);
+    const raw =
+      sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY);
     try {
       return raw ? (JSON.parse(raw) as User) : null;
     } catch {
       return null;
     }
   },
-  set: (user: User) => localStorage.setItem(USER_KEY, JSON.stringify(user)),
+  set: (user: User) => {
+    const payload = JSON.stringify(user);
+    sessionStorage.setItem(USER_KEY, payload);
+    localStorage.setItem(USER_KEY, payload);
+  },
 };
 
 /**

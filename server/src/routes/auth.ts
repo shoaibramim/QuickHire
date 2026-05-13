@@ -258,6 +258,52 @@ router.get("/me", requireAuth, (req, res) => {
   });
 });
 
+// PATCH /api/auth/password
+router.patch(
+  "/password",
+  requireAuth,
+  body("currentPassword").notEmpty(),
+  body("newPassword").isLength({ min: 8 }),
+  body("confirmPassword").notEmpty(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(422).json({ errors: errors.array() });
+
+    const { currentPassword, newPassword, confirmPassword } = req.body as {
+      currentPassword: string;
+      newPassword: string;
+      confirmPassword: string;
+    };
+
+    if (newPassword !== confirmPassword) {
+      return res.status(422).json({ message: "Passwords do not match." });
+    }
+
+    const userId = (req.user as IUser)._id;
+    const user = await User.findById(userId).select("+passwordHash");
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    const valid = await user.comparePassword(currentPassword);
+    if (!valid) {
+      return res
+        .status(400)
+        .json({ message: "Current password is incorrect." });
+    }
+
+    if (currentPassword === newPassword) {
+      return res
+        .status(422)
+        .json({ message: "New password must be different." });
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 12);
+    await user.save();
+
+    res.json({ message: "Password updated." });
+  },
+);
+
 // GET /api/auth/profile
 router.get("/profile", requireAuth, async (req, res) => {
   const user = await User.findById((req.user as IUser)._id);

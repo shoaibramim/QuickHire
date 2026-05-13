@@ -21,7 +21,7 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,
-    public data?: unknown
+    public data?: unknown,
   ) {
     super(message);
     this.name = "ApiError";
@@ -30,10 +30,12 @@ export class ApiError extends Error {
 
 async function request<T>(
   endpoint: string,
-  { body, headers, ...options }: RequestOptions = {}
+  { body, headers, ...options }: RequestOptions = {},
 ): Promise<T> {
   const token =
-    typeof window !== "undefined" ? localStorage.getItem("qh_token") : null;
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("qh_token") || localStorage.getItem("qh_token")
+      : null;
 
   const requestHeaders: HeadersInit = {
     "Content-Type": "application/json",
@@ -53,7 +55,7 @@ async function request<T>(
     throw new ApiError(
       res.status,
       (errorData as { message?: string }).message ?? res.statusText,
-      errorData
+      errorData,
     );
   }
 
@@ -67,14 +69,23 @@ export const apiClient = {
   get: <T>(endpoint: string, options?: RequestOptions) =>
     request<T>(endpoint, { method: "GET", ...options }),
 
-  post: <T>(endpoint: string, body?: Record<string, unknown>, options?: RequestOptions) =>
-    request<T>(endpoint, { method: "POST", body, ...options }),
+  post: <T>(
+    endpoint: string,
+    body?: Record<string, unknown>,
+    options?: RequestOptions,
+  ) => request<T>(endpoint, { method: "POST", body, ...options }),
 
-  put: <T>(endpoint: string, body?: Record<string, unknown>, options?: RequestOptions) =>
-    request<T>(endpoint, { method: "PUT", body, ...options }),
+  put: <T>(
+    endpoint: string,
+    body?: Record<string, unknown>,
+    options?: RequestOptions,
+  ) => request<T>(endpoint, { method: "PUT", body, ...options }),
 
-  patch: <T>(endpoint: string, body?: Record<string, unknown>, options?: RequestOptions) =>
-    request<T>(endpoint, { method: "PATCH", body, ...options }),
+  patch: <T>(
+    endpoint: string,
+    body?: Record<string, unknown>,
+    options?: RequestOptions,
+  ) => request<T>(endpoint, { method: "PATCH", body, ...options }),
 
   delete: <T>(endpoint: string, options?: RequestOptions) =>
     request<T>(endpoint, { method: "DELETE", ...options }),

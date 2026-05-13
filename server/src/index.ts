@@ -1,11 +1,20 @@
 import "dotenv/config";
+import http from "http";
 import mongoose from "mongoose";
 import app from "./app";
-mongoose.connect(process.env.MONGODB_URI!)
+import { initSocket } from "./socket";
+
+mongoose
+  .connect(process.env.MONGODB_URI!)
   .then(() => {
     console.log("Connected to MongoDB Atlas");
-    app.listen(process.env.PORT ?? 5000, () =>
-      console.log(`Server running on port ${process.env.PORT ?? 5000}`)
+    const server = http.createServer(app);
+    initSocket(server);
+    server.listen(process.env.PORT ?? 5000, () =>
+      console.log(`Server running on port ${process.env.PORT ?? 5000}`),
     );
   })
-  .catch(err => { console.error("DB connection failed:", err); process.exit(1); });
+  .catch((err) => {
+    console.error("DB connection failed:", err);
+    process.exit(1);
+  });

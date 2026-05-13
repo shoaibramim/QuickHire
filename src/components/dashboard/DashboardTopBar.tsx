@@ -157,12 +157,6 @@ export default function DashboardTopBar() {
         </div>
         <div className="flex items-center gap-2">
           <PostJobButton />
-          <Link
-            href="/dashboard/job-listing"
-            className="flex items-center gap-1.5 px-4 py-2 border border-brand-indigo text-brand-indigo text-sm font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
-          >
-            View Posted Jobs
-          </Link>
         </div>
       </header>
     </>

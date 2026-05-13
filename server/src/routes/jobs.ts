@@ -2,6 +2,7 @@ import { Router } from "express";
 import mongoose from "mongoose";
 import Job from "../models/Job";
 import Application from "../models/Application";
+import JobView from "../models/JobView";
 import { requireAuth, requireRole } from "../middleware/auth";
 import { IUser } from "../models/User";
 
@@ -143,11 +144,17 @@ router.get(
 
 // GET /api/jobs/:id            — single job detail page
 router.get("/:id", async (req, res) => {
-  const job = await Job.findById(req.params.id).populate(
-    "postedBy",
-    "companyLogo",
-  );
+  const job = await Job.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { jobViews: 1 } },
+    { new: true },
+  ).populate("postedBy", "companyLogo");
   if (!job) return res.status(404).json({ message: "Job not found." });
+  try {
+    await JobView.create({ jobId: job._id });
+  } catch {
+    // Ignore logging errors to avoid blocking the job detail response.
+  }
   res.json(withLogo(job));
 });
 

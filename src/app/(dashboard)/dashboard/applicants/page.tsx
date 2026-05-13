@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useApiData } from "@/hooks/useApiData";
 import { apiClient } from "@/services/apiClient";
 import type { Applicant } from "@/types/dashboard";
@@ -285,6 +285,7 @@ function ApplicantModal({
 }
 export default function ApplicantsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [filter, setFilter] = useState<StatusFilter>("All");
   const [search, setSearch] = useState("");
   const [viewApplicant, setViewApplicant] = useState<Applicant | null>(null);
@@ -297,6 +298,25 @@ export default function ApplicantsPage() {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
 
   const { data, isLoading } = useApiData<Applicant[]>("/dashboard/applicants");
+
+  useEffect(() => {
+    const statusParam = searchParams.get("status");
+    if (!statusParam) return;
+    const normalized = statusParam.toLowerCase();
+    const nextFilter =
+      normalized === "pending"
+        ? "Pending"
+        : normalized === "reviewed"
+          ? "Reviewed"
+          : normalized === "shortlisted"
+            ? "Shortlisted"
+            : normalized === "rejected"
+              ? "Rejected"
+              : normalized === "all"
+                ? "All"
+                : null;
+    if (nextFilter) setFilter(nextFilter);
+  }, [searchParams]);
 
   // Sync API data into local state so status updates reflect immediately
   useEffect(() => {

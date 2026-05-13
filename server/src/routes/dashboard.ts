@@ -5,7 +5,82 @@ import Job from "../models/Job";
 import Application from "../models/Application";
 import Message from "../models/Message";
 import ScheduleEvent from "../models/ScheduleEvent";
+import JobView from "../models/JobView";
 import User, { IUser } from "../models/User";
+
+type ChartPeriod = "Week" | "Month" | "Year";
+
+function normalizePeriod(value: unknown): ChartPeriod {
+  return value === "Month" || value === "Year" ? value : "Week";
+}
+
+function startOfDay(date: Date) {
+  const next = new Date(date);
+  next.setHours(0, 0, 0, 0);
+  return next;
+}
+
+function endOfDay(date: Date) {
+  const next = new Date(date);
+  next.setHours(23, 59, 59, 999);
+  return next;
+}
+
+function buildChartBuckets(period: ChartPeriod) {
+  const now = new Date();
+  const buckets: { label: string; start: Date; end: Date }[] = [];
+
+  if (period === "Year") {
+    for (let i = 11; i >= 0; i -= 1) {
+      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthEnd = new Date(
+        monthStart.getFullYear(),
+        monthStart.getMonth() + 1,
+        0,
+      );
+      buckets.push({
+        label: monthStart.toLocaleString("en-US", { month: "short" }),
+        start: startOfDay(monthStart),
+        end: endOfDay(monthEnd),
+      });
+    }
+    return buckets;
+  }
+
+  const days = period === "Month" ? 28 : 7;
+  const rangeStart = startOfDay(new Date(now));
+  rangeStart.setDate(rangeStart.getDate() - (days - 1));
+
+  if (period === "Month") {
+    for (let i = 0; i < 4; i += 1) {
+      const bucketStart = new Date(rangeStart);
+      bucketStart.setDate(rangeStart.getDate() + i * 7);
+      const bucketEnd = new Date(bucketStart);
+      bucketEnd.setDate(bucketStart.getDate() + 6);
+      buckets.push({
+        label: bucketStart.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        }),
+        start: startOfDay(bucketStart),
+        end: endOfDay(bucketEnd),
+      });
+    }
+    return buckets;
+  }
+
+  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  for (let i = 0; i < 7; i += 1) {
+    const day = new Date(rangeStart);
+    day.setDate(rangeStart.getDate() + i);
+    buckets.push({
+      label: DAYS[day.getDay()]!,
+      start: startOfDay(day),
+      end: endOfDay(day),
+    });
+  }
+  return buckets;
+}
 
 const router = Router();
 router.use(requireAuth);
@@ -15,6 +90,7 @@ router.get(
   "/overview",
   requireRole(["employer", "admin"]),
   async (req, res) => {
+    const period = normalizePeriod(req.query.period);
     const userId = (req.user as IUser)._id;
     const today = new Date().toLocaleDateString("en-US", {
       month: "short",
@@ -30,6 +106,17 @@ router.get(
 
     const jobIds = jobs.map((j) => j._id);
     const applications = await Application.find({ jobId: { $in: jobIds } });
+
+    const buckets = buildChartBuckets(period);
+    const rangeStart = buckets[0]?.start;
+    const rangeEnd = buckets[buckets.length - 1]?.end;
+    const jobViews =
+      jobIds.length && rangeStart && rangeEnd
+        ? await JobView.find({
+            jobId: { $in: jobIds },
+            createdAt: { $gte: rangeStart, $lte: rangeEnd },
+          }).select("createdAt")
+        : [];
 
     // Applicant breakdown by employment type (cross-join applicants → jobs)
     const typeBuckets: Record<string, number> = {};
@@ -47,36 +134,46 @@ router.get(
       Contract: "bg-pink-400",
       Remote: "bg-green-400",
     };
-    const applicantBreakdown = Object.entries(typeBuckets).map(
-      ([label, count]) => ({
-        label,
-        count,
-        color: COLOR_MAP[label] ?? "bg-gray-400",
-      }),
-    );
+    const EMPLOYMENT_TYPES = [
+      "Full Time",
+      "Part Time",
+      "Internship",
+      "Contract",
+      "Remote",
+    ];
+    const orderedTypes = [
+      ...EMPLOYMENT_TYPES,
+      ...Object.keys(typeBuckets).filter(
+        (label) => !EMPLOYMENT_TYPES.includes(label),
+      ),
+    ];
+    const applicantBreakdown = orderedTypes.map((label) => ({
+      label,
+      count: typeBuckets[label] ?? 0,
+      color: COLOR_MAP[label] ?? "bg-gray-400",
+    }));
 
-    // Last 7-day chart data
-    const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-    const chartData = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(sevenDaysAgo);
-      d.setDate(d.getDate() + i);
-      const dayApps = applications.filter((a) => {
+    const chartData = buckets.map((bucket) => {
+      const jobApplied = applications.filter((a) => {
         const created = new Date((a as { createdAt: Date }).createdAt);
-        return created.toDateString() === d.toDateString();
+        return created >= bucket.start && created <= bucket.end;
       }).length;
-      return { day: DAYS[d.getDay()]!, jobViews: 0, jobApplied: dayApps };
+      const jobViewCount = jobViews.filter((view) => {
+        const created = new Date((view as { createdAt: Date }).createdAt);
+        return created >= bucket.start && created <= bucket.end;
+      }).length;
+      return { day: bucket.label, jobViews: jobViewCount, jobApplied };
     });
 
     res.json({
       newCandidates: applications.filter((a) => a.status === "Pending").length,
       scheduledToday: scheduleToday.length,
       messages: unreadMessages,
+      jobsTotal: jobs.length,
       jobsOpen: jobs.filter((j) => j.status === "Active").length,
       totalApplicants: applications.length,
       weeklyStats: {
-        jobViews: 0,
+        jobViews: jobViews.length,
         jobViewsTrend: 0,
         jobApplied: applications.length,
         jobAppliedTrend: 0,

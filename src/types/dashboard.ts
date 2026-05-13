@@ -23,6 +23,7 @@ export interface DashboardOverview {
   newCandidates: number;
   scheduledToday: number;
   messages: number;
+  jobsTotal: number;
   jobsOpen: number;
   totalApplicants: number;
   weeklyStats: {

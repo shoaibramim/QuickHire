@@ -6,6 +6,7 @@ import Conversation, { IConversation } from "../models/Conversation";
 import Job from "../models/Job";
 import Message, { IMessage } from "../models/Message";
 import User, { IUser } from "../models/User";
+import { emitToUser } from "../socket";
 
 const router = Router();
 router.use(requireAuth);
@@ -66,12 +67,18 @@ router.get("/", async (req, res) => {
   if (!userId) return res.json([]);
 
   const role = user.role;
-  const filter =
+  const sinceRaw = req.query.since;
+  const sinceValue = typeof sinceRaw === "string" ? new Date(sinceRaw) : null;
+  const filter: Record<string, unknown> =
     role === "employer"
       ? { employerId: userId }
       : role === "jobseeker"
         ? { jobSeekerId: userId }
         : { $or: [{ employerId: userId }, { jobSeekerId: userId }] };
+
+  if (sinceValue && !Number.isNaN(sinceValue.getTime())) {
+    filter.updatedAt = { $gt: sinceValue };
+  }
 
   const conversations = await Conversation.find(filter).sort({
     lastMessageAt: -1,
@@ -146,9 +153,17 @@ router.get("/:conversationId", async (req, res) => {
     return res.status(403).json({ message: "Forbidden." });
   }
 
-  const messages = await Message.find({
+  const sinceRaw = req.query.since;
+  const sinceValue = typeof sinceRaw === "string" ? new Date(sinceRaw) : null;
+  const messageFilter: Record<string, unknown> = {
     conversationId: conversation._id,
-  }).sort({
+  };
+
+  if (sinceValue && !Number.isNaN(sinceValue.getTime())) {
+    messageFilter.createdAt = { $gt: sinceValue };
+  }
+
+  const messages = await Message.find(messageFilter).sort({
     createdAt: 1,
   });
   res.json(messages.map(serializeMessage));
@@ -217,6 +232,13 @@ router.post("/start", requireRole(["employer", "admin"]), async (req, res) => {
   conversation.lastMessageId = created._id;
   await conversation.save();
 
+  emitToUser(userId, "messages:updated", {
+    conversationId: String(conversation._id),
+  });
+  emitToUser(jobSeekerId, "messages:updated", {
+    conversationId: String(conversation._id),
+  });
+
   res.status(201).json({
     conversationId: String(conversation._id),
     message: serializeMessage(created),
@@ -272,6 +294,13 @@ router.post("/", async (req, res) => {
   conversation.lastMessageId = created._id;
   await conversation.save();
 
+  emitToUser(userId, "messages:updated", {
+    conversationId: String(conversation._id),
+  });
+  emitToUser(recipientId, "messages:updated", {
+    conversationId: String(conversation._id),
+  });
+
   res.status(201).json(serializeMessage(created));
 });
 
@@ -310,6 +339,10 @@ router.patch("/:conversationId/read", async (req, res) => {
         : 0;
 
   res.json({ updated: updatedCount });
+
+  emitToUser(userId, "messages:updated", {
+    conversationId: String(conversation._id),
+  });
 });
 
 // PATCH /api/dashboard/messages/:conversationId/unread — mark all as unread
@@ -347,6 +380,10 @@ router.patch("/:conversationId/unread", async (req, res) => {
         : 0;
 
   res.json({ updated: updatedCount });
+
+  emitToUser(userId, "messages:updated", {
+    conversationId: String(conversation._id),
+  });
 });
 
 // PATCH /api/dashboard/messages/entries/:messageId — edit a message within 1 hour
@@ -390,6 +427,15 @@ router.patch("/entries/:messageId", async (req, res) => {
   ) {
     conversation.lastMessagePreview = message.preview;
     await conversation.save();
+  }
+
+  if (conversation) {
+    emitToUser(String(conversation.employerId), "messages:updated", {
+      conversationId: String(conversation._id),
+    });
+    emitToUser(String(conversation.jobSeekerId), "messages:updated", {
+      conversationId: String(conversation._id),
+    });
   }
 
   res.json(serializeMessage(message));

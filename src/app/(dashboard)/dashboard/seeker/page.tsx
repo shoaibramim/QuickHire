@@ -58,6 +58,7 @@ export default function SeekerDashboardPage() {
   const recentApplications = data?.recentApplications ?? 0;
   const shortlisted = data?.shortlisted ?? 0;
   const pendingResponses = data?.pendingResponses ?? 0;
+  const recommendedJobs = (data?.recommendedJobs ?? []).slice(0, 4);
 
   return (
     <div className="space-y-6">
@@ -245,7 +246,7 @@ export default function SeekerDashboardPage() {
           </div>
 
           <div className="space-y-3">
-            {(data?.recommendedJobs ?? []).map((job) => (
+            {recommendedJobs.map((job) => (
               <Link
                 key={job.id}
                 href={job.href}
@@ -260,12 +261,20 @@ export default function SeekerDashboardPage() {
                 </p>
               </Link>
             ))}
-            {!(data?.recommendedJobs ?? []).length && (
+            {!recommendedJobs.length && (
               <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-subtitle">
                 No recommendations are available right now. Browse the jobs
                 board for fresh openings.
               </div>
             )}
+          </div>
+          <div className="mt-4">
+            <Link
+              href="/jobs"
+              className="inline-flex w-full items-center justify-center rounded-xl border border-brand-indigo px-4 py-2 text-sm font-semibold text-brand-indigo hover:bg-indigo-50 transition-colors"
+            >
+              See more jobs
+            </Link>
           </div>
         </div>
       </section>
