@@ -17,6 +17,7 @@ import type { ChartDataPoint } from "@/types/dashboard";
 
 interface Props {
   data: ChartDataPoint[];
+  view: "Overview" | "Job Views" | "Job Applications";
 }
 
 interface TooltipEntry {
@@ -38,18 +39,26 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
       <p className="font-semibold mb-1">{label}</p>
       {payload.map((entry) => (
         <p key={entry.name} style={{ color: entry.color }}>
-          {entry.name}: <span className="font-bold text-white">{entry.value}</span>
+          {entry.name}:{" "}
+          <span className="font-bold text-white">{entry.value}</span>
         </p>
       ))}
     </div>
   );
 }
 
-export default function JobStatisticsChart({ data }: Props) {
+export default function JobStatisticsChart({ data, view }: Props) {
+  const showViews = view === "Overview" || view === "Job Views";
+  const showApplications = view === "Overview" || view === "Job Applications";
+
   return (
     <ResponsiveContainer width="100%" height={200}>
       <BarChart data={data} barGap={4} barCategoryGap="30%">
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="#f0f0f0"
+          vertical={false}
+        />
         <XAxis
           dataKey="day"
           axisLine={false}
@@ -62,14 +71,33 @@ export default function JobStatisticsChart({ data }: Props) {
           tick={{ fontSize: 11, fill: "#9ca3af" }}
           width={28}
         />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(79,70,229,0.04)" }} />
+        <Tooltip
+          content={<CustomTooltip />}
+          cursor={{ fill: "rgba(79,70,229,0.04)" }}
+        />
         <Legend
           wrapperStyle={{ fontSize: 11, color: "#6b7280", paddingTop: 8 }}
           iconType="circle"
           iconSize={8}
         />
-        <Bar dataKey="jobViews"  name="Job View"    fill="#f59e0b" radius={[4, 4, 0, 0]} maxBarSize={18} />
-        <Bar dataKey="jobApplied" name="Job Applied" fill="#4f46e5" radius={[4, 4, 0, 0]} maxBarSize={18} />
+        {showViews && (
+          <Bar
+            dataKey="jobViews"
+            name="Job Views"
+            fill="#f59e0b"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={18}
+          />
+        )}
+        {showApplications && (
+          <Bar
+            dataKey="jobApplied"
+            name="Job Applications"
+            fill="#4f46e5"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={18}
+          />
+        )}
       </BarChart>
     </ResponsiveContainer>
   );

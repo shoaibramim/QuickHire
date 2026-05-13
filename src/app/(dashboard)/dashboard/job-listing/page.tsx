@@ -86,15 +86,26 @@ export default function JobListingPage() {
   } = useApiData<RawDashboardJob[]>("/dashboard/jobs");
   const searchParams = useSearchParams();
   const router = useRouter();
+  const statusParam = searchParams.get("status");
+  const statusFilter =
+    statusParam && ["Active", "Closed", "Draft"].includes(statusParam)
+      ? (statusParam as DashboardJob["status"])
+      : null;
 
   // Open modal when navigated here with ?postJob=true
   useEffect(() => {
     if (searchParams.get("postJob") === "true") {
       setShowPostModal(true);
-      router.replace("/dashboard/job-listing");
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.delete("postJob");
+      const suffix = nextParams.toString();
+      router.replace(`/dashboard/job-listing${suffix ? `?${suffix}` : ""}`);
     }
   }, [searchParams, router]);
   const jobs = (rawJobs ?? []).map(mapJob);
+  const filteredJobs = statusFilter
+    ? jobs.filter((job) => job.status === statusFilter)
+    : jobs;
 
   const emptyForm: PostJobForm = {
     title: "",
@@ -293,23 +304,27 @@ export default function JobListingPage() {
               </tr>
             </thead>
             <tbody>
-              {jobs.length === 0 ? (
+              {filteredJobs.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
                     className="px-4 py-10 text-center text-subtitle text-sm"
                   >
-                    No jobs posted yet.{" "}
-                    <button
-                      onClick={openModal}
-                      className="text-brand-indigo hover:underline font-medium"
-                    >
-                      Post your first job →
-                    </button>
+                    {statusFilter
+                      ? `No ${statusFilter.toLowerCase()} jobs yet.`
+                      : "No jobs posted yet."}{" "}
+                    {!statusFilter && (
+                      <button
+                        onClick={openModal}
+                        className="text-brand-indigo hover:underline font-medium"
+                      >
+                        Post your first job →
+                      </button>
+                    )}
                   </td>
                 </tr>
               ) : (
-                jobs.map((job) => (
+                filteredJobs.map((job) => (
                   <tr
                     key={job.id}
                     className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"

@@ -17,6 +17,7 @@ function formatDate(value: Date) {
 }
 
 router.get("/overview", async (req, res) => {
+  const RECOMMENDED_LIMIT = 4;
   const user = req.user as IUser;
   const userId = (user as { id?: string }).id;
   const rawApplicantId =
@@ -39,7 +40,9 @@ router.get("/overview", async (req, res) => {
 
   const [applications, activeJobs] = await Promise.all([
     Application.find({ applicantId }).sort({ createdAt: -1 }),
-    Job.find({ status: "Active" }).sort({ createdAt: -1 }).limit(8),
+    Job.find({ status: "Active" })
+      .sort({ createdAt: -1 })
+      .limit(RECOMMENDED_LIMIT),
   ]);
 
   const applicationsWithJobs = await Promise.all(
@@ -75,7 +78,7 @@ router.get("/overview", async (req, res) => {
     pendingResponses: applications.filter(
       (application) => application.status === "Pending",
     ).length,
-    recommendedJobs: activeJobs.slice(0, 6).map((job) => ({
+    recommendedJobs: activeJobs.slice(0, RECOMMENDED_LIMIT).map((job) => ({
       id: String(job._id),
       title: job.title,
       company: job.company,

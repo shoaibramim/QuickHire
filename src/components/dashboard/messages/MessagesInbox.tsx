@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { io, type Socket } from "socket.io-client";
 
 import { apiClient } from "@/services/apiClient";
 import { useApiData } from "@/hooks/useApiData";
@@ -17,6 +18,14 @@ const EDIT_WINDOW_MS = 60 * 60 * 1000;
 const MINUTE_MS = 60 * 1000;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+
+function resolveSocketUrl() {
+  if (API_BASE_URL.endsWith("/api/")) return API_BASE_URL.slice(0, -5);
+  if (API_BASE_URL.endsWith("/api")) return API_BASE_URL.slice(0, -4);
+  return API_BASE_URL;
+}
 
 function formatRelativeTime(value: string) {
   const parsed = new Date(value);
@@ -75,14 +84,21 @@ export default function MessagesInbox() {
   const [editingBody, setEditingBody] = useState("");
   const [editError, setEditError] = useState<string | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
+  const socketRef = useRef<Socket | null>(null);
+  const selectedIdRef = useRef<string | null>(null);
+  const lastConversationSyncRef = useRef<string | null>(null);
+  const lastMessageSyncRef = useRef<Record<string, string>>({});
 
-  const { data, isLoading, refetch } = useApiData<ConversationSummary[]>(
+  const { data, isLoading } = useApiData<ConversationSummary[]>(
     "/dashboard/messages",
   );
 
   useEffect(() => {
     if (data) {
-      setConversations(sortConversations(data));
+      const sorted = sortConversations(data);
+      setConversations(sorted);
+      const latest = sorted[0]?.lastMessageAt;
+      if (latest) lastConversationSyncRef.current = latest;
     }
   }, [data]);
 
@@ -100,10 +116,122 @@ export default function MessagesInbox() {
       return;
     }
 
-    if (!selectedId || !conversations.some((c) => c.id === selectedId)) {
-      setSelectedId(conversations[0]?.id ?? null);
+    if (selectedId && !conversations.some((c) => c.id === selectedId)) {
+      setSelectedId(null);
     }
   }, [conversations, paramConversationId, selectedId]);
+
+  useEffect(() => {
+    selectedIdRef.current = selectedId;
+  }, [selectedId]);
+
+  function getLatestConversationTimestamp(list: ConversationSummary[]) {
+    return list.reduce<string | null>((latest, convo) => {
+      if (!convo.lastMessageAt) return latest;
+      if (!latest) return convo.lastMessageAt;
+      return new Date(convo.lastMessageAt) > new Date(latest)
+        ? convo.lastMessageAt
+        : latest;
+    }, null);
+  }
+
+  function getLatestMessageTimestamp(list: ConversationMessage[]) {
+    return list.reduce<string | null>((latest, msg) => {
+      if (!msg.createdAt) return latest;
+      if (!latest) return msg.createdAt;
+      return new Date(msg.createdAt) > new Date(latest)
+        ? msg.createdAt
+        : latest;
+    }, null);
+  }
+
+  async function fetchConversationUpdates() {
+    try {
+      const since = lastConversationSyncRef.current;
+      const query = since ? `?since=${encodeURIComponent(since)}` : "";
+      const updates = await apiClient.get<ConversationSummary[]>(
+        `/dashboard/messages${query}`,
+      );
+      if (!updates.length) return;
+
+      setConversations((prev) => {
+        const merged = new Map(prev.map((c) => [c.id, c]));
+        updates.forEach((update) => merged.set(update.id, update));
+        const next = sortConversations(Array.from(merged.values()));
+        const latest = getLatestConversationTimestamp(next);
+        if (latest) lastConversationSyncRef.current = latest;
+        return next;
+      });
+    } catch {
+      // Ignore incremental sync failures; next socket event will retry.
+    }
+  }
+
+  async function fetchMessageUpdates(conversationId: string) {
+    try {
+      const since = lastMessageSyncRef.current[conversationId];
+      const query = since ? `?since=${encodeURIComponent(since)}` : "";
+      const updates = await apiClient.get<ConversationMessage[]>(
+        `/dashboard/messages/${conversationId}${query}`,
+      );
+      if (!updates.length) return;
+
+      setMessages((prev) => {
+        const merged = new Map(prev.map((m) => [m.id, m]));
+        updates.forEach((update) => merged.set(update.id, update));
+        const next = Array.from(merged.values()).sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        );
+        const latest = getLatestMessageTimestamp(next);
+        if (latest) lastMessageSyncRef.current[conversationId] = latest;
+        return next;
+      });
+    } catch {
+      // Ignore incremental sync failures; next socket event will retry.
+    }
+  }
+
+  useEffect(() => {
+    if (!user) return;
+
+    const token =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem("qh_token") || localStorage.getItem("qh_token")
+        : null;
+    if (!token) return;
+
+    const socket = io(resolveSocketUrl(), {
+      auth: { token },
+      transports: ["websocket"],
+    });
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      void fetchConversationUpdates();
+      const activeConversation = selectedIdRef.current;
+      if (activeConversation) {
+        void fetchMessageUpdates(activeConversation);
+      }
+    });
+
+    socket.on("messages:updated", (payload: { conversationId?: string }) => {
+      void fetchConversationUpdates();
+      if (
+        payload?.conversationId &&
+        payload.conversationId === selectedIdRef.current
+      ) {
+        void fetchMessageUpdates(payload.conversationId);
+      }
+      notifyMessagesUpdated();
+    });
+
+    return () => {
+      socket.off("messages:updated");
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     if (!selectedId) {
@@ -123,7 +251,11 @@ export default function MessagesInbox() {
     apiClient
       .get<ConversationMessage[]>(`/dashboard/messages/${selectedId}`)
       .then((data) => {
-        if (!cancelled) setMessages(data);
+        if (!cancelled) {
+          setMessages(data);
+          const latest = getLatestMessageTimestamp(data);
+          if (latest) lastMessageSyncRef.current[selectedId] = latest;
+        }
       })
       .catch(() => {
         if (!cancelled) setMessages([]);
@@ -147,10 +279,10 @@ export default function MessagesInbox() {
   const selectedConversation = conversations.find((c) => c.id === selectedId);
   const hasUnread = (selectedConversation?.unreadCount ?? 0) > 0;
 
-  async function markConversationRead() {
-    if (!selectedConversation) return;
-    const conversationId = selectedConversation.id;
-    const previousUnread = selectedConversation.unreadCount;
+  async function markConversationReadById(
+    conversationId: string,
+    previousUnread: number,
+  ) {
     setConversations((prev) =>
       prev.map((c) => (c.id === conversationId ? { ...c, unreadCount: 0 } : c)),
     );
@@ -158,7 +290,6 @@ export default function MessagesInbox() {
     try {
       await apiClient.patch(`/dashboard/messages/${conversationId}/read`);
       notifyMessagesUpdated();
-      refetch();
     } catch {
       setConversations((prev) =>
         prev.map((c) =>
@@ -166,6 +297,14 @@ export default function MessagesInbox() {
         ),
       );
     }
+  }
+
+  async function markConversationRead() {
+    if (!selectedConversation) return;
+    await markConversationReadById(
+      selectedConversation.id,
+      selectedConversation.unreadCount,
+    );
   }
 
   async function markConversationUnread() {
@@ -184,13 +323,19 @@ export default function MessagesInbox() {
     try {
       await apiClient.patch(`/dashboard/messages/${conversationId}/unread`);
       notifyMessagesUpdated();
-      refetch();
     } catch {
       setConversations((prev) =>
         prev.map((c) =>
           c.id === conversationId ? { ...c, unreadCount: previousUnread } : c,
         ),
       );
+    }
+  }
+
+  function handleSelectConversation(conversation: ConversationSummary) {
+    setSelectedId(conversation.id);
+    if (conversation.unreadCount > 0) {
+      void markConversationReadById(conversation.id, conversation.unreadCount);
     }
   }
 
@@ -216,6 +361,9 @@ export default function MessagesInbox() {
         },
       );
       setMessages((prev) => [...prev, created]);
+      if (created.createdAt) {
+        lastMessageSyncRef.current[selectedId] = created.createdAt;
+      }
       setComposeMessage("");
       setConversations((prev) =>
         sortConversations(
@@ -230,8 +378,8 @@ export default function MessagesInbox() {
           ),
         ),
       );
+      lastConversationSyncRef.current = created.createdAt;
       notifyMessagesUpdated();
-      refetch();
     } catch {
       setComposeError("Failed to send message.");
     } finally {
@@ -347,7 +495,7 @@ export default function MessagesInbox() {
               return (
                 <button
                   key={conversation.id}
-                  onClick={() => setSelectedId(conversation.id)}
+                  onClick={() => handleSelectConversation(conversation)}
                   className={[
                     "w-full flex items-start gap-3 p-4 text-left transition-colors border-b border-gray-50 last:border-0",
                     active ? "bg-indigo-50" : "hover:bg-gray-50",
