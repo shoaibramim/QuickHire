@@ -16,7 +16,7 @@ type NavItem = {
   badge?: number;
 };
 
-type MoreAction = {
+export type MoreAction = {
   label: string;
   href?: string;
   onClick?: () => void | Promise<void>;

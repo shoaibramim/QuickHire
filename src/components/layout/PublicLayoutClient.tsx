@@ -10,7 +10,9 @@ import {
   MdWork,
 } from "react-icons/md";
 
-import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
+import DashboardMobileNav, {
+  type MoreAction,
+} from "@/components/dashboard/DashboardMobileNav";
 import ProfileUpdateModal from "@/components/ui/ProfileUpdateModal";
 import { useAuth } from "@/hooks/useAuth";
 import { getDashboardPathForRole } from "@/services/authService";
@@ -62,7 +64,7 @@ export default function PublicLayoutClient({
         { label: "Messages", href: "/dashboard/messages", icon: MdMessage },
         { label: "Applicants", href: "/dashboard/applicants", icon: MdPeople },
       ];
-  const moreActions = isSeeker
+  const moreActions: MoreAction[] = isSeeker
     ? [
         { label: "Update Profile", onClick: () => setProfileOpen(true) },
         { label: "Settings", href: "/dashboard/seeker/settings" },
