@@ -65,7 +65,9 @@ function SeekerShell({ children }: { children: ReactNode }) {
   const seekerMoreActions = [
     {
       label: "Update Profile",
-      onClick: () => window.dispatchEvent(new Event("qh-open-profile-modal")),
+      onClick: () => {
+        window.dispatchEvent(new Event("qh-open-profile-modal"));
+      },
     },
     { label: "Settings", href: "/dashboard/seeker/settings" },
     { label: "Help", href: "/help" },
@@ -203,7 +205,9 @@ export default function DashboardShell({ role, children }: Props) {
     { label: "Settings", href: "/dashboard/settings" },
     {
       label: "Update Profile",
-      onClick: () => window.dispatchEvent(new Event("qh-open-profile-modal")),
+      onClick: () => {
+        window.dispatchEvent(new Event("qh-open-profile-modal"));
+      },
     },
     { label: "Help Center", href: "/dashboard/help" },
     { label: "Logout", onClick: signOut, tone: "danger" },
