@@ -5,7 +5,6 @@ import Link from "next/link";
 
 import { NAV_LINKS } from "@/constants/siteData";
 import { useAuth } from "@/hooks/useAuth";
-import { getDashboardPathForRole } from "@/services/authService";
 
 function HamburgerIcon({ open }: { open: boolean }) {
   return (
@@ -38,15 +37,7 @@ function HamburgerIcon({ open }: { open: boolean }) {
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
-  const { user, openAuthModal, signOut } = useAuth();
-  const dashboardHref = user
-    ? getDashboardPathForRole(user.role)
-    : "/dashboard";
-  const profileImage = user
-    ? user.role === "employer" || user.role === "admin"
-      ? user.companyLogo || user.avatar
-      : user.avatar
-    : "";
+  const { user, openAuthModal } = useAuth();
 
   // Close on outside click
   useEffect(() => {
@@ -134,71 +125,24 @@ export default function MobileNav() {
           ))}
         </ul>
         <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col gap-3">
-          {user ? (
-            <>
-              <div className="flex items-center gap-3 px-3 py-2">
-                <div className="w-9 h-9 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
-                  {profileImage ? (
-                    <img
-                      src={profileImage}
-                      alt={user.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    user.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()
-                      .slice(0, 2)
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-heading-dark truncate">
-                    {user.name}
-                  </p>
-                  <p className="text-xs text-subtitle truncate">{user.email}</p>
-                </div>
-              </div>
-              <Link
-                href={dashboardHref}
-                onClick={() => setOpen(false)}
-                className="block text-center px-4 py-3 rounded-lg bg-brand-indigo text-white font-semibold text-sm hover:bg-indigo-700 transition-colors duration-200"
-              >
-                Go to Dashboard
-              </Link>
-              <button
-                onClick={async () => {
-                  setOpen(false);
-                  await signOut();
-                }}
-                className="block w-full text-center px-4 py-3 rounded-lg border border-red-200 text-red-600 font-semibold text-sm hover:bg-red-50 transition-colors duration-200"
-              >
-                Sign Out
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  openAuthModal("signin");
-                }}
-                className="block text-center px-4 py-3 rounded-lg border border-brand-indigo text-brand-indigo font-semibold text-sm hover:bg-indigo-50 transition-colors duration-200"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  openAuthModal("signup");
-                }}
-                className="block text-center px-4 py-3 rounded-lg bg-brand-indigo text-white font-semibold text-sm hover:bg-indigo-700 transition-colors duration-200"
-              >
-                Sign Up
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => {
+              setOpen(false);
+              openAuthModal("signin");
+            }}
+            className="block text-center px-4 py-3 rounded-lg border border-brand-indigo text-brand-indigo font-semibold text-sm hover:bg-indigo-50 transition-colors duration-200"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => {
+              setOpen(false);
+              openAuthModal("signup");
+            }}
+            className="block text-center px-4 py-3 rounded-lg bg-brand-indigo text-white font-semibold text-sm hover:bg-indigo-700 transition-colors duration-200"
+          >
+            Sign Up
+          </button>
         </div>
       </div>
     </div>

@@ -17,7 +17,9 @@ import {
 
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
-import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
+import DashboardMobileNav, {
+  type MoreAction,
+} from "@/components/dashboard/DashboardMobileNav";
 import ProfileUpdateModal from "@/components/ui/ProfileUpdateModal";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/hooks/useAuth";
@@ -62,7 +64,7 @@ function SeekerShell({ children }: { children: ReactNode }) {
     { label: "Messages", href: "/dashboard/seeker/messages", icon: MdMessage },
     { label: "Browse Jobs", href: "/jobs", icon: MdWork },
   ];
-  const seekerMoreActions = [
+  const seekerMoreActions: MoreAction[] = [
     {
       label: "Update Profile",
       onClick: () => {
@@ -201,7 +203,7 @@ export default function DashboardShell({ role, children }: Props) {
     { label: "Messages", href: "/dashboard/messages", icon: MdMessage },
     { label: "Applicants", href: "/dashboard/applicants", icon: MdPeople },
   ];
-  const employerMoreActions = [
+  const employerMoreActions: MoreAction[] = [
     { label: "Settings", href: "/dashboard/settings" },
     {
       label: "Update Profile",
