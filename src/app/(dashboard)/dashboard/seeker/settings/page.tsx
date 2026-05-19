@@ -1,5 +1,5 @@
 import SettingsPageContent from "@/components/dashboard/SettingsPageContent";
 
-export default function SettingsPage() {
+export default function SeekerSettingsPage() {
   return <SettingsPageContent />;
 }

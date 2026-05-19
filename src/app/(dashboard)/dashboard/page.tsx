@@ -100,6 +100,8 @@ export default function DashboardPage() {
   const { data: overview, isLoading } = useApiData<DashboardOverview>(
     `/dashboard/overview?period=${period}`,
   );
+  const pageLoading = isLoading && !overview;
+  const chartLoading = isLoading && Boolean(overview);
 
   const now = new Date();
   const greeting =
@@ -121,7 +123,7 @@ export default function DashboardPage() {
   const breakdownTotal =
     applicantBreakdown.reduce((s, a) => s + a.count, 0) || 1;
 
-  if (isLoading) {
+  if (pageLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div
@@ -222,7 +224,17 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <JobStatisticsChart data={chartData} view={chartView} />
+          <div className="relative">
+            <JobStatisticsChart data={chartData} view={chartView} />
+            {chartLoading && (
+              <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg">
+                <div
+                  className="w-7 h-7 border-4 border-brand-indigo border-t-transparent rounded-full animate-spin"
+                  aria-label="Loading"
+                />
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex flex-col gap-4">
           <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex-1">

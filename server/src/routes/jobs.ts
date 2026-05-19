@@ -8,6 +8,31 @@ import { IUser } from "../models/User";
 
 const router = Router();
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  design: "Design",
+  sales: "Sales",
+  marketing: "Marketing",
+  finance: "Finance",
+  technology: "Technology",
+  engineering: "Engineering",
+  business: "Business",
+  "human-resource": "Human Resource",
+};
+
+function formatCategoryLabel(value: string) {
+  return (
+    CATEGORY_LABELS[value] ??
+    value
+      .split("-")
+      .map((part) => (part ? part[0].toUpperCase() + part.slice(1) : part))
+      .join(" ")
+  );
+}
+
 function resolveApplicantId(user: IUser): string | null {
   const userId = (user as { id?: string }).id;
   const rawId =
@@ -102,6 +127,70 @@ router.get("/categories", async (_req, res) => {
     { $sort: { count: -1 } },
   ]);
   res.json(counts);
+});
+
+// GET /api/jobs/suggestions    — quick search suggestions for hero search
+router.get("/suggestions", async (req, res) => {
+  try {
+    const rawQuery = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    if (!rawQuery) return res.json([]);
+
+    const regex = new RegExp(escapeRegExp(rawQuery), "i");
+
+    const jobs = await Job.find({
+      status: "Active",
+      $or: [{ title: regex }, { tags: regex }],
+    })
+      .select("title tags")
+      .limit(50)
+      .lean();
+
+    const seenTitles = new Set<string>();
+    const titleSuggestions = [] as {
+      type: "title";
+      label: string;
+      value: string;
+    }[];
+    const tagCounts = new Map<string, number>();
+
+    jobs.forEach((job) => {
+      const title = String((job as { title?: string }).title ?? "").trim();
+      if (title && regex.test(title)) {
+        const key = title.toLowerCase();
+        if (!seenTitles.has(key)) {
+          seenTitles.add(key);
+          titleSuggestions.push({ type: "title", label: title, value: title });
+        }
+      }
+
+      const rawTags = (job as { tags?: unknown }).tags;
+      const tags = Array.isArray(rawTags)
+        ? rawTags
+        : typeof rawTags === "string"
+          ? [rawTags]
+          : [];
+      tags.forEach((tag) => {
+        const tagValue = String(tag ?? "").trim();
+        if (!tagValue || !regex.test(tagValue)) return;
+        tagCounts.set(tagValue, (tagCounts.get(tagValue) ?? 0) + 1);
+      });
+    });
+
+    const categorySuggestions = Array.from(tagCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([tag, count]) => ({
+        type: "category" as const,
+        label: formatCategoryLabel(tag),
+        value: tag,
+        count,
+      }));
+
+    const combined = [...categorySuggestions, ...titleSuggestions].slice(0, 8);
+    res.json(combined);
+  } catch (err) {
+    console.error("jobs suggestions error", err);
+    res.json([]);
+  }
 });
 
 // GET /api/jobs/count         — total matching jobs for filters

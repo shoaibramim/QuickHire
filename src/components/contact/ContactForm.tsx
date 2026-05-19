@@ -1,12 +1,12 @@
 "use client";
 
-// ContactForm — validated form with simulated submission.
+// ContactForm — validated form submission via FormSubmit.
 
 import { useState, type FormEvent } from "react";
+import { apiClient } from "@/services/apiClient";
 import Button from "@/components/ui/Button";
 
-const FORMSUBMIT_ENDPOINT =
-  "https://formsubmit.co/ajax/shoaibu.ramim@gmail.com";
+const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/shoaibu.ramim@gmail.com";
 
 export default function ContactForm() {
   const [form, setForm] = useState({
@@ -15,9 +15,9 @@ export default function ContactForm() {
     subject: "",
     message: "",
   });
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
 
   function handleChange(
     e: React.ChangeEvent<
@@ -29,42 +29,27 @@ export default function ContactForm() {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError(null);
-    setSubmitting(true);
+    if (!form.name || !form.email || !form.message) return;
 
-    const payload = {
-      name: form.name,
-      email: form.email,
-      subject: form.subject,
-      message: form.message,
-      _subject: `QuickHire Contact: ${form.subject}`,
-      _captcha: "false",
-      _template: "table",
-    };
+    setStatus("submitting");
 
     try {
-      const res = await fetch(FORMSUBMIT_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payload),
+      await apiClient.post("/contact", {
+        name: form.name,
+        email: form.email,
+        subject: form.subject,
+        message: form.message,
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to send message.");
-      }
-
-      setSubmitted(true);
+      setStatus("success");
+      setForm({ name: "", email: "", subject: "", message: "" });
+      setTimeout(() => setStatus("idle"), 3000);
     } catch {
-      setError("Could not send your message right now. Please try again.");
-    } finally {
-      setSubmitting(false);
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 3000);
     }
   }
 
-  if (submitted) {
+  if (status === "success") {
     return (
       <div className="flex flex-col items-center text-center py-8 gap-4">
         <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center">
@@ -91,7 +76,7 @@ export default function ContactForm() {
           className="text-sm text-brand-indigo hover:underline"
           onClick={() => {
             setForm({ name: "", email: "", subject: "", message: "" });
-            setSubmitted(false);
+            setStatus("idle");
           }}
         >
           Send another message
@@ -184,12 +169,12 @@ export default function ContactForm() {
         />
       </div>
 
-      {error && (
+      {status === "error" && (
         <p
           className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"
           role="alert"
         >
-          {error}
+          Could not send your message right now. Please try again.
         </p>
       )}
 
@@ -199,14 +184,14 @@ export default function ContactForm() {
         size="md"
         fullWidth
         disabled={
-          submitting ||
+          status === "submitting" ||
           !form.name ||
           !form.email ||
           !form.subject ||
           !form.message
         }
       >
-        {submitting ? (
+        {status === "submitting" ? (
           <span className="flex items-center gap-2">
             <svg
               className="animate-spin h-4 w-4"

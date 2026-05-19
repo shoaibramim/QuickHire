@@ -6,14 +6,18 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   MdDashboard,
+  MdHome,
+  MdMoreHoriz,
   MdWork,
   MdHelp,
   MdLogout,
   MdMessage,
+  MdPeople,
 } from "react-icons/md";
 
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
+import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
 import ProfileUpdateModal from "@/components/ui/ProfileUpdateModal";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/hooks/useAuth";
@@ -51,6 +55,21 @@ function SeekerShell({ children }: { children: ReactNode }) {
     { label: "Messages", href: "/dashboard/seeker/messages", icon: MdMessage },
     { label: "Browse Jobs", href: "/jobs", icon: MdWork },
     { label: "Help", href: "/help", icon: MdHelp },
+  ];
+  const mobileItems: NavItem[] = [
+    { label: "Home", href: "/", icon: MdHome },
+    { label: "Dashboard", href: "/dashboard/seeker", icon: MdDashboard },
+    { label: "Messages", href: "/dashboard/seeker/messages", icon: MdMessage },
+    { label: "Browse Jobs", href: "/jobs", icon: MdWork },
+  ];
+  const seekerMoreActions = [
+    {
+      label: "Update Profile",
+      onClick: () => window.dispatchEvent(new Event("qh-open-profile-modal")),
+    },
+    { label: "Settings", href: "/dashboard/seeker/settings" },
+    { label: "Help", href: "/help" },
+    { label: "Logout", onClick: signOut, tone: "danger" },
   ];
 
   useEffect(() => {
@@ -149,20 +168,46 @@ function SeekerShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
-        <main className="flex-1 overflow-y-auto py-6" id="dashboard-main">
+        <main
+          className="flex-1 overflow-y-auto pt-6 pb-24 md:pb-6"
+          id="dashboard-main"
+        >
           <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
             {children}
           </div>
         </main>
+        <DashboardMobileNav
+          items={mobileItems}
+          moreActions={seekerMoreActions}
+          moreIcon={MdMoreHoriz}
+          moreLabel="More"
+        />
       </div>
     </div>
   );
 }
 
 export default function DashboardShell({ role, children }: Props) {
+  const { signOut } = useAuth();
   if (role === "jobseeker") {
     return <SeekerShell>{children}</SeekerShell>;
   }
+
+  const employerMobileItems: NavItem[] = [
+    { label: "Home", href: "/", icon: MdHome },
+    { label: "Dashboard", href: "/dashboard", icon: MdDashboard },
+    { label: "Messages", href: "/dashboard/messages", icon: MdMessage },
+    { label: "Applicants", href: "/dashboard/applicants", icon: MdPeople },
+  ];
+  const employerMoreActions = [
+    { label: "Settings", href: "/dashboard/settings" },
+    {
+      label: "Update Profile",
+      onClick: () => window.dispatchEvent(new Event("qh-open-profile-modal")),
+    },
+    { label: "Help Center", href: "/dashboard/help" },
+    { label: "Logout", onClick: signOut, tone: "danger" },
+  ];
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
@@ -171,11 +216,20 @@ export default function DashboardShell({ role, children }: Props) {
       </div>
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <DashboardTopBar />
-        <main className="flex-1 overflow-y-auto py-6" id="dashboard-main">
+        <main
+          className="flex-1 overflow-y-auto pt-6 pb-24 md:pb-6"
+          id="dashboard-main"
+        >
           <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
             {children}
           </div>
         </main>
+        <DashboardMobileNav
+          items={employerMobileItems}
+          moreActions={employerMoreActions}
+          moreIcon={MdMoreHoriz}
+          moreLabel="More"
+        />
       </div>
     </div>
   );
