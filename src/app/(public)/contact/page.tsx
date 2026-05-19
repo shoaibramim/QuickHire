@@ -46,13 +46,13 @@ export default function ContactPage() {
                   {
                     icon: "location",
                     label: "Headquarters",
-                    value: "San Francisco, CA, USA",
+                    value: "Dhaka, Bangladesh",
                     href: null,
                   },
                   {
                     icon: "clock",
                     label: "Support Hours",
-                    value: "Mon-Fri, 9am-6pm PST",
+                    value: "Sun-Thu",
                     href: null,
                   },
                 ].map(({ icon, label, value, href }) => (

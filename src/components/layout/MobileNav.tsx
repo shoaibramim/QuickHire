@@ -78,6 +78,8 @@ export default function MobileNav() {
     };
   }, [open]);
 
+  if (user) return null;
+
   return (
     <div className="md:hidden" ref={drawerRef}>
       <button

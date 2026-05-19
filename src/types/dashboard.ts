@@ -103,6 +103,7 @@ export interface DashboardJob {
   postedDate: string;
   applicants: number;
   status: "Active" | "Closed" | "Draft";
+  featured?: boolean;
 }
 
 export interface ScheduleEvent {

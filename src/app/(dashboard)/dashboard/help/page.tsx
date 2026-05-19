@@ -11,7 +11,7 @@ const HELP_TOPICS = [
   { icon: "👤", title: "Managing Your Profile", desc: "Update your company info, logo, and contact details.", href: "/dashboard/profile" },
   { icon: "💼", title: "Posting a Job", desc: "Learn how to create and publish a job listing.", href: "/dashboard/job-listing" },
   { icon: "📋", title: "Reviewing Applicants", desc: "Filter, shortlist, and communicate with candidates.", href: "/dashboard/applicants" },
-  { icon: "📅", title: "Schedule & Interviews", desc: "Organise your interview schedule and events.", href: "/dashboard/schedule" },
+  // { icon: "📅", title: "Schedule & Interviews", desc: "Organise your interview schedule and events.", href: "/dashboard/schedule" },
   { icon: "💬", title: "Messaging", desc: "Send and receive messages from applicants and your team.", href: "/dashboard/messages" },
   { icon: "⚙️", title: "Account Settings", desc: "Manage notifications, password, and account preferences.", href: "/dashboard/settings" },
 ];
@@ -47,7 +47,7 @@ export default function DashboardHelpPage() {
       <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-6">
         <p className="text-sm font-semibold text-heading-dark mb-1">Still need help?</p>
         <p className="text-sm text-subtitle mb-3">
-          Our support team is available Monday through Friday, 9am–6pm PST.
+          Our support team is available Sunday through Thursday.
         </p>
         <Link
           href="/contact"

@@ -80,7 +80,7 @@ export default function SeekerDashboardPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/jobs"
-              className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-brand-indigo hover:bg-indigo-50 transition-colors"
+              className="hidden sm:inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-brand-indigo hover:bg-indigo-50 transition-colors"
             >
               Browse jobs
             </Link>
@@ -126,13 +126,6 @@ export default function SeekerDashboardPage() {
                 Your saved details will prefill future applications.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={openProfileModal}
-              className="md:hidden inline-flex items-center rounded-lg border border-brand-indigo px-3 py-1.5 text-xs font-semibold text-brand-indigo hover:bg-indigo-50 transition-colors"
-            >
-              Edit
-            </button>
           </div>
 
           <div className="space-y-3 text-sm">
@@ -157,13 +150,6 @@ export default function SeekerDashboardPage() {
                 Your application form will reuse the saved cover letter.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={openProfileModal}
-              className="md:hidden inline-flex items-center rounded-lg border border-brand-indigo px-3 py-1.5 text-xs font-semibold text-brand-indigo hover:bg-indigo-50 transition-colors"
-            >
-              Edit
-            </button>
           </div>
 
           <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-subtitle leading-relaxed">
@@ -277,16 +263,6 @@ export default function SeekerDashboardPage() {
             </Link>
           </div>
         </div>
-      </section>
-
-      <section className="md:hidden">
-        <button
-          type="button"
-          onClick={signOut}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-semibold text-red-600 shadow-sm hover:border-red-300 hover:bg-red-50 transition-colors"
-        >
-          Sign Out
-        </button>
       </section>
     </div>
   );

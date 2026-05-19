@@ -5,7 +5,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { apiClient } from "@/services/apiClient";
+import { apiClient, ApiError } from "@/services/apiClient";
 import { useApiData } from "@/hooks/useApiData";
 import type { DashboardJob } from "@/types/dashboard";
 import Button from "@/components/ui/Button";
@@ -24,6 +24,7 @@ interface RawDashboardJob {
   createdAt: string;
   applicantCount: number;
   status: "Active" | "Closed" | "Draft";
+  featured?: boolean;
 }
 
 function mapJob(raw: RawDashboardJob): DashboardJob {
@@ -38,6 +39,7 @@ function mapJob(raw: RawDashboardJob): DashboardJob {
     }),
     applicants: raw.applicantCount,
     status: raw.status,
+    featured: raw.featured ?? false,
   };
 }
 
@@ -106,6 +108,7 @@ export default function JobListingPage() {
   const filteredJobs = statusFilter
     ? jobs.filter((job) => job.status === statusFilter)
     : jobs;
+  const featuredCount = jobs.filter((job) => job.featured).length;
 
   const emptyForm: PostJobForm = {
     title: "",
@@ -128,6 +131,8 @@ export default function JobListingPage() {
   const [editLoading, setEditLoading] = useState(false);
   const [confirmCloseId, setConfirmCloseId] = useState<string | null>(null);
   const [closingId, setClosingId] = useState<string | null>(null);
+  const [featureLoadingId, setFeatureLoadingId] = useState<string | null>(null);
+  const [featureToast, setFeatureToast] = useState<string | null>(null);
 
   const filteredCategories = CATEGORIES.filter((c) =>
     c.label.toLowerCase().includes(categoryInput.toLowerCase()),
@@ -198,6 +203,29 @@ export default function JobListingPage() {
     }
   }
 
+  async function handleToggleFeatured(job: DashboardJob) {
+    if (featureLoadingId) return;
+    setFeatureLoadingId(job.id);
+    try {
+      await apiClient.patch(`/dashboard/jobs/${job.id}`, {
+        featured: !job.featured,
+      });
+      refetch();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 400) {
+        setFeatureToast(err.message || "You can feature up to 2 jobs.");
+      }
+    } finally {
+      setFeatureLoadingId(null);
+    }
+  }
+
+  useEffect(() => {
+    if (!featureToast) return;
+    const timer = window.setTimeout(() => setFeatureToast(null), 2500);
+    return () => window.clearTimeout(timer);
+  }, [featureToast]);
+
   async function handlePostJob(e: React.FormEvent) {
     e.preventDefault();
     if (!form.title.trim()) return setFormError("Job title is required.");
@@ -253,6 +281,11 @@ export default function JobListingPage() {
 
   return (
     <div className="space-y-5">
+      {featureToast && (
+        <div className="fixed top-20 right-4 z-50 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs font-semibold text-red-700 shadow-sm">
+          {featureToast}
+        </div>
+      )}
       <h1 className="text-xl font-extrabold text-heading-dark">Job Listing</h1>
       <div className="grid grid-cols-3 gap-4">
         {[
@@ -324,74 +357,102 @@ export default function JobListingPage() {
                   </td>
                 </tr>
               ) : (
-                filteredJobs.map((job) => (
-                  <tr
-                    key={job.id}
-                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-4 py-3 font-medium text-heading-dark">
-                      {job.title}
-                    </td>
-                    <td className="px-4 py-3 text-subtitle">{job.company}</td>
-                    <td className="px-4 py-3 text-subtitle">
-                      {job.postedDate}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="font-semibold text-heading-dark">
-                        {job.applicants}
-                      </span>
-                      <span className="text-subtitle ml-1">applicants</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[job.status]}`}
-                      >
-                        {job.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => openEditModal(job.id)}
-                          className="text-xs text-brand-indigo hover:underline font-medium"
+                filteredJobs.map((job) => {
+                  const canFeatureMore = featuredCount < 2;
+                  const canToggleFeature = job.featured || canFeatureMore;
+                  return (
+                    <tr
+                      key={job.id}
+                      className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-4 py-3 font-medium text-heading-dark">
+                        {job.title}
+                      </td>
+                      <td className="px-4 py-3 text-subtitle">{job.company}</td>
+                      <td className="px-4 py-3 text-subtitle">
+                        {job.postedDate}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="font-semibold text-heading-dark">
+                          {job.applicants}
+                        </span>
+                        <span className="text-subtitle ml-1">applicants</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[job.status]}`}
                         >
-                          Edit
-                        </button>
-
-                        {confirmCloseId === job.id ? (
-                          // Inline confirmation row
-                          <span className="flex items-center gap-1.5 text-xs">
-                            <span className="text-subtitle">Sure?</span>
-                            <button
-                              onClick={() => handleCloseJob(job.id, job.status)}
-                              disabled={closingId === job.id}
-                              className="font-semibold text-red-500 hover:underline disabled:opacity-50"
-                            >
-                              {closingId === job.id ? "…" : "Yes"}
-                            </button>
-                            <button
-                              onClick={() => setConfirmCloseId(null)}
-                              className="text-subtitle hover:underline"
-                            >
-                              No
-                            </button>
-                          </span>
-                        ) : (
+                          {job.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
                           <button
-                            onClick={() => setConfirmCloseId(job.id)}
-                            className={`text-xs font-medium ${
-                              job.status === "Closed"
-                                ? "text-green-600 hover:underline"
-                                : "text-subtitle hover:text-red-500"
-                            }`}
+                            onClick={() => openEditModal(job.id)}
+                            className="text-xs text-brand-indigo hover:underline font-medium"
                           >
-                            {job.status === "Closed" ? "Reopen" : "Close"}
+                            Edit
                           </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          <button
+                            onClick={() => handleToggleFeatured(job)}
+                            disabled={
+                              !canToggleFeature || featureLoadingId === job.id
+                            }
+                            className={`text-xs font-medium ${
+                              job.featured
+                                ? "text-amber-600 hover:underline"
+                                : "text-subtitle hover:text-amber-600"
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            title={
+                              !canToggleFeature
+                                ? "You can feature up to 2 jobs."
+                                : undefined
+                            }
+                          >
+                            {featureLoadingId === job.id
+                              ? "Updating..."
+                              : job.featured
+                                ? "Unfeature"
+                                : "Feature"}
+                          </button>
+
+                          {confirmCloseId === job.id ? (
+                            // Inline confirmation row
+                            <span className="flex items-center gap-1.5 text-xs">
+                              <span className="text-subtitle">Sure?</span>
+                              <button
+                                onClick={() =>
+                                  handleCloseJob(job.id, job.status)
+                                }
+                                disabled={closingId === job.id}
+                                className="font-semibold text-red-500 hover:underline disabled:opacity-50"
+                              >
+                                {closingId === job.id ? "…" : "Yes"}
+                              </button>
+                              <button
+                                onClick={() => setConfirmCloseId(null)}
+                                className="text-subtitle hover:underline"
+                              >
+                                No
+                              </button>
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => setConfirmCloseId(job.id)}
+                              className={`text-xs font-medium ${
+                                job.status === "Closed"
+                                  ? "text-green-600 hover:underline"
+                                  : "text-subtitle hover:text-red-500"
+                              }`}
+                            >
+                              {job.status === "Closed" ? "Reopen" : "Close"}
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -409,15 +470,38 @@ export default function JobListingPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header — fixed, not scrollable */}
-            <div className="p-6 border-b border-gray-100 flex-shrink-0">
-              <h2 className="text-lg font-bold text-heading-dark">
-                {modalMode === "edit" ? "Edit Job" : "Post a New Job"}
-              </h2>
-              <p className="text-sm text-subtitle mt-0.5">
-                {modalMode === "edit"
-                  ? "Update the details below and save your changes."
-                  : "Fill in all required fields to publish your listing."}
-              </p>
+            <div className="p-6 border-b border-gray-100 flex items-start justify-between gap-4 flex-shrink-0">
+              <div>
+                <h2 className="text-lg font-bold text-heading-dark">
+                  {modalMode === "edit" ? "Edit Job" : "Post a New Job"}
+                </h2>
+                <p className="text-sm text-subtitle mt-0.5">
+                  {modalMode === "edit"
+                    ? "Update the details below and save your changes."
+                    : "Fill in all required fields to publish your listing."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => !submitting && setShowPostModal(false)}
+                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                aria-label="Close"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
             </div>
             <div className="overflow-y-auto flex-1">
               {editLoading ? (

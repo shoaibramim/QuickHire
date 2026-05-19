@@ -236,6 +236,23 @@ router.patch(
             .map((t: string) => t.trim())
             .filter(Boolean);
     }
+    if (req.body.featured !== undefined) {
+      const wantsFeatured =
+        req.body.featured === true || req.body.featured === "true";
+      if (wantsFeatured && !job.featured) {
+        const featuredCount = await Job.countDocuments({
+          postedBy: (req.user as IUser)._id,
+          featured: true,
+          _id: { $ne: job._id },
+        });
+        if (featuredCount >= 2) {
+          return res
+            .status(400)
+            .json({ message: "You can feature up to 2 jobs." });
+        }
+      }
+      job.featured = wantsFeatured;
+    }
     await job.save();
     res.json(job);
   },

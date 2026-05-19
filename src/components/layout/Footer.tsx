@@ -28,7 +28,7 @@ const SOCIAL_ICON_MAP: Record<SocialIconKey, IconType> = {
 
 export default function Footer() {
   return (
-    <footer className="bg-footer-bg" aria-label="Site footer">
+    <footer id="site-footer" className="bg-footer-bg" aria-label="Site footer">
       <div className="max-w-screen-3xl mx-auto px-4 sm:px-6 lg:px-16 py-12 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div className="lg:col-span-1">

@@ -14,6 +14,7 @@ import jobSeekerDashboardRoutes from "./routes/jobSeekerDashboard";
 import messagesRoutes from "./routes/messages";
 import scheduleRoutes from "./routes/schedule";
 import newsletterRoutes from "./routes/newsletter";
+import contactRoutes from "./routes/contact";
 import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
@@ -32,6 +33,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/dashboard/messages", messagesRoutes);
 app.use("/api/dashboard/schedule", scheduleRoutes);
 app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/contact", contactRoutes);
 app.use(errorHandler);
 
 export default app;

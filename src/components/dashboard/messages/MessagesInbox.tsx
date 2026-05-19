@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { io, type Socket } from "socket.io-client";
 
 import { apiClient } from "@/services/apiClient";
@@ -69,6 +69,8 @@ function notifyMessagesUpdated() {
 
 export default function MessagesInbox() {
   const { user } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const paramConversationId = searchParams.get("conversation");
 
@@ -88,6 +90,9 @@ export default function MessagesInbox() {
   const selectedIdRef = useRef<string | null>(null);
   const lastConversationSyncRef = useRef<string | null>(null);
   const lastMessageSyncRef = useRef<Record<string, string>>({});
+  const skipParamSyncRef = useRef(false);
+  const messageListRef = useRef<HTMLDivElement | null>(null);
+  const composeInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { data, isLoading } = useApiData<ConversationSummary[]>(
     "/dashboard/messages",
@@ -105,6 +110,11 @@ export default function MessagesInbox() {
   useEffect(() => {
     if (!conversations.length) {
       setSelectedId(null);
+      return;
+    }
+
+    if (skipParamSyncRef.current) {
+      skipParamSyncRef.current = false;
       return;
     }
 
@@ -269,6 +279,17 @@ export default function MessagesInbox() {
     };
   }, [selectedId]);
 
+  useEffect(() => {
+    if (!selectedId || loadingMessages) return;
+    requestAnimationFrame(() => {
+      const container = messageListRef.current;
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+      composeInputRef.current?.focus();
+    });
+  }, [selectedId, loadingMessages, messages.length]);
+
   const filtered = useMemo(() => {
     if (tab === "Unread") {
       return conversations.filter((c) => c.unreadCount > 0);
@@ -278,6 +299,15 @@ export default function MessagesInbox() {
 
   const selectedConversation = conversations.find((c) => c.id === selectedId);
   const hasUnread = (selectedConversation?.unreadCount ?? 0) > 0;
+  const showThread = Boolean(selectedConversation);
+
+  function handleBackToList() {
+    skipParamSyncRef.current = true;
+    setSelectedId(null);
+    if (paramConversationId) {
+      router.replace(pathname);
+    }
+  }
 
   async function markConversationReadById(
     conversationId: string,
@@ -468,7 +498,11 @@ export default function MessagesInbox() {
       <h1 className="text-xl font-extrabold text-heading-dark">Messages</h1>
 
       <div className="flex bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm min-h-[500px]">
-        <div className="w-full sm:w-80 md:w-72 lg:w-80 border-r border-gray-100 flex flex-col flex-shrink-0">
+        <div
+          className={`w-full sm:w-80 md:w-72 lg:w-80 border-r border-gray-100 flex flex-col flex-shrink-0 ${
+            showThread ? "hidden sm:flex" : "flex"
+          }`}
+        >
           <div className="p-4 border-b border-gray-100">
             <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
               {(["All", "Unread"] as FilterTab[]).map((t) => (
@@ -546,10 +580,33 @@ export default function MessagesInbox() {
             )}
           </div>
         </div>
-        <div className="hidden sm:flex flex-1 flex-col">
+        <div
+          className={`${showThread ? "flex" : "hidden sm:flex"} flex-1 flex-col`}
+        >
           {selectedConversation ? (
             <>
               <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
+                <button
+                  type="button"
+                  onClick={handleBackToList}
+                  className="sm:hidden inline-flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 text-heading-dark hover:bg-gray-50"
+                  aria-label="Back to conversations"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </button>
                 <div className="w-9 h-9 rounded-full bg-brand-indigo text-white flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
                   {selectedConversation.avatarUrl ? (
                     <img
@@ -584,7 +641,10 @@ export default function MessagesInbox() {
                   {hasUnread ? "Mark as read" : "Mark as unread"}
                 </button>
               </div>
-              <div className="flex-1 p-6 space-y-4 overflow-y-auto">
+              <div
+                ref={messageListRef}
+                className="flex-1 p-6 space-y-4 overflow-y-auto"
+              >
                 {loadingMessages ? (
                   <div className="flex items-center justify-center h-full text-sm text-subtitle">
                     Loading conversation...
@@ -678,6 +738,7 @@ export default function MessagesInbox() {
                 className="px-6 py-4 border-t border-gray-100 space-y-2"
               >
                 <textarea
+                  ref={composeInputRef}
                   rows={3}
                   value={composeMessage}
                   onChange={(e) => setComposeMessage(e.target.value)}

@@ -27,7 +27,6 @@ export default function DashboardTopBar() {
 
   const displayName = user.company ?? user.name;
   const displayInitial = (displayName || "?")[0]?.toUpperCase();
-
   function handleLogoClick() {
     if (logoPreview) {
       setCropSource(logoPreview);
@@ -98,7 +97,7 @@ export default function DashboardTopBar() {
           subtitle="Drag to reposition · scroll or use the slider to zoom · result will be a square."
         />
       )}
-      <header className="h-16 bg-white border-b border-gray-100 flex items-center px-6 xl:px-10 2xl:px-14 gap-4 sticky top-0 z-30">
+      <header className="h-16 bg-white border-b border-gray-100 flex items-center px-4 sm:px-6 xl:px-10 2xl:px-14 gap-4 sticky top-0 z-30">
         <div className="flex items-center gap-3 mr-auto">
           <input
             ref={fileInputRef}
